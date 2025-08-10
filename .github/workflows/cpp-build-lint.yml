@@ -16,15 +16,35 @@ jobs:
         with:
           fetch-depth: 0 # Gets whole commit history of working branch
       
-      # Checkout main which is the target branch
+      # Checkout latest main branch which is the target branch
       - name: Fetch main branch shallowly
-        run: git fetch origin main:refs/remotes/origin/main --depth=1 # depth=1 only gets latest commit
+        run: git fetch origin main:refs/remotes/origin/main --depth=1 
       
+      # Install clang-format and format c++ code to it's standards
+      - name: Install clang-format
+        run: sudo apt-get install -y clang-format
+
+      - name: Format C++ code with clang-format
+        run: |
+          find src/ -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+      
+      - name: Commit and push formatting changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ `git status --porcelain` ]]; then
+            git add .
+            git commit -m "chore: apply c++ clang-format fixes"
+            git push
+          else
+            echo "No formatting changes to commit"
+          fi
+
       # Super-linter step (supports multiple languages) 
       - name: Run GitHub Super-Linter 
         uses: github/super-linter/slim@v6
         env:
-          VALIDATE_ALL_CODEBASE: true # Make false only lint changed files in PR or push
+          VALIDATE_ALL_CODEBASE: true # Only lint changed files
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_LOCAL: true
