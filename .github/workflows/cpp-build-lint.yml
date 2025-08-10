@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - '**'   # runs on push to any branch
-      
+
 permissions:
-  contents: read
+  contents: write   # Needed to push commits
   actions: write
 
 jobs:
@@ -14,52 +14,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout current branch
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Gets whole commit history of working branch
-      
-      # Checkout latest main branch which is the target branch
+          fetch-depth: 0
+
       - name: Fetch main branch shallowly
-        run: git fetch origin main:refs/remotes/origin/main --depth=1 
-      
-      # Install clang-format and format C++ code to its standards
+        run: git fetch origin main:refs/remotes/origin/main --depth=1
+
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
 
       - name: Format C++ code with clang-format
         run: |
-          find src/ -name '*.cpp' -o -name '*.h' | xargs clang-format -i
-      
+          find src/ -name '*.cpp' -o -name '*.h' -print0 | xargs -0 clang-format -i
+
       - name: Commit and push formatting changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          if [[ "$(git status --porcelain)" ]]; then
+          if [[ `git status --porcelain` ]]; then
             git add .
-            git commit -m "chore: apply c++ clang-format fixes"
+            git commit -m "chore: apply clang-format and fix newline"
             git push
           else
             echo "No formatting changes to commit"
           fi
 
-      # Make shell scripts executable before linting
       - name: Make scripts executable
         run: |
           chmod +x ./debug.sh
           chmod +x ./execute.sh
-      
-      # Super-linter step (supports multiple languages) 
-      - name: Run GitHub Super-Linter 
+
+      - name: Run GitHub Super-Linter
         uses: github/super-linter/slim@v6
         env:
-          VALIDATE_ALL_CODEBASE: true # Only lint changed files
+          VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_LOCAL: true
 
-      # Clang-tidy linter (for C++)
       - name: Install clang-tidy and CMake
         run: |
           sudo apt-get update
@@ -77,8 +71,14 @@ jobs:
           git diff --name-only origin/main...HEAD > changed_files.txt
           mkdir -p tmp_clang_tidy_results
           cd build
-          for file in $(grep -E '\.(cpp|cxx|cc|h|hpp)$' ../changed_files.txt); do
+          grep -E '\.(cpp|cxx|cc|h|hpp)$' ../changed_files.txt | while IFS= read -r file; do
             echo "Linting $file"
-            clang-tidy -p . ../$file > ../tmp_clang_tidy_results/$file.txt || true
+            clang-tidy -p . "../$file" > "../tmp_clang_tidy_results/$(basename "$file").txt" || true
           done
-          echo
+          echo "Finished clang-tidy"
+        shell: bash
+
+      - name: Run build and execute script
+        run: |
+          chmod +x ./execute.sh
+          ./execute.sh

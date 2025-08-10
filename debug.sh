@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# Get the absolute path to the script directory
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # If on Cygwin or Git Bash, convert to Windows-native path
-if command -v cygpath &> /dev/null; then
+if command -v cygpath &>/dev/null; then
   ROOT_DIR="$(cygpath -w "$ROOT_DIR")"
 fi
 
@@ -12,11 +11,11 @@ fi
 BUILD_DIR="$ROOT_DIR/build/debug"
 
 # Create debug-specific build directory if it does not exist
-if [ -d "$BUILD_DIR" ]; then
-  echo "Debug-specific build directory exists."
-else
-  echo "Build-specific directory does not exist. Creating directory..."
+if [ ! -d "$BUILD_DIR" ]; then
+  echo "Debug-specific build directory does not exist. Creating directory..."
   mkdir -p "$BUILD_DIR"
+else
+  echo "Debug-specific build directory exists."
 fi
 
 # Clear previous configuration if it exists
