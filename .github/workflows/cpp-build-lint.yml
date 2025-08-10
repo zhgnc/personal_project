@@ -1,0 +1,104 @@
+name: C++ Build and Lint
+
+on:
+  push:
+    branches:
+      - '**'   # runs on push to any branch
+
+permissions:
+  contents: write # Needed to push commits
+  actions: write
+
+jobs:
+  checkout_code:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_sha: ${{ steps.get_sha.outputs.sha }}
+    steps:
+      - id: get_sha
+        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Fetch main branch shallowly
+        run: git fetch origin main:refs/remotes/origin/main --depth=1
+
+  format_and_lint_cpp_code:
+    runs-on: ubuntu-latest
+    needs: checkout_code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install clang-format
+        run: sudo apt-get install -y clang-format
+
+      - name: Format C++ code with clang-format
+        run: |
+          find src/ \( -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
+
+      - name: Commit and push formatting changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ `git status --porcelain` ]]; then
+            git add .
+            git commit -m "chore: apply clang-format and fix newline"
+            git push
+          else
+            echo "No formatting changes to commit"
+          fi
+
+      - name: Install clang-tidy and CMake
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy cmake
+
+      - name: Configure CMake and generate compile_commands.json
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+
+      - name: Run clang-tidy on changed files
+        run: |
+          git fetch origin main
+          git diff --name-only origin/main...HEAD > changed_files.txt
+          mkdir -p tmp_clang_tidy_results
+          cd build
+          grep -E '\.(cpp|cxx|cc|h|hpp)$' ../changed_files.txt | while IFS= read -r file; do
+            echo "Linting $file"
+            clang-tidy -p . "../$file" > "../tmp_clang_tidy_results/$(basename "$file").txt" || true
+          done
+          echo "Finished clang-tidy"
+        shell: bash
+
+  test_main_cpp_execution:
+    runs-on: ubuntu-latest
+    needs: checkout_code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Run build and execute script
+        run: |
+          chmod +x ./execute.sh
+          ./execute.sh
+  
+  test_main_cpp_debug:
+    runs-on: ubuntu-latest
+    needs: checkout_code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install gdb debugger
+        run: sudo apt-get update && sudo apt-get install -y gdb
+      - name: Run build and execute script
+        run: |
+          chmod +x ./debug.sh
+          ./debug.sh
