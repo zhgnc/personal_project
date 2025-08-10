@@ -1,3 +1,5 @@
+// Copyright 2025 Zachary Hart
+
 #include <iostream>
 
 int main() {

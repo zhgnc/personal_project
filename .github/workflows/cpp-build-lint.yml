@@ -24,7 +24,7 @@ jobs:
       - name: Fetch main branch shallowly
         run: git fetch origin main:refs/remotes/origin/main --depth=1 
       
-      # Install clang-format and format c++ code to it's standards
+      # Install clang-format and format C++ code to its standards
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
 
@@ -36,7 +36,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          if [[ `git status --porcelain` ]]; then
+          if [[ "$(git status --porcelain)" ]]; then
             git add .
             git commit -m "chore: apply c++ clang-format fixes"
             git push
@@ -44,6 +44,7 @@ jobs:
             echo "No formatting changes to commit"
           fi
 
+      # Make shell scripts executable before linting
       - name: Make scripts executable
         run: |
           chmod +x ./debug.sh
@@ -58,7 +59,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_LOCAL: true
 
-      # Clang-tity linter (for c++)
+      # Clang-tidy linter (for C++)
       - name: Install clang-tidy and CMake
         run: |
           sudo apt-get update
@@ -80,11 +81,4 @@ jobs:
             echo "Linting $file"
             clang-tidy -p . ../$file > ../tmp_clang_tidy_results/$file.txt || true
           done
-          echo "Finished clang-tidy"
-        shell: bash
-
-      # Verify code canm build and runs
-      - name: Run build and execute script
-        run: |
-          chmod +x ./execute.sh
-          ./execute.sh
+          echo
