@@ -1,0 +1,55 @@
+name: C++ Build and Lint
+
+on:
+  push:
+    branches:
+      - '**'   # runs on push to any branch
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Super-linter step (supports multiple languages) 
+      - name: Run GitHub Super-Linter 
+        uses: github/super-linter/slim@v6
+        env:
+          VALIDATE_ALL_CODEBASE: true # Make false only lint changed files in PR or push
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_LOCAL: true
+
+      # Clang-tity linter (for c++)
+      - name: Install clang-tidy and CMake
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy cmake
+
+      - name: Configure CMake and generate compile_commands.json
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+
+      - name: Run clang-tidy on changed files
+        run: |
+          git fetch origin main
+          git diff --name-only origin/main...HEAD > changed_files.txt
+          mkdir -p tmp_clang_tidy_results
+          cd build
+          for file in $(grep -E '\.(cpp|cxx|cc|h|hpp)$' ../changed_files.txt); do
+            echo "Linting $file"
+            clang-tidy -p . ../$file > ../tmp_clang_tidy_results/$file.txt || true
+          done
+          echo "Finished clang-tidy"
+        shell: bash
+
+      # Verify code canm build and runs
+      - name: Run build and execute script
+        run: |
+          chmod +x ./execute.sh
+          ./execute.sh
