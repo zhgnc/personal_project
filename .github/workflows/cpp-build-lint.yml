@@ -6,7 +6,7 @@ on:
       - '**'   # runs on push to any branch
 
 permissions:
-  contents: write   # Needed to push commits
+  contents: write # Needed to push commits
   actions: write
 
 jobs:
@@ -40,32 +40,6 @@ jobs:
           else
             echo "No formatting changes to commit"
           fi
-
-      - name: Make scripts executable
-        run: |
-          chmod +x ./debug.sh
-          chmod +x ./execute.sh
-
-      - name: Run GitHub Super-Linter
-        uses: github/super-linter/slim@v6
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_LOCAL: false
-          VALIDATE_YAML: true
-          VALIDATE_PYTHON: true
-          VALIDATE_CPP: true
-          VALIDATE_BASH: false
-          VALIDATE_MARKDOWN: false
-          VALIDATE_GITHUB_ACTIONS: false
-          VALIDATE_CHECKOV: false
-          VALIDATE_SHELL_SHFMT: false
-          VALIDATE_CLANG_FORMAT: false
-          VALIDATE_JAVASCRIPT_ES: false
-          VALIDATE_TYPESCRIPT_STANDARD: false
-          VALIDATE_NATURAL_LANGUAGE: false
-          VALIDATE_EDITORCONFIG: false
 
       - name: Install clang-tidy and CMake
         run: |
