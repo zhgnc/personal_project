@@ -75,7 +75,7 @@ jobs:
           echo "Finished clang-tidy"
         shell: bash
 
-  build-and-lint:
+  test_main_cpp_execution:
     runs-on: ubuntu-latest
     needs: checkout_code
     steps:
@@ -87,3 +87,16 @@ jobs:
         run: |
           chmod +x ./execute.sh
           ./execute.sh
+  
+  test_main_cpp_debug:
+    runs-on: ubuntu-latest
+    needs: checkout_code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Run build and execute script
+        run: |
+          chmod +x ./debug.sh
+          ./debug.sh
