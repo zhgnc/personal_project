@@ -10,9 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code
+      # Checkout current branch
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Gets whole commit history of working branch
+      
+      # Checkout main which is the target branch
+      - name: Fetch main branch shallowly
+        run: git fetch origin main:refs/remotes/origin/main --depth=1 # depth=1 only gets latest commit
       
       # Super-linter step (supports multiple languages) 
       - name: Run GitHub Super-Linter 
