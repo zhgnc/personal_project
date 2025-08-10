@@ -1,0 +1,59 @@
+##############################################
+# Ignore everything in build except .gitkeep #
+##############################################
+/build/*
+!/build/.gitkeep
+
+###############
+# CMake Files #
+###############
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+##################
+# Compiled files # 
+##################
+# Unix/Linux/Mac object files
+*.o
+# Windows files  
+*.obj
+*.exe
+*.dll
+# Unix/Linix shared libraries
+*.so
+# macOS shared libraries
+*.dylib
+
+######################
+# Editor/IDE configs # 
+######################
+.vscode/
+.vs/
+*.vcxproj.user
+*.suo
+.idea/
+.settings/
+*.code-workspace
+*.xcuserdata
+*.xcodeproj
+
+######################
+# OS generated files #
+######################
+.DS_Store
+Thumbs.db
+
+########
+# Logs #
+########
+*.log
+
+################
+# Backup files #
+################
+*~
+*.bak
+
+
