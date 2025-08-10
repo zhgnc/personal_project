@@ -40,6 +40,11 @@ jobs:
             echo "No formatting changes to commit"
           fi
 
+      - name: Make scripts executable
+        run: |
+          chmod +x ./debug.sh
+          chmod +x ./execute.sh
+      
       # Super-linter step (supports multiple languages) 
       - name: Run GitHub Super-Linter 
         uses: github/super-linter/slim@v6
