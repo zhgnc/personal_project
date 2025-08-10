@@ -15,12 +15,12 @@ jobs:
     outputs:
       commit_sha: ${{ steps.get_sha.outputs.sha }}
     steps:
-      - id: get_sha
-        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - id: get_sha
+        run: echo "::set-output name=sha::$(git rev-parse HEAD)"      
 
   format_and_lint_cpp_code:
     runs-on: ubuntu-latest
