@@ -10,26 +10,17 @@ permissions:
   actions: write
 
 jobs:
-  checkout_code:
+  # --------------------------------------
+  # Format C++ code using clang-format and commit any changes
+  # --------------------------------------
+  format_cpp_code:
     runs-on: ubuntu-latest
-    outputs:
-      commit_sha: ${{ steps.get_sha.outputs.sha }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - id: get_sha
-        run: echo "::set-output name=sha::$(git rev-parse HEAD)"      
 
-  format_and_lint_cpp_code:
-    runs-on: ubuntu-latest
-    needs: checkout_code
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
 
@@ -49,6 +40,46 @@ jobs:
             echo "No formatting changes to commit"
           fi
 
+  # --------------------------------------
+  # Format Python code using Black and commit any changes
+  # --------------------------------------
+  format_python_code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install black
+        run: pip install black
+      - name: Run black formatter
+        run: black .
+      - name: Commit and push formatting changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ `git status --porcelain` ]]; then
+            git add .
+            git commit -m "chore: apply black formatting"
+            git push
+          else
+            echo "No Python formatting changes to commit"
+          fi
+  # --------------------------------------
+  # Lint C++ code using Clang-Tidy
+  # --------------------------------------
+  lint_cpp_code:
+    runs-on: ubuntu-latest
+    needs: format_cpp_code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Install clang-tidy and CMake
         run: |
           sudo apt-get update
@@ -64,6 +95,12 @@ jobs:
         run: |
           git fetch origin main
           git diff --name-only origin/main...HEAD > changed_files.txt
+          
+          if ! grep -E '\.(cpp|cxx|cc|h|hpp)$' changed_files.txt > /dev/null; then
+            echo "No C++ source/header files changed. Skipping clang-tidy."
+            exit 0
+          fi
+          
           mkdir -p tmp_clang_tidy_results
           cd build
           grep -E '\.(cpp|cxx|cc|h|hpp)$' ../changed_files.txt | while IFS= read -r file; do
@@ -72,10 +109,32 @@ jobs:
           done
           echo "Finished clang-tidy"
         shell: bash
+  # --------------------------------------
+  # Lint Python code using Pylint
+  # --------------------------------------
+  lint_python_code:
+    runs-on: ubuntu-latest
+    needs: format_python_code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install pylint
+        run: pip install pylint
+      - name: Run pylint
+        run: pylint **/*.py || true
 
+  # --------------------------------------
+  # Verify code executes and can be debugged
+  # --------------------------------------
   test_main_cpp_execution:
     runs-on: ubuntu-latest
-    needs: checkout_code
+    needs: [format_cpp_code, lint_cpp_code]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -88,7 +147,7 @@ jobs:
   
   test_main_cpp_debug:
     runs-on: ubuntu-latest
-    needs: checkout_code
+    needs: [format_cpp_code, lint_cpp_code]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
