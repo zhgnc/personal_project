@@ -1,7 +1,7 @@
 // Copyright 2025 Zachary Hart
 
-#include <iostream>
 #include <array>
+#include <iostream>
 
 #include <math_utilities/vector.hpp>
 
@@ -13,16 +13,16 @@ int main() {
   std::cout << pi<double> << std::endl;
 
   Vector<int, 3> test_vec = {1, 2, 3};
-  
+
   for (std::size_t i = 0; i < 3; i++) {
-    std::cout << test_vec[i] << '\n'; 
+    std::cout << test_vec[i] << '\n';
   }
 
   test_vec[1] = 42;
 
   std::cout << "After modification:\n";
   for (std::size_t i = 0; i < 3; i++) {
-    std::cout << test_vec[i] << '\n'; 
+    std::cout << test_vec[i] << '\n';
   }
 
   Vector<int, 3> test_vec_2 = {1, 2, 3};
