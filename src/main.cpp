@@ -25,5 +25,15 @@ int main() {
     std::cout << test_vec[i] << '\n'; 
   }
 
+  Vector<int, 3> test_vec_2 = {1, 2, 3};
+
+  Vector<int, 3> output;
+  output = test_vec * test_vec_2;
+
+  std::cout << "After multiplication:\n";
+  for (std::size_t i = 0; i < 3; i++) {
+    std::cout << output[i] << '\n'; 
+  }
+
   return 0;
 }

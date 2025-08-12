@@ -37,6 +37,15 @@ public:
         return vector[index];
     } 
 
+    Vector operator*(const Vector& other_vector) const {
+        Vector output_vector; 
+        for (std::size_t i = 0; i < length; i++) {
+            output_vector[i] = vector[i] * other_vector[i];
+        }
+    
+        return output_vector;
+    }
+
 private: 
 
 
