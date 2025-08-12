@@ -20,3 +20,6 @@ target_compile_options(MyCode PRIVATE
     -O0                     # Optimization level 0 (best for debugging)
     -g                      # Debug symbols
 )
+
+# Added src directory to included paths
+target_include_directories(MyCode PRIVATE ${CMAKE_SOURCE_DIR}/src)
