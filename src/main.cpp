@@ -29,7 +29,7 @@ int main() {
 
   std::cout << "After multiplication:\n";
   for (std::size_t i = 0; i < 3; i++) {
-    std::cout << output[i] << '\n'; 
+    std::cout << output[i] << '\n';
   }
 
   // for (int i = 0; i < 1000000; i++) {
