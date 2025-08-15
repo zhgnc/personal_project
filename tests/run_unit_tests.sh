@@ -25,7 +25,7 @@ fi
 
 # Run CMake configuration
 echo "Configuring project..."
-cmake -G "Unix Makefiles" -S "$ROOT_DIR" -B "$BUILD_DIR"
+cmake -G "Unix Makefiles" -S "$ROOT_DIR" -B "$BUILD_DIR" -DENABLE_TESTING=ON
 
 # Build project
 echo "Building project..."

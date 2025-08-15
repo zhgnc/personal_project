@@ -32,7 +32,7 @@ else
 fi
 
 # Generates make files and compiles project
-cmake -G "Unix Makefiles" -S "$ROOT_DIR" -B "$BUILD_DIR"
+cmake -G "Unix Makefiles" -S "$ROOT_DIR" -B "$BUILD_DIR" -DENABLE_TESTING=OFF
 
 if cmake --build "$BUILD_DIR"; then
   info "Build Success!!!"
