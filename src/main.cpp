@@ -3,8 +3,8 @@
 #include <array>
 #include <iostream>
 
-#include <math_utilities/vector.hpp>
 #include <math_utilities/matrix2D.hpp>
+#include <math_utilities/vector.hpp>
 
 template <typename T> T pi(3.1415926535);
 
@@ -44,14 +44,13 @@ int main() {
   Matrix2D<int, 3, 2> matrix_2 = {1, 2, 3, 4, 5, 6};
   matrix_2.print();
 
-  std::cout << matrix(1,5) << "\n";
+  std::cout << matrix(1, 5) << "\n";
 
   Matrix2D<int, 2, 2> new_matrix = matrix * matrix_2;
-  new_matrix.print(); 
+  new_matrix.print();
 
   // Matrix2D<int, 2, 2> new_matrix_2 = matrix_2 * matrix;
-  // new_matrix.print(); 
-
+  // new_matrix.print();
 
   return 0;
 }
