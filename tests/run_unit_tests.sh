@@ -38,5 +38,6 @@ fi
 
 # Run tests
 echo -e "\nRunning tests..."
-cd "$BUILD_DIR"
+cd "$BUILD_DIR/tests"
+echo "Running ctest from directory: $(pwd)"
 ctest --output-on-failure

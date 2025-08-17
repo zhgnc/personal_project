@@ -9,6 +9,9 @@ class Matrix2D
 public:
     static_assert(std::is_arithmetic_v<T>, "Matrix2D requires numeric types.");
     std::array<std::array<T, columns>, rows> matrix;
+    static constexpr std::size_t num_rows    = rows;
+    static constexpr std::size_t num_columns = columns;
+    static constexpr std::size_t size = rows * columns;
     
     Matrix2D() = default; 
 
@@ -36,6 +39,7 @@ public:
             }
             std::cout << "\n";
         }
+        std::cout << "\n";
     }
 
     T& operator()(std::size_t desired_row, std::size_t desired_column) {

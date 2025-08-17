@@ -10,17 +10,128 @@ TEST(Matrix2DTest, ElementAccess) {
     EXPECT_EQ(mat(1, 1), 4);
 }
 
-// Test matrix multiplication: 2x3 * 3x2 -> 2x2
-TEST(Matrix2DTest, MatrixMultiplication) {
-    Matrix2D<int, 2, 3> mat1 = {1, 2, 3, 4, 5, 6};
-    Matrix2D<int, 3, 2> mat2 = {7, 8, 9, 10, 11, 12};
+TEST(Matrix2DTest, MatrixMultiplicationInt) {   
+    Matrix2D<int, 3, 3> test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
+    Matrix2D<int, 3, 3> test_matrix_2 = {10, 11, 12, 13, 14, 15, 16, 17, 18};
+    Matrix2D<int, 3, 3> output_1      = test_matrix_1 * test_matrix_2;
+    Matrix2D<int, 3, 3> expected_1    = {84, 90, 96, 201, 216, 231, 318, 342, 366};
 
-    Matrix2D<int, 2, 2> expected = {58, 64, 139, 154};
-    auto result = mat1 * mat2;
+    for (size_t rows = 0; rows < expected_1.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_1.num_columns; ++columns) {
+            EXPECT_EQ(expected_1(rows, columns), output_1(rows, columns));
+        }
+    }
 
-    for (size_t r = 0; r < 2; ++r) {
-        for (size_t c = 0; c < 2; ++c) {
-            EXPECT_EQ(result(r, c), expected(r, c));
+    Matrix2D<int, 3, 2> test_matrix_3 = {1, 2, 3, 4, 5, 6};  
+    Matrix2D<int, 2, 3> test_matrix_4 = {10, 11, 12, 13, 14, 15};
+    Matrix2D<int, 3, 3> output_2      = test_matrix_3 * test_matrix_4;
+    Matrix2D<int, 3, 3> expected_2    = {36, 39, 42, 82, 89, 96, 128, 139, 150};
+
+    for (size_t rows = 0; rows < expected_2.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_2.num_columns; ++columns) {
+            EXPECT_EQ(expected_2(rows, columns), output_2(rows, columns));
+        }
+    }
+
+    Matrix2D<int, 2, 2> output_3   = test_matrix_4 * test_matrix_3;
+    Matrix2D<int, 2, 2> expected_3 = {103, 136, 130, 172};
+
+    for (size_t rows = 0; rows < expected_3.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_3.num_columns; ++columns) {
+            EXPECT_EQ(expected_3(rows, columns), output_3(rows, columns));
+        }
+    }
+
+    Matrix2D<int, 3, 2> output_4   = test_matrix_1 * test_matrix_3;
+    Matrix2D<int, 3, 2> expected_4 = {22, 28, 49, 64, 76, 100};
+
+    for (size_t rows = 0; rows < expected_4.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_4.num_columns; ++columns) {
+            EXPECT_EQ(expected_4(rows, columns), output_4(rows, columns));
+        }
+    }
+}
+
+TEST(Matrix2DTest, MatrixMultiplicationFloat) {   
+    Matrix2D<float, 3, 3> test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
+    Matrix2D<float, 3, 3> test_matrix_2 = {10, 11, 12, 13, 14, 15, 16, 17, 18};
+    Matrix2D<float, 3, 3> output_1      = test_matrix_1 * test_matrix_2;
+    Matrix2D<float, 3, 3> expected_1    = {84, 90, 96, 201, 216, 231, 318, 342, 366};
+
+    for (size_t rows = 0; rows < expected_1.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_1.num_columns; ++columns) {
+            EXPECT_EQ(expected_1(rows, columns), output_1(rows, columns));
+        }
+    }
+
+    Matrix2D<float, 3, 2> test_matrix_3 = {1, 2, 3, 4, 5, 6};  
+    Matrix2D<float, 2, 3> test_matrix_4 = {10, 11, 12, 13, 14, 15};
+    Matrix2D<float, 3, 3> output_2      = test_matrix_3 * test_matrix_4;
+    Matrix2D<float, 3, 3> expected_2    = {36, 39, 42, 82, 89, 96, 128, 139, 150};
+
+    for (size_t rows = 0; rows < expected_2.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_2.num_columns; ++columns) {
+            EXPECT_EQ(expected_2(rows, columns), output_2(rows, columns));
+        }
+    }
+
+    Matrix2D<float, 2, 2> output_3   = test_matrix_4 * test_matrix_3;
+    Matrix2D<float, 2, 2> expected_3 = {103, 136, 130, 172};
+
+    for (size_t rows = 0; rows < expected_3.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_3.num_columns; ++columns) {
+            EXPECT_EQ(expected_3(rows, columns), output_3(rows, columns));
+        }
+    }
+
+    Matrix2D<float, 3, 2> output_4   = test_matrix_1 * test_matrix_3;
+    Matrix2D<float, 3, 2> expected_4 = {22, 28, 49, 64, 76, 100};
+
+    for (size_t rows = 0; rows < expected_4.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_4.num_columns; ++columns) {
+            EXPECT_EQ(expected_4(rows, columns), output_4(rows, columns));
+        }
+    }
+}
+
+TEST(Matrix2DTest, MatrixMultiplicationDouble) {   
+    Matrix2D<double, 3, 3> test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
+    Matrix2D<double, 3, 3> test_matrix_2 = {10, 11, 12, 13, 14, 15, 16, 17, 18};
+    Matrix2D<double, 3, 3> output_1      = test_matrix_1 * test_matrix_2;
+    Matrix2D<double, 3, 3> expected_1    = {84, 90, 96, 201, 216, 231, 318, 342, 366};
+
+    for (size_t rows = 0; rows < expected_1.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_1.num_columns; ++columns) {
+            EXPECT_EQ(expected_1(rows, columns), output_1(rows, columns));
+        }
+    }
+
+    Matrix2D<double, 3, 2> test_matrix_3 = {1, 2, 3, 4, 5, 6};  
+    Matrix2D<double, 2, 3> test_matrix_4 = {10, 11, 12, 13, 14, 15};
+    Matrix2D<double, 3, 3> output_2      = test_matrix_3 * test_matrix_4;
+    Matrix2D<double, 3, 3> expected_2    = {36, 39, 42, 82, 89, 96, 128, 139, 150};
+
+    for (size_t rows = 0; rows < expected_2.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_2.num_columns; ++columns) {
+            EXPECT_EQ(expected_2(rows, columns), output_2(rows, columns));
+        }
+    }
+
+    Matrix2D<double, 2, 2> output_3   = test_matrix_4 * test_matrix_3;
+    Matrix2D<double, 2, 2> expected_3 = {103, 136, 130, 172};
+
+    for (size_t rows = 0; rows < expected_3.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_3.num_columns; ++columns) {
+            EXPECT_EQ(expected_3(rows, columns), output_3(rows, columns));
+        }
+    }
+
+    Matrix2D<double, 3, 2> output_4   = test_matrix_1 * test_matrix_3;
+    Matrix2D<double, 3, 2> expected_4 = {22, 28, 49, 64, 76, 100};
+
+    for (size_t rows = 0; rows < expected_4.num_rows; ++rows) {
+        for (size_t columns = 0; columns < expected_4.num_columns; ++columns) {
+            EXPECT_EQ(expected_4(rows, columns), output_4(rows, columns));
         }
     }
 }
