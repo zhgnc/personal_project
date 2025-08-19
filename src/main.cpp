@@ -61,5 +61,50 @@ int main() {
   test_matrix_1.set_column(2, {1000, 1001, 1002});
   test_matrix_1.print();
 
+
+  Matrix2D<float, 3, 3> init_zero_matrix;
+  init_zero_matrix.print();
+  init_zero_matrix.setIdentity();
+  init_zero_matrix.print();
+  test_matrix_1.print();
+  test_matrix_1.setZeros();
+  test_matrix_1.print();
+  test_matrix_2.print();
+  test_matrix_2.setIdentity();
+  test_matrix_2.print();
+
+  Matrix2D<double, 3, 3> mat_init_eye = identityMatrix<double, 3>();
+  mat_init_eye.print();
+
+  Matrix2D<double, 3, 2> mat_init_zeros = zerosMatrix<double, 3, 2>();
+  mat_init_zeros.print();
+
+
+
+
+  Matrix2D<int, 2, 2> i2 = identityMatrix<int, 2>();
+  Matrix2D<int, 2, 2> test_addition_matrix_1 = i2 + 5;
+  test_addition_matrix_1.print();
+  Matrix2D<int, 2, 2> test_addition_matrix_2 = 5 + i2;
+  test_addition_matrix_2.print();
+
+  Matrix2D<int, 2, 2> test_sub_matrix_1 = i2 - 5;
+  test_sub_matrix_1.print();
+
+  Matrix2D<float, 3, 3> i3 = identityMatrix<float, 3>();
+  Matrix2D<float, 3, 3> test_divide_by_scalar = i3 / 10;
+  test_divide_by_scalar.print();
+
+  test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  test_matrix_1.print(); 
+  test_matrix_1.inPlaceTranspose();
+  test_matrix_1.print();
+
+  Matrix2D<int, 3,2> test_matrix_14 = {1, 2, 3, 4, 5, 6};
+  test_matrix_14.print();
+  Matrix2D<int, 2,3> test_matrix_14_T; 
+  test_matrix_14_T = test_matrix_14.transpose();
+  test_matrix_14_T.print();
+
   return 0;
 }
