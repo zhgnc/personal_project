@@ -8,7 +8,4 @@
 
 template <typename T> T pi(3.1415926535);
 
-int main() {
-
-  return 0;
-}
+int main() { return 0; }
