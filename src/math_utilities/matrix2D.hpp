@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <array>
+#include <limits>
 
 template <typename T, std::size_t rows, std::size_t columns>
 class Matrix2D 
@@ -255,36 +256,55 @@ public:
 
     T det() const {
         static_assert(rows == columns, "Determinant only valid for square matrices.");
-        static_assert(std::is_floating_point<T>::value,
-                    "Gaussian elimination in determinant function requires double or float matrix type");
+        static_assert(std::is_floating_point<T>::value, "Gaussian elimination in determinant function requires double/float matrix type");
 
         Matrix2D<T, rows, columns> matrix_copy(*this);
+
+        // std::cout << "Matrix Copy" << "\n";
+        // matrix_copy.print(); 
+
         int determinate_sign = 1; 
         T determinate        = static_cast<T>(1);
-        std::array<T, rows> row_scale; 
+        std::array<T, rows> row_scale;
 
-        // Step 1: Compute row scale factors
+        // std::cout << "original determinate_sign = " << determinate_sign << "     original determinate = " << determinate << "\n"; 
+
+        // Step 1: Compute row scale factors [VERIFIED]
         for (std::size_t row = 0; row < rows; row++) {
             T row_max = static_cast<T>(0);
             for (std::size_t column = 0; column < columns; column++) {
+                // std::cout << "row_max = " << row_max << "     matrix_copy(row, column) = " << matrix_copy(row, column) << "\n";
                 row_max = std::max(row_max, std::abs(matrix_copy(row, column)));
             }
-            // prevent divide by zero later // fix this to be < e-12
-            row_scale[row] = (row_max < static_cast<T>(1e-12)) ? static_cast<T>(1) : row_max;
-        }
+            
+            if (std::abs(row_max) < std::numeric_limits<T>::epsilon()) {
+                row_max = static_cast<T>(1); // prevent divide by zero later
+            }
 
-        for (std::size_t pivot_index = 0; pivot_index < rows; pivot_index++) {                       
+            row_scale[row] = row_max; 
+            // std::cout << "row_scale[row] = " << row_scale[row] << "\n";
+        }
+        std::cout << "\n";
+        
+        for (std::size_t pivot_index = 0; pivot_index < rows - 1; pivot_index++) {                       
             // Step 2: Find best pivot row (scaled partial pivoting)
             std::size_t best_row = pivot_index; 
             T largest_ratio      = std::abs(matrix_copy(pivot_index, pivot_index)) / row_scale[pivot_index];
             
             for (std::size_t current_row = pivot_index + 1; current_row < rows; current_row++) {
                 T current_ratio = std::abs(matrix_copy(current_row, pivot_index)) / row_scale[current_row];
+                // std::cout << "largest_ratio = " << largest_ratio << "     current_ratio = " << current_ratio << "\n";
+
                 if (current_ratio > largest_ratio) {
                     largest_ratio = current_ratio; 
                     best_row      = current_row; 
                 }
             }
+            // std::cout << "largest_ratio (end) = " << largest_ratio << "     best_row = " << best_row << "     pivot_index = " << pivot_index << "\n";
+
+            // bool swap_rows = best_row != pivot_index;
+            // std::cout << "Swap rows: " << swap_rows << "\n";
+
 
             // Step 3: Swap rows if needed
             if (best_row != pivot_index) {
@@ -293,11 +313,18 @@ public:
                 }
                 std::swap(row_scale[pivot_index], row_scale[best_row]);
                 determinate_sign = -determinate_sign; 
+
+                // matrix_copy.print();
+                // for (std::size_t i = 0; i < rows; i++) {
+                //     std::cout << row_scale[i] << "\n";
+                // } 
             }
+
+            // std::cout << "determinate_sign = " << determinate_sign << "\n\n"; 
 
             // Step 4: Check pivot element AFTER swap
             T pivot_value = matrix_copy(pivot_index, pivot_index);
-            if (std::abs(pivot_value) < static_cast<T>(1e-12)) {
+            if (std::abs(pivot_value) < std::numeric_limits<T>::epsilon()) {
                 return static_cast<T>(0); 
             }
 
@@ -307,7 +334,10 @@ public:
                 for (std::size_t column = pivot_index; column < columns; column++) {
                     matrix_copy(row, column) -= factor * matrix_copy(pivot_index, column);
                 }
-            }  
+            }
+            
+            // std::cout << "Matrix after elimination: " << "\n";
+            // matrix_copy.print();
         }
 
         // Step 6: Product of diagonal entries
@@ -315,7 +345,7 @@ public:
             determinate *= matrix_copy(i, i);
         }
         
-        return determinate * static_cast<T>(determinate_sign);
+        return static_cast<T>(determinate * determinate_sign);
     }   
 
 private:
