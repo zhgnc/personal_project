@@ -6,6 +6,8 @@ add_compile_definitions(_POSIX_C_SOURCE=200809L)
 set(GTEST_DIR "${PROJECT_SOURCE_DIR}/external/googletest")
 add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest_build)
 
+include_directories("C:/git/personal_project/external/Eigen")
+
 enable_testing()
 
 file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")

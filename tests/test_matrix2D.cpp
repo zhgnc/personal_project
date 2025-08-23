@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
-#include "../src/math_utilities/matrix2D.hpp"  
+#include "../src/math_utilities/matrix2D.hpp"
+#include <Eigen/Dense>
+#include <random>
+#include <limits> 
 
 // Test constructor and element access
 TEST(Matrix2DTest, ElementAccess) {
@@ -455,6 +458,180 @@ TEST(Matrix2DTest, HugeMatrixDeterminate) {
 
     double expected_det = std::pow(1e-12, size);  // (1e-12)^n
     EXPECT_DOUBLE_EQ(expected_det, big_test_matrix.det());
+}
+
+template <int N>
+void runRandomMultiplicationCheck(std::mt19937& rng) {
+    std::uniform_real_distribution<double> dist(-10.0, 10.0);
+
+    Matrix2D<double, N, N> A, B, C;
+    Eigen::Matrix<double, N, N> eigA, eigB, eigC;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            A(i, j) = dist(rng);
+            B(i, j) = dist(rng);
+            eigA(i, j) = A(i, j);
+            eigB(i, j) = B(i, j);
+        }
+    }
+
+    C = A * B;
+    eigC = eigA * eigB;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            EXPECT_NEAR(C(i, j), eigC(i, j), 1e-6);
+        }
+    }
+}
+
+TEST(Matrix2DTest, RandomMultiplicationTestAgainstEigen) {
+    std::mt19937 rng(0);
+    int num_tests = 100;
+    int min_mat_size = 2; 
+    int max_mat_size = 6;
+
+    for (int test = 0; test < num_tests; test++) {
+        int random_mat_size = min_mat_size + (rng() % (max_mat_size-1)); 
+
+        switch (random_mat_size) {
+            case 2: runRandomMultiplicationCheck<2>(rng); break;
+            case 3: runRandomMultiplicationCheck<3>(rng); break;
+            case 4: runRandomMultiplicationCheck<4>(rng); break;
+            case 5: runRandomMultiplicationCheck<5>(rng); break;
+            case 6: runRandomMultiplicationCheck<6>(rng); break;
+        }
+    }
+}
+
+template <int N>
+void runRandomAdditionCheck(std::mt19937& rng) {
+    std::uniform_real_distribution<double> dist(-10.0, 10.0);
+
+    Matrix2D<double, N, N> A, B, C;
+    Eigen::Matrix<double, N, N> eigA, eigB, eigC;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            A(i, j) = dist(rng);
+            B(i, j) = dist(rng);
+            eigA(i, j) = A(i, j);
+            eigB(i, j) = B(i, j);
+        }
+    }
+
+    C = A + B;
+    eigC = eigA + eigB;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            EXPECT_NEAR(C(i, j), eigC(i, j), 1e-6);
+        }
+    }
+}
+
+TEST(Matrix2DTest, RandomAdditionTestAgainstEigen) {
+    std::mt19937 rng(0);
+    int num_tests = 100;
+    int min_mat_size = 2; 
+    int max_mat_size = 6;
+
+    for (int test = 0; test < num_tests; test++) {
+        int random_mat_size = min_mat_size + (rng() % (max_mat_size-1)); 
+
+        switch (random_mat_size) {
+            case 2: runRandomAdditionCheck<2>(rng); break;
+            case 3: runRandomAdditionCheck<3>(rng); break;
+            case 4: runRandomAdditionCheck<4>(rng); break;
+            case 5: runRandomAdditionCheck<5>(rng); break;
+            case 6: runRandomAdditionCheck<6>(rng); break;
+        }
+    }
+}
+
+template <int N>
+void runRandomSubtractionCheck(std::mt19937& rng) {
+    std::uniform_real_distribution<double> dist(-10.0, 10.0);
+
+    Matrix2D<double, N, N> A, B, C;
+    Eigen::Matrix<double, N, N> eigA, eigB, eigC;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            A(i, j) = dist(rng);
+            B(i, j) = dist(rng);
+            eigA(i, j) = A(i, j);
+            eigB(i, j) = B(i, j);
+        }
+    }
+
+    C = A - B;
+    eigC = eigA - eigB;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            EXPECT_NEAR(C(i, j), eigC(i, j), 1e-6);
+        }
+    }
+}
+
+TEST(Matrix2DTest, RandomSubtractionTestAgainstEigen) {
+    std::mt19937 rng(0);
+    int num_tests = 100;
+    int min_mat_size = 2; 
+    int max_mat_size = 6;
+
+    for (int test = 0; test < num_tests; test++) {
+        int random_mat_size = min_mat_size + (rng() % (max_mat_size-1)); 
+
+        switch (random_mat_size) {
+            case 2: runRandomSubtractionCheck<2>(rng); break;
+            case 3: runRandomSubtractionCheck<3>(rng); break;
+            case 4: runRandomSubtractionCheck<4>(rng); break;
+            case 5: runRandomSubtractionCheck<5>(rng); break;
+            case 6: runRandomSubtractionCheck<6>(rng); break;
+        }
+    }
+}
+
+
+template <int N>
+void runRandomDeterminantCheck(std::mt19937& rng) {
+    std::uniform_real_distribution<double> dist(-10.0, 10.0);
+
+    Matrix2D<double, N, N> A;
+    Eigen::Matrix<double, N, N> eigA;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            A(i, j) = dist(rng);
+            eigA(i, j) = A(i, j);
+        }
+    }
+
+    double det_expected = eigA.determinant();
+    double det_actual   = static_cast<double>(A.det());
+
+    EXPECT_NEAR(det_expected, det_actual, 1e-6);
+}
+
+TEST(Matrix2DTest, RandomDeterminantTestAgainstEigen) {
+    std::mt19937 rng(0);
+    int num_tests = 100;
+    int min_mat_size = 2; 
+    int max_mat_size = 6;
+
+    for (int test = 0; test < num_tests; test++) {
+        int random_mat_size = min_mat_size + (rng() % (max_mat_size-1)); 
+
+        switch (random_mat_size) {
+            case 2: runRandomDeterminantCheck<2>(rng); break;
+            case 3: runRandomDeterminantCheck<3>(rng); break;
+            case 4: runRandomDeterminantCheck<4>(rng); break;
+            case 5: runRandomDeterminantCheck<5>(rng); break;
+            case 6: runRandomDeterminantCheck<6>(rng); break;
+        }
+    }
 }
 
 int main(int argc, char **argv) {
