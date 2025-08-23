@@ -4,6 +4,7 @@
 #include <iostream>
 #include <array>
 #include <limits>
+#include <cmath>
 
 template <typename T, std::size_t rows, std::size_t columns>
 class Matrix2D 
@@ -260,92 +261,72 @@ public:
 
         Matrix2D<T, rows, columns> matrix_copy(*this);
 
-        // std::cout << "Matrix Copy" << "\n";
-        // matrix_copy.print(); 
-
-        int determinate_sign = 1; 
-        T determinate        = static_cast<T>(1);
+        long double log_of_determinant = 0.0;
+        int determinant_sign           = 1; 
+        T determinant                  = static_cast<T>(0);
         std::array<T, rows> row_scale;
 
-        // std::cout << "original determinate_sign = " << determinate_sign << "     original determinate = " << determinate << "\n"; 
-
-        // Step 1: Compute row scale factors [VERIFIED]
+        // Step 1: Compute row scale factors to increase numerical precision
         for (std::size_t row = 0; row < rows; row++) {
             T row_max = static_cast<T>(0);
+
             for (std::size_t column = 0; column < columns; column++) {
-                // std::cout << "row_max = " << row_max << "     matrix_copy(row, column) = " << matrix_copy(row, column) << "\n";
                 row_max = std::max(row_max, std::abs(matrix_copy(row, column)));
             }
             
-            if (std::abs(row_max) < std::numeric_limits<T>::epsilon()) {
-                row_max = static_cast<T>(1); // prevent divide by zero later
-            }
-
-            row_scale[row] = row_max; 
-            // std::cout << "row_scale[row] = " << row_scale[row] << "\n";
+            row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::min());
         }
-        std::cout << "\n";
+        
         
         for (std::size_t pivot_index = 0; pivot_index < rows - 1; pivot_index++) {                       
-            // Step 2: Find best pivot row (scaled partial pivoting)
+            // Step 2: Find best pivot row using scaled partial pivoting
             std::size_t best_row = pivot_index; 
             T largest_ratio      = std::abs(matrix_copy(pivot_index, pivot_index)) / row_scale[pivot_index];
             
             for (std::size_t current_row = pivot_index + 1; current_row < rows; current_row++) {
                 T current_ratio = std::abs(matrix_copy(current_row, pivot_index)) / row_scale[current_row];
-                // std::cout << "largest_ratio = " << largest_ratio << "     current_ratio = " << current_ratio << "\n";
 
                 if (current_ratio > largest_ratio) {
                     largest_ratio = current_ratio; 
                     best_row      = current_row; 
                 }
             }
-            // std::cout << "largest_ratio (end) = " << largest_ratio << "     best_row = " << best_row << "     pivot_index = " << pivot_index << "\n";
 
-            // bool swap_rows = best_row != pivot_index;
-            // std::cout << "Swap rows: " << swap_rows << "\n";
-
-
-            // Step 3: Swap rows if needed
+            // Step 3: Swap rows if needed current pivot row is not the best numerically
             if (best_row != pivot_index) {
                 for (std::size_t i = 0; i < columns; i++) {
                     std::swap(matrix_copy(pivot_index, i), matrix_copy(best_row, i));
                 }
                 std::swap(row_scale[pivot_index], row_scale[best_row]);
-                determinate_sign = -determinate_sign; 
-
-                // matrix_copy.print();
-                // for (std::size_t i = 0; i < rows; i++) {
-                //     std::cout << row_scale[i] << "\n";
-                // } 
+                determinant_sign = -determinant_sign;
             }
 
-            // std::cout << "determinate_sign = " << determinate_sign << "\n\n"; 
-
-            // Step 4: Check pivot element AFTER swap
+            // Step 4: Determinant is zero if pivot and remaining elements in the pivot column are 0.
+            // Treat the pivot as zero if it is smaller than machine epsilon relative to its row scale
             T pivot_value = matrix_copy(pivot_index, pivot_index);
-            if (std::abs(pivot_value) < std::numeric_limits<T>::epsilon()) {
-                return static_cast<T>(0); 
+            if (std::abs(pivot_value) < row_scale[pivot_index] * std::numeric_limits<T>::epsilon()) {
+                return determinant = static_cast<T>(0); 
             }
 
-            // Step 5: Eliminate below pivot
+            // Step 5: Eliminate matrix cells below pivot
             for (std::size_t row = pivot_index + 1; row < rows; row++) {
                 T factor = matrix_copy(row, pivot_index) / pivot_value;
                 for (std::size_t column = pivot_index; column < columns; column++) {
                     matrix_copy(row, column) -= factor * matrix_copy(pivot_index, column);
                 }
             }
-            
-            // std::cout << "Matrix after elimination: " << "\n";
-            // matrix_copy.print();
         }
 
-        // Step 6: Product of diagonal entries
+        // Step 6: Sum the log of the diagonal elements to increase numerical precision 
+        // then conver to non-log based determinant
         for (std::size_t i = 0; i < rows; i++) {
-            determinate *= matrix_copy(i, i);
+            if (matrix_copy(i,i) < 0) {
+                determinant_sign = -determinant_sign;
+            }
+            log_of_determinant += std::log(std::abs(matrix_copy(i,i)));
         }
         
-        return static_cast<T>(determinate * determinate_sign);
+        return determinant = determinant_sign * std::exp(log_of_determinant);
     }   
 
 private:

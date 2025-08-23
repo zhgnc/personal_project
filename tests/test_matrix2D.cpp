@@ -339,6 +339,124 @@ TEST(Matrix2DTest, MatrixTranspose) {
     }
 }
 
+TEST(Matrix2DTest, EasyMatrixDeterminate) {
+      Matrix2D<double, 10, 10> I_10 = identityMatrix<double, 10>();
+      EXPECT_DOUBLE_EQ(1, I_10.det());
+
+      Matrix2D<double, 3, 3> test_matrix_1 = {2, 0, 0,
+                                              0, 3, 0,
+                                              0, 0, 4};
+      EXPECT_DOUBLE_EQ(24, test_matrix_1.det());
+
+      Matrix2D<double, 3, 3> test_matrix_2 = {1, 2, 3,
+                                              0, 4, 5,
+                                              0, 0, 6};
+      EXPECT_DOUBLE_EQ(24, test_matrix_2.det());
+
+      Matrix2D<double, 2, 2> test_matrix_3 = {2, 4,
+                                              1, 2};
+      EXPECT_DOUBLE_EQ(0, test_matrix_3.det());
+
+      Matrix2D<double, 2, 2> test_matrix_4 = {0, 1,
+                                              1, 0};
+      EXPECT_DOUBLE_EQ(-1, test_matrix_4.det());
+
+      Matrix2D<double, 3, 3> test_matrix_5 = {0, 1, 0,
+                                              0, 0, 1,
+                                              1, 0, 0};
+      EXPECT_DOUBLE_EQ(1.0, test_matrix_5.det());
+
+      Matrix2D<double, 3, 3> test_matrix_6 = {1,2,3,
+                                              4,5,6,
+                                              1,2,3};
+      EXPECT_DOUBLE_EQ(0.0, test_matrix_6.det());
+}
+
+TEST(Matrix2DTest, MediumMatrixDeterminate) {
+    Matrix2D<double, 3, 3> M1 = { 7, -3,  2,
+                                  4,  5, -6,
+                                  1,  8,  9};
+    EXPECT_DOUBLE_EQ(M1.det(), 831.0);
+
+    Matrix2D<double, 3, 3> M2 = {-12,  7,  5,
+                                  3, -9, 14,
+                                  6,  6,  8};
+    EXPECT_DOUBLE_EQ(M2.det(), 2652.0);
+
+    Matrix2D<double, 4, 4> M3 = { 2,  5,  3,  7,
+                                 -1,  4,  0,  2,
+                                  3, -2,  6,  4,
+                                  1,  0,  5, -3};
+    EXPECT_DOUBLE_EQ(M3.det(), -292.0);
+
+    Matrix2D<double, 4, 4> M4 = {10, -7,  3,  4,
+                                  2,  0, -5,  6,
+                                 -3,  8,  9,  1,
+                                  5, -2,  7, -6};
+    EXPECT_DOUBLE_EQ(M4.det(), -3191.0);
+
+
+    Matrix2D<double, 4, 4> M5 = { 6,  1, -2,  8,
+                                  3,  5,  7, -4,
+                                 -1,  9,  2,  6,
+                                  4, -3,  8,  0};
+    EXPECT_DOUBLE_EQ(M5.det(), -5432.0);
+
+    Matrix2D<double, 4, 4> M6 = {2, 5, 7, 1,
+                                 0, 3, 6, 4,
+                                 0, 0,-2, 8,
+                                 0, 0, 0, 9};
+    EXPECT_DOUBLE_EQ(M6.det(), -108.0);
+
+    Matrix2D<double, 4, 4> M7 = {1, 2, 0, 0,
+                                 3, 4, 0, 0,
+                                 0, 0, 5, 6,
+                                 0, 0, 7, 8};
+    EXPECT_DOUBLE_EQ(M7.det(), 4.0);
+}
+
+TEST(Matrix2DTest, PrecisionMatrixDeterminate) {
+    Matrix2D<double, 3, 3> A1 = {1, 1, 1,
+                                 1, 1 + 1e-8, 1,
+                                 1, 1, 1 + 1e-8};
+    EXPECT_NEAR(1e-16, A1.det(), 1e-18);
+
+    Matrix2D<double, 3, 3> A2 = {1, 1, 1, 
+                                 1, 1 + 1e-12, 1,
+                                 1, 1, 1 + 1e-12};
+    EXPECT_NEAR(1e-24, A2.det(), 1e-26);
+
+    Matrix2D<double, 3, 3> A3 = {1, 1, 1,
+                                 1, 1 + 1e-14, 1,
+                                 1, 1, 1 + 1e-14};
+    EXPECT_NEAR(1e-28, A3.det(), 1e-29);
+
+    Matrix2D<double, 3, 3> A4 = {1, 1, 1,
+                                 1, 1 + 1e-16, 1,
+                                 1, 1, 1 + 1e-16};
+    EXPECT_DOUBLE_EQ(0, A4.det());
+}
+
+TEST(Matrix2DTest, HugeMatrixDeterminate) {
+    const int size = 50; 
+    Matrix2D<double, size, size> big_test_matrix;
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (i == j) {
+                big_test_matrix(i,j) = 1e-12;  // diagonal
+            } else if (j > i) {
+                big_test_matrix(i,j) = 1.0;    // above diagonal
+            } else {
+                big_test_matrix(i,j) = 0.0;    // below diagonal
+            }
+        }
+    } 
+
+    double expected_det = std::pow(1e-12, size);  // (1e-12)^n
+    EXPECT_DOUBLE_EQ(expected_det, big_test_matrix.det());
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

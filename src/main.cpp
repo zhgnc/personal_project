@@ -190,43 +190,43 @@ int main() {
 //   std::cout << "det(N) = " << N.det() << " (expected -1)\n\n";
 
 
-//   Matrix2D<double, 3, 3> M = {2, 1, 5, 
-//                               0, 3, -1, 
-//                               0, 0, 4};
+  Matrix2D<double, 3, 3> M = {2, 1, 5, 
+                              0, 3, -1, 
+                              0, 0, 4};
 
 //   std::cout << "Original Matrix" << "\n";
 //   M.print();
 
 
-//   std::cout << "det(M) = " << M.det() << " (expected 24)\n"; 
+  std::cout << "det(M) = " << M.det() << " (expected 24)\n"; 
 
-//   Matrix2D<double, 3, 3> M1 = { 7, -3,  2,
-//                               4,  5, -6,
-//                               1,  8,  9};
-//   std::cout << "det(M1) = " << M1.det() << " (expected 831)\n";
+  Matrix2D<double, 3, 3> M1 = { 7, -3,  2,
+                              4,  5, -6,
+                              1,  8,  9};
+  std::cout << "det(M1) = " << M1.det() << " (expected 831)\n";
 
-//   Matrix2D<double, 3, 3> M2 = {-12,  7,  5,
-//                                3, -9, 14,
-//                                6,  6,  8};
-//   std::cout << "det(M2) = " << M2.det() << " (expected 2652)\n";
+  Matrix2D<double, 3, 3> M2 = {-12,  7,  5,
+                               3, -9, 14,
+                               6,  6,  8};
+  std::cout << "det(M2) = " << M2.det() << " (expected 2652)\n";
 
-//   Matrix2D<double, 4, 4> M3 = { 2,  5,  3,  7,
-//                              -1,  4,  0,  2,
-//                               3, -2,  6,  4,
-//                               1,  0,  5, -3};
-//   std::cout << "det(M3) = " << M3.det() << " (expected -292)\n";
+  Matrix2D<double, 4, 4> M3 = { 2,  5,  3,  7,
+                             -1,  4,  0,  2,
+                              3, -2,  6,  4,
+                              1,  0,  5, -3};
+  std::cout << "det(M3) = " << M3.det() << " (expected -292)\n";
 
-//   Matrix2D<double, 4, 4> M4 = {10, -7,  3,  4,
-//                               2,  0, -5,  6,
-//                              -3,  8,  9,  1,
-//                               5, -2,  7, -6};
-//   std::cout << "det(M4) = " << M4.det() << " (expected -3191)\n";
+  Matrix2D<double, 4, 4> M4 = {10, -7,  3,  4,
+                              2,  0, -5,  6,
+                             -3,  8,  9,  1,
+                              5, -2,  7, -6};
+  std::cout << "det(M4) = " << M4.det() << " (expected -3191)\n";
 
-//   Matrix2D<double, 4, 4> M5 = { 6,  1, -2,  8,
-//                               3,  5,  7, -4,
-//                              -1,  9,  2,  6,
-//                               4, -3,  8,  0};
-//   std::cout << "det(M5) = " << M5.det() << " (expected -5432)\n\n";
+  Matrix2D<double, 4, 4> M5 = { 6,  1, -2,  8,
+                              3,  5,  7, -4,
+                             -1,  9,  2,  6,
+                              4, -3,  8,  0};
+  std::cout << "det(M5) = " << M5.det() << " (expected -5432)\n\n";
 
 
 
@@ -248,14 +248,16 @@ int main() {
 
 
   // Harder determinant tests (precision stress cases)
-Matrix2D<double, 3, 3> H1 = {
-    1e10, 1e10, 1e10,
-    1e10, 1e10 + 1e-5, 1e10,
-    1e10, 1e10, 1e10 + 1e-5
-};
+// Matrix2D<double, 3, 3> H3 = {
+//     1.0,        1.0,        1.0,
+//     1.0, 1.0+1e-12,        1.0,
+//     1.0,        1.0, 1.0+1e-12
+// };
+
+// H3.print();
+
 // Very large, almost singular. True det ~ 100000.0
-std::cout << "det(H1) = " << H1.det() 
-          << " (expected ~1e5)\n";
+// std::cout << "det(H3) = " << H3.det() << " (expected ~1e-24)\n";
 
 Matrix2D<double, 4, 4> H2 = {
     1.0, 1.0, 1.0, 1.0,
@@ -263,18 +265,18 @@ Matrix2D<double, 4, 4> H2 = {
     1.0, 1.0, 1.0 + 1e-12, 1.0,
     1.0, 1.0, 1.0, 1.0 + 1e-12
 };
-// // Nearly singular (all rows almost identical). True det ~ 1e-36
-// std::cout << "det(H2) = " << H2.det() 
-//           << " (expected ~1e-36)\n";
+// Nearly singular (all rows almost identical). True det ~ 1e-36
+std::cout << "det(H2) = " << H2.det() 
+          << " (expected ~1e-36)\n";
 
-// Matrix2D<double, 3, 3> H3 = {
-//     1, 1, 1,
-//     1, 1+1e-12, 1,
-//     1, 1, 1+1e-12
-// };
-// // Another cancellation-heavy case. Expected det ~ 1e-24
-// std::cout << "det(H3) = " << H3.det() 
-//           << " (expected ~1e-24)\n";
+Matrix2D<double, 3, 3> H3 = {
+    1, 1, 1,
+    1, 1+1e-12, 1,
+    1, 1, 1+1e-12
+};
+// Another cancellation-heavy case. Expected det ~ 1e-24
+std::cout << "det(H3) = " << H3.det() 
+          << " (expected ~1e-24)\n";
 
 // // Classic Hilbert matrix (n=4). Known to be extremely ill-conditioned
 // Matrix2D<double, 4, 4> H4 = {
@@ -286,6 +288,74 @@ Matrix2D<double, 4, 4> H2 = {
 // // Exact det = 1 / 604800 ≈ 1.653439e-6
 // std::cout << "det(H4) = " << H4.det() 
 //           << " (expected ~1.653439e-6)\n";
-            
-//   return 0;
-// }
+          
+// Matrix2D<double, 3, 3> A1 = {
+//     1, 1, 1,
+//     1, 1 + 1e-8, 1,
+//     1, 1, 1 + 1e-8
+// };
+// std::cout << "det(A1) = " << A1.det() << " (expected ~1e-16)\n";
+
+// Matrix2D<double, 3, 3> A2 = {
+//     1, 1, 1,
+//     1, 1 + 1e-12, 1,
+//     1, 1, 1 + 1e-12
+// };
+// std::cout << "det(A2) = " << A2.det() << " (expected ~1e-24)\n";
+
+// Matrix2D<double, 3, 3> A3 = {
+//     1, 1, 1,
+//     1, 1 + 1e-14, 1,
+//     1, 1, 1 + 1e-14
+// };
+// std::cout << "det(A3) = " << A3.det() << " (expected ~1e-28)\n";
+
+// Matrix2D<double, 3, 3> A4 = {
+//     1, 1, 1,
+//     1, 1 + 1e-16, 1,
+//     1, 1, 1 + 1e-16
+// };
+// std::cout << "det(A4) = " << A4.det() << " (expected ~1e-32, probably fails in double)\n";
+
+
+
+// Matrix2D<double, 12, 12> H12 = {
+//     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//     1, 1+1e-12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//     1, 1, 1+1e-12, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//     1, 1, 1, 1+1e-12, 1, 1, 1, 1, 1, 1, 1, 1,
+//     1, 1, 1, 1, 1+1e-12, 1, 1, 1, 1, 1, 1, 1,
+//     1, 1, 1, 1, 1, 1+1e-12, 1, 1, 1, 1, 1, 1,
+//     1, 1, 1, 1, 1, 1, 1+1e-12, 1, 1, 1, 1, 1,
+//     1, 1, 1, 1, 1, 1, 1, 1+1e-12, 1, 1, 1, 1,
+//     1, 1, 1, 1, 1, 1, 1, 1, 1+1e-12, 1, 1, 1,
+//     1, 1, 1, 1, 1, 1, 1, 1, 1, 1+1e-12, 1, 1,
+//     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1+1e-12, 1,
+//     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1+1e-12
+// };
+
+// std::cout << "det(H12) = " << H12.det() << " (expected ~1e-132)\n";
+
+// const int size = 26; 
+// Matrix2D<double, size, size> big_test_mat;
+
+// for (int i = 0; i < size; i++) {
+//     for (int j = 0; j < size; j++) {
+//         if (i == j) {
+//             big_test_mat(i,j) = 1e-12;  // diagonal
+//         } else if (j > i) {
+//             big_test_mat(i,j) = 1.0;    // above diagonal
+//         } else {
+//             big_test_mat(i,j) = 0.0;    // below diagonal
+//         }
+//     }
+// } 
+
+// double expected_det = std::pow(1e-12, size);  // (1e-12)^n
+
+// big_test_mat.print();
+// std::cout << "det(big_test_mat) = " << big_test_mat.det() << " expected = " << expected_det << "\n";
+
+
+  return 0;
+}
