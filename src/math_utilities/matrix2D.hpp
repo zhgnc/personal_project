@@ -2,6 +2,7 @@
 #define MATRIX_H
 
 #include <iostream>
+#include <array>
 
 template <typename T, std::size_t rows, std::size_t columns>
 class Matrix2D 
@@ -11,17 +12,17 @@ public:
     std::array<std::array<T, columns>, rows> matrix;
     static constexpr std::size_t num_rows    = rows;
     static constexpr std::size_t num_columns = columns;
-    static constexpr std::size_t size = rows * columns;
+    static constexpr std::size_t size        = rows * columns;
     
     Matrix2D() {
         setZeros();
     }; 
 
     Matrix2D(std::initializer_list<T> initial_matrix) {
-        if (rows * columns != initial_matrix.size()) {
+        if (initial_matrix.size() != rows * columns) {
             throw std::out_of_range("Size of matrix does not equal size of initializer list");
-        }   
-        
+        }        
+
         std::size_t row    = 0; 
         std::size_t column = 0;
         for (const T& element : initial_matrix) {
@@ -35,10 +36,18 @@ public:
     }
 
     T& operator()(std::size_t desired_row, std::size_t desired_column) {
+        if (desired_row >= rows || desired_column >= columns) {
+            throw std::out_of_range("Requested element outside of row and column bounds.");
+        }  
+
         return matrix[desired_row][desired_column];
     }
 
     const T& operator()(std::size_t desired_row, std::size_t desired_column) const {
+        if (desired_row >= rows || desired_column >= columns) {
+            throw std::out_of_range("Requested element outside of row and column bounds.");
+        }
+
         return matrix[desired_row][desired_column];
     }
 
@@ -52,45 +61,39 @@ public:
         std::cout << "\n";
     }
 
-    Matrix2D<T, rows, columns>& set_row(std::size_t row_index, std::initializer_list<T> row_values) {
-        if (row_index >= rows)            {throw std::out_of_range("Row index out of range");}
-        if (row_values.size() != columns) {throw std::invalid_argument("Initializer list size must match number of columns");}
+    void set_row(std::size_t row_index, std::initializer_list<T> row_values) {
+        if (row_index >= rows || row_values.size() != columns) {
+            throw std::invalid_argument("Row index out of range or initializer list size mismatch");
+        } 
 
-        Matrix2D<T, rows, columns>& new_matrix = *this; 
         std::size_t new_column = 0;
 
         for (const T& value : row_values) {
-            new_matrix(row_index, new_column++) = value;
+            matrix[row_index][new_column++] = value;
         }
-
-        return new_matrix; 
     }
 
-    Matrix2D<T, rows, columns>& set_column(std::size_t column_index, std::initializer_list<T> column_values) {
-        if (column_index >= columns)      {throw std::out_of_range("Column index out of range");}
-        if (column_values.size() != rows) {throw std::invalid_argument("Initializer list size must match number of rows");}
+    void set_column(std::size_t column_index, std::initializer_list<T> column_values) {
+        if (column_index >= columns || column_values.size() != rows) {
+            throw std::invalid_argument("Column index out of range or initializer list size mismatch");
+        }
 
-        Matrix2D<T, rows, columns>& new_matrix = *this; 
         std::size_t new_row = 0;
 
         for (const T& value : column_values) {
-            new_matrix(new_row++, column_index) = value;
+            matrix[new_row++][column_index] = value;
         }
-
-        return new_matrix; 
     }
 
     // A = B * C
     template <std::size_t other_columns>
     Matrix2D<T, rows, other_columns> operator*(const Matrix2D<T, columns, other_columns>& right_hand_side) const {
-       
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, other_columns> new_matrix{}; 
         
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < other_columns; new_column++) {
                 for (std::size_t shared_dimension = 0; shared_dimension < columns; shared_dimension++) {
-                    new_matrix(new_row, new_column) += left_hand_side(new_row, shared_dimension) * right_hand_side(shared_dimension, new_column);
+                    new_matrix(new_row, new_column) += matrix[new_row][shared_dimension] * right_hand_side(shared_dimension, new_column);
                 }
             }
         }
@@ -100,13 +103,11 @@ public:
 
     // A = B * scalar
     Matrix2D<T, rows, columns> operator*(const T& scalar) const {
-       
-        const Matrix2D<T, rows, columns>& right_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
         
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                    new_matrix(new_row, new_column) = scalar * right_hand_side(new_row, new_column);
+                new_matrix(new_row, new_column) = scalar * matrix[new_row][new_column];
             }
         }
         
@@ -115,13 +116,11 @@ public:
 
     // A = B + C
     Matrix2D<T, rows, columns> operator+(const Matrix2D<T, rows, columns>& right_hand_side) const {
-
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
     
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                new_matrix(new_row, new_column) = left_hand_side(new_row, new_column) + right_hand_side(new_row, new_column); 
+                new_matrix(new_row, new_column) = matrix[new_row][new_column] + right_hand_side(new_row, new_column); 
             }
         }
 
@@ -130,13 +129,11 @@ public:
 
     // A = B + scalar
     Matrix2D<T, rows, columns> operator+(const T& scalar) const {
-
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
     
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                new_matrix(new_row, new_column) = left_hand_side(new_row, new_column) + scalar; 
+                new_matrix(new_row, new_column) = matrix[new_row][new_column] + scalar; 
             }
         }
 
@@ -145,13 +142,11 @@ public:
 
     // A = B - C
     Matrix2D<T, rows, columns> operator-(const Matrix2D<T, rows, columns>& right_hand_side) const {
-
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
     
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                new_matrix(new_row, new_column) = left_hand_side(new_row, new_column) - right_hand_side(new_row, new_column); 
+                new_matrix(new_row, new_column) = matrix[new_row][new_column] - right_hand_side(new_row, new_column); 
             }
         }
 
@@ -160,13 +155,11 @@ public:
 
     // A = B - scalar
     Matrix2D<T, rows, columns> operator-(const T& scalar) const {
-
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
     
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                new_matrix(new_row, new_column) = left_hand_side(new_row, new_column) - scalar; 
+                new_matrix(new_row, new_column) = matrix[new_row][new_column] - scalar; 
             }
         }
 
@@ -175,13 +168,11 @@ public:
 
     // A = B / scalar
     Matrix2D<T, rows, columns> operator/(const T& scalar) const {
-
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
     
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                new_matrix(new_row, new_column) = left_hand_side(new_row, new_column) / scalar; 
+                new_matrix(new_row, new_column) = matrix[new_row][new_column] / scalar; 
             }
         }
 
@@ -189,13 +180,11 @@ public:
     }
 
     Matrix2D<T, rows, columns> elementWiseMultilply(const Matrix2D<T, rows, columns>& right_hand_side) const {
-
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
     
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                new_matrix(new_row, new_column) = left_hand_side(new_row, new_column) * right_hand_side(new_row, new_column); 
+                new_matrix(new_row, new_column) = matrix[new_row][new_column] * right_hand_side(new_row, new_column); 
             }
         }
 
@@ -203,13 +192,11 @@ public:
     }
 
     Matrix2D<T, rows, columns> elementWiseDivision(const Matrix2D<T, rows, columns>& right_hand_side) const {
-
-        const Matrix2D<T, rows, columns>& left_hand_side = *this; 
         Matrix2D<T, rows, columns> new_matrix{}; 
     
         for (std::size_t new_row = 0; new_row < rows; new_row++) {
             for (std::size_t new_column = 0; new_column < columns; new_column++) {
-                new_matrix(new_row, new_column) = left_hand_side(new_row, new_column) / right_hand_side(new_row, new_column); 
+                new_matrix(new_row, new_column) = matrix[new_row][new_column] / right_hand_side(new_row, new_column); 
             }
         }
 
@@ -217,22 +204,19 @@ public:
     }
 
     void setZeros() {
-        Matrix2D<T, rows, columns>& current_matrix = *this;
-        
         for (std::size_t row = 0; row < rows; row++) {
             for (std::size_t column = 0; column < columns; column++) {
-                current_matrix(row, column) = T{0};
+                matrix[row][column] = T{0};
            }
         }
     }
 
     void setIdentity() {
         static_assert(rows == columns, "Identity requires square matrix.");
-        Matrix2D<T, rows, columns>& current_matrix = *this;
-        current_matrix.setZeros();
+        setZeros();
 
-        for (std::size_t new_row = 0; new_row < rows; new_row++) {
-                current_matrix(new_row, new_row) = T{1};
+        for (std::size_t diag_index = 0; diag_index < rows; diag_index++) {
+            matrix[diag_index][diag_index] = T{1};
         }
     }
 
@@ -262,6 +246,77 @@ public:
         }
     }
 
+    Matrix2D<T, rows, columns> power(const int exponent) {
+        // static_assert(rows == columns, "Raising a matrix to a power is only valid for square matrices.");
+
+        // Matrix2D<T, rows, columns> result = identityMatrix<T, rows>;
+        // TBD - Need inverse function for negative powers!
+    }
+
+    T det() const {
+        static_assert(rows == columns, "Determinant only valid for square matrices.");
+        static_assert(std::is_floating_point<T>::value,
+                    "Gaussian elimination in determinant function requires double or float matrix type");
+
+        Matrix2D<T, rows, columns> matrix_copy(*this);
+        int determinate_sign = 1; 
+        T determinate        = static_cast<T>(1);
+        std::array<T, rows> row_scale; 
+
+        // Step 1: Compute row scale factors
+        for (std::size_t row = 0; row < rows; row++) {
+            T row_max = static_cast<T>(0);
+            for (std::size_t column = 0; column < columns; column++) {
+                row_max = std::max(row_max, std::abs(matrix_copy(row, column)));
+            }
+            // prevent divide by zero later // fix this to be < e-12
+            row_scale[row] = (row_max < static_cast<T>(1e-12)) ? static_cast<T>(1) : row_max;
+        }
+
+        for (std::size_t pivot_index = 0; pivot_index < rows; pivot_index++) {                       
+            // Step 2: Find best pivot row (scaled partial pivoting)
+            std::size_t best_row = pivot_index; 
+            T largest_ratio      = std::abs(matrix_copy(pivot_index, pivot_index)) / row_scale[pivot_index];
+            
+            for (std::size_t current_row = pivot_index + 1; current_row < rows; current_row++) {
+                T current_ratio = std::abs(matrix_copy(current_row, pivot_index)) / row_scale[current_row];
+                if (current_ratio > largest_ratio) {
+                    largest_ratio = current_ratio; 
+                    best_row      = current_row; 
+                }
+            }
+
+            // Step 3: Swap rows if needed
+            if (best_row != pivot_index) {
+                for (std::size_t i = 0; i < columns; i++) {
+                    std::swap(matrix_copy(pivot_index, i), matrix_copy(best_row, i));
+                }
+                std::swap(row_scale[pivot_index], row_scale[best_row]);
+                determinate_sign = -determinate_sign; 
+            }
+
+            // Step 4: Check pivot element AFTER swap
+            T pivot_value = matrix_copy(pivot_index, pivot_index);
+            if (std::abs(pivot_value) < static_cast<T>(1e-12)) {
+                return static_cast<T>(0); 
+            }
+
+            // Step 5: Eliminate below pivot
+            for (std::size_t row = pivot_index + 1; row < rows; row++) {
+                T factor = matrix_copy(row, pivot_index) / pivot_value;
+                for (std::size_t column = pivot_index; column < columns; column++) {
+                    matrix_copy(row, column) -= factor * matrix_copy(pivot_index, column);
+                }
+            }  
+        }
+
+        // Step 6: Product of diagonal entries
+        for (std::size_t i = 0; i < rows; i++) {
+            determinate *= matrix_copy(i, i);
+        }
+        
+        return determinate * static_cast<T>(determinate_sign);
+    }   
 
 private:
 

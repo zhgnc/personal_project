@@ -249,24 +249,24 @@ TEST(Matrix2DTest, MatrixScalarDivision) {
 
 TEST(Matrix2DTest, MatrixSetRow) {   
     Matrix2D<double, 3, 3> test_matrix = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
-    Matrix2D<double, 3, 3> output      = test_matrix.set_row(0, {10, 11, 12});
+    test_matrix.set_row(0, {10, 11, 12});
     Matrix2D<double, 3, 3> expected    = {10, 11, 12, 4, 5, 6, 7, 8, 9};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
         for (size_t columns = 0; columns < expected.num_columns; columns++) {
-            EXPECT_DOUBLE_EQ(expected(rows, columns), output(rows, columns));
+            EXPECT_DOUBLE_EQ(expected(rows, columns), test_matrix(rows, columns));
         }
     }
 }
 
 TEST(Matrix2DTest, MatrixSetColumn) {   
     Matrix2D<double, 3, 3> test_matrix = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
-    Matrix2D<double, 3, 3> output      = test_matrix.set_column(1, {10, 11, 12});
+    test_matrix.set_column(1, {10, 11, 12});
     Matrix2D<double, 3, 3> expected    = {1, 10, 3, 4, 11, 6, 7, 12, 9};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
         for (size_t columns = 0; columns < expected.num_columns; columns++) {
-            EXPECT_DOUBLE_EQ(expected(rows, columns), output(rows, columns));
+            EXPECT_DOUBLE_EQ(expected(rows, columns), test_matrix(rows, columns));
         }
     }
 }
