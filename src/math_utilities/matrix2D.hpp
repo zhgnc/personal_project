@@ -327,7 +327,115 @@ public:
         }
         
         return determinant = determinant_sign * std::exp(log_of_determinant);
-    }   
+    } 
+    
+    Matrix2D<T, rows, columns> inv() const {
+        static_assert(rows == columns, "Determinant only valid for square matrices.");
+        static_assert(std::is_floating_point<T>::value, "Gaussian elimination in determinant function requires double/float matrix type");
+
+        Matrix2D<T, rows, columns> P;
+        Matrix2D<T, rows, columns> L;
+        Matrix2D<T, rows, columns> U(*this);
+        Matrix2D<T, rows, columns> inverse_matrix;
+
+        P.setIdentity();
+        L.setIdentity();
+        inverse_matrix.setZeros();
+
+        std::array<T, rows> row_scale; 
+
+        // See det() for comments on gaussian elimination steps
+        for (std::size_t row = 0; row < rows; row++) {
+            T row_max = static_cast<T>(0);
+
+            for (std::size_t column = 0; column < columns; column++) {
+                row_max = std::max(row_max, std::abs(U(row, column)));
+            }
+            
+            row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::min());
+        }
+
+        
+        for (std::size_t pivot_index = 0; pivot_index < rows - 1; pivot_index++) {                       
+            std::size_t best_row = pivot_index; 
+            T largest_ratio      = std::abs(U(pivot_index, pivot_index)) / row_scale[pivot_index];
+            
+            for (std::size_t current_row = pivot_index + 1; current_row < rows; current_row++) {
+                T current_ratio = std::abs(U(current_row, pivot_index)) / row_scale[current_row];
+
+                if (current_ratio > largest_ratio) {
+                    largest_ratio = current_ratio; 
+                    best_row      = current_row; 
+                }
+            }
+
+
+            if (best_row != pivot_index) {
+                for (std::size_t i = 0; i < columns; i++) {
+                    std::swap(P(pivot_index, i), P(best_row, i));
+                    std::swap(U(pivot_index, i), U(best_row, i));
+
+                    if (pivot_index > 0) {
+                        for (std::size_t j = 0; j < pivot_index; j++) {
+                            std::swap(L(pivot_index, j), L(best_row, j));
+                        }
+                    }
+                }
+                std::swap(row_scale[pivot_index], row_scale[best_row]);
+            }
+
+
+            T pivot_value = U(pivot_index, pivot_index);
+            // if (std::abs(pivot_value) < row_scale[pivot_index] * std::numeric_limits<T>::epsilon()) {
+            //     return determinant = static_cast<T>(0); 
+            // }
+
+
+            for (std::size_t row = pivot_index + 1; row < rows; row++) {
+                T factor = U(row, pivot_index) / pivot_value;
+                for (std::size_t column = pivot_index; column < columns; column++) {
+                    U(row, column) -= factor * U(pivot_index, column);
+                }
+
+                L(row, pivot_index) = factor; 
+            }
+        }
+
+        // Backwards and forwards substitution to solve for 
+        for (std::size_t column = 0; column < columns; column++) {            
+            
+            // Forward substitution solve Ly = b where b = columns of P
+            Matrix2D<T, rows, 1> y;
+
+            for (std::size_t row = 0; row < rows; row++) {
+                y(row, 0) = P(row,column);
+
+                for (std::size_t j = 0; j < row; j++) {
+                    y(row, 0) -= L(row, j) * y(j, 0);
+                }
+            }
+
+            // Backwards substitution solve Ux = y
+            Matrix2D<T, rows, 1> x;
+
+            for (int row = static_cast<int>(rows) - 1; row >= 0; row--) {
+                x(row, 0) = y(row, 0);
+
+                for (std::size_t j = row + 1; j < rows; j++) {
+                    x(row, 0) -= U(row, j) * x(j, 0);
+                }
+
+                x(row, 0) /= U(row,row);  
+            }
+
+            // Plug values into inverse 
+            for (std::size_t r = 0; r < rows; r++) {
+                inverse_matrix(r, column) = x(r, 0);
+            }
+        }
+
+        return inverse_matrix;
+    }
 
 private:
 
