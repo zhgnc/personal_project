@@ -460,6 +460,89 @@ TEST(Matrix2DTest, HugeMatrixDeterminate) {
     EXPECT_DOUBLE_EQ(expected_det, big_test_matrix.det());
 }
 
+TEST(Matrix2DTest, EasyMatrixInverse) {
+    Matrix2D<double, 3,3> A = {2,1,1, 1,3,2, 1,0,0};
+    Matrix2D<double, 3,3> A_inv = A.inv();
+    Matrix2D<double, 3,3> A_inv_expected{0, 0, 1, -2, 1, 3,  3, -1, -5};
+
+    Matrix2D<double, 2,2> B = {4,7, 2,6};
+    Matrix2D<double, 2,2> B_inv = B.inv();
+    Matrix2D<double, 2,2> B_inv_expected{0.6, -0.7, -0.2, 0.4};
+
+    Matrix2D<double, 3,3> C = {1,2,3, 0,1,4, 5,6,0};
+    Matrix2D<double, 3,3> C_inv = C.inv();
+    Matrix2D<double, 3,3> C_inv_expected{-24, 18, 5, 20, -15, -4, -5, 4, 1};
+
+    Matrix2D<double, 2,2> D = {1,2, 3,4};
+    Matrix2D<double, 2,2> D_inv = D.inv();
+    Matrix2D<double, 2,2> D_inv_expected{-2,1, 1.5,-0.5};
+
+    Matrix2D<double, 3,3> E = {3,0,2, 2,0,-2, 0,1,1};
+    Matrix2D<double, 3,3> E_inv = E.inv();
+    Matrix2D<double, 3,3> E_inv_expected{0.2,0.2,0, -0.2,0.3,1, 0.2,-0.3,0};
+
+
+    for (std::size_t row = 0; row < 3; row++) {
+        for (std::size_t column = 0; column < 3; column++) {
+            EXPECT_NEAR(A_inv(row, column), A_inv_expected(row, column), 1e-12);
+            EXPECT_NEAR(C_inv(row, column), C_inv_expected(row, column), 1e-12);
+            EXPECT_NEAR(E_inv(row, column), E_inv_expected(row, column), 1e-12);
+        }
+    }
+
+    for (std::size_t row = 0; row < 2; row++) {
+        for (std::size_t column = 0; column < 2; column++) {
+            EXPECT_NEAR(B_inv(row, column), B_inv_expected(row, column), 1e-12);
+            EXPECT_NEAR(D_inv(row, column), D_inv_expected(row, column), 1e-12);
+        }
+    }
+}
+
+TEST(Matrix2D, PrecisionMatrixInverse) {
+
+    Matrix2D<double, 3,3> K = {1e-12, 0, 0,  0, 1, 0,  0, 0, 1e12};
+    Matrix2D<double, 3,3> K_inv = K.inv();
+    Matrix2D<double, 3,3> K_inv_expected = {1e12, 0, 0,  0, 1, 0,  0, 0, 1e-12};
+
+    Matrix2D<double, 4,4> L = {1e-12, 0, 0, 0,  0, 1e12, 0, 0,  0, 0, 3, -1,  0, 0, -1, 2};
+    Matrix2D<double, 4,4> L_inv = L.inv();
+    Matrix2D<double, 4,4> L_inv_expected = {1e12, 0, 0, 0,  0, 1e-12, 0, 0,  0, 0, 0.4, 0.2,  0, 0, 0.2, 0.6};
+
+    Matrix2D<double, 2,2> M = {1e-6, 0,  0, 1e12};
+    Matrix2D<double, 2,2> M_inv = M.inv();
+    Matrix2D<double, 2,2> M_inv_expected = {1e6, 0,  0, 1e-12};
+
+    Matrix2D<double, 3,3> N = {1e12, 1, 1,  1, 1e-12, 1,  1, 1, 1};
+    Matrix2D<double, 3,3> N_inv = N.inv();
+    Matrix2D<double, 3,3> N_inv_expected = {1.000000000001e-12, 0.0, -1.000000000001e-12,
+                                            0.0, -1.000000000001,  1.000000000001,
+                                        -1.000000000001e-12,   1.000000000001, 0.0};
+
+    Matrix2D<double, 2,2> O = {0, 1e12,  -1e-12, 0};
+    Matrix2D<double, 2,2> O_inv = O.inv();
+    Matrix2D<double, 2,2> O_inv_expected = {0, -1e12,  1e-12, 0};
+
+    for (std::size_t row = 0; row < 4; row++) {
+        for (std::size_t column = 0; column < 4; column++) {
+            EXPECT_NEAR(L_inv(row, column), L_inv_expected(row, column), 1e-12);
+        }
+    }
+
+    for (std::size_t row = 0; row < 3; row++) {
+        for (std::size_t column = 0; column < 3; column++) {
+            EXPECT_NEAR(K_inv(row, column), K_inv_expected(row, column), 1e-12);
+            EXPECT_NEAR(N_inv(row, column), N_inv_expected(row, column), 1e-12);
+        }
+    }
+
+    for (std::size_t row = 0; row < 2; row++) {
+        for (std::size_t column = 0; column < 2; column++) {
+            EXPECT_NEAR(M_inv(row, column), M_inv_expected(row, column), 1e-12);
+            EXPECT_NEAR(O_inv(row, column), O_inv_expected(row, column), 1e-12);
+        }
+    }
+}
+
 template <int N>
 void runRandomMultiplicationCheck(std::mt19937& rng) {
     std::uniform_real_distribution<double> dist(-10.0, 10.0);
@@ -630,6 +713,59 @@ TEST(Matrix2DTest, RandomDeterminantTestAgainstEigen) {
             case 4: runRandomDeterminantCheck<4>(rng); break;
             case 5: runRandomDeterminantCheck<5>(rng); break;
             case 6: runRandomDeterminantCheck<6>(rng); break;
+        }
+    }
+}
+
+template <int N>
+void runRandomInverseCheck(std::mt19937& rng) {
+    std::uniform_int_distribution<int> dist(-10, 10);
+
+    Matrix2D<double, N, N> A, A_inv;
+    Eigen::Matrix<double, N, N> eigA, eigA_inv;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            A(i, j)    = dist(rng);
+            eigA(i, j) = A(i, j);
+        }
+    }
+
+    // Compute condition number using Eigen SVD
+    Eigen::JacobiSVD<Eigen::Matrix<double, N, N>> svd(eigA);
+    double sigma_max = svd.singularValues()(0);
+    double sigma_min = svd.singularValues()(N - 1);
+    double cond_num  = sigma_max / sigma_min;
+
+    if (std::abs(eigA.determinant()) < 1e-12 || cond_num > 1e8) {
+        return;
+    }
+
+    A_inv    = A.inv();
+    eigA_inv = eigA.inverse();
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            EXPECT_NEAR(A_inv(i, j), eigA_inv(i, j), 1e-6);
+        }
+    }
+}
+
+TEST(Matrix2DTest, RandomInverseTestAgainstEigen) {
+    std::mt19937 rng(0);
+    int num_tests = 100;
+    int min_mat_size = 2; 
+    int max_mat_size = 6;
+
+    for (int test = 0; test < num_tests; test++) {
+        int random_mat_size = min_mat_size + (rng() % (max_mat_size-1)); 
+
+        switch (random_mat_size) {
+            case 2: runRandomInverseCheck<2>(rng); break;
+            case 3: runRandomInverseCheck<3>(rng); break;
+            case 4: runRandomInverseCheck<4>(rng); break;
+            case 5: runRandomInverseCheck<5>(rng); break;
+            case 6: runRandomInverseCheck<6>(rng); break;
         }
     }
 }

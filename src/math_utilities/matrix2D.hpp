@@ -274,7 +274,7 @@ public:
                 row_max = std::max(row_max, std::abs(matrix_copy(row, column)));
             }
             
-            row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::min());
+            row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::epsilon());
         }
         
         
@@ -342,6 +342,7 @@ public:
         L.setIdentity();
         inverse_matrix.setZeros();
 
+
         std::array<T, rows> row_scale; 
 
         // See det() for comments on gaussian elimination steps
@@ -352,7 +353,7 @@ public:
                 row_max = std::max(row_max, std::abs(U(row, column)));
             }
             
-            row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::min());
+            row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::epsilon());
         }
 
         
@@ -383,13 +384,13 @@ public:
                 }
                 std::swap(row_scale[pivot_index], row_scale[best_row]);
             }
-
-
+            
+            
             T pivot_value = U(pivot_index, pivot_index);
-            // if (std::abs(pivot_value) < row_scale[pivot_index] * std::numeric_limits<T>::epsilon()) {
-            //     return determinant = static_cast<T>(0); 
-            // }
 
+            if (std::abs(pivot_value) < std::numeric_limits<T>::epsilon() * row_scale[pivot_index]) {
+                throw std::runtime_error("Matrix is singular to working precision");
+            }
 
             for (std::size_t row = pivot_index + 1; row < rows; row++) {
                 T factor = U(row, pivot_index) / pivot_value;
