@@ -375,13 +375,12 @@ public:
                 for (std::size_t i = 0; i < columns; i++) {
                     std::swap(P(pivot_index, i), P(best_row, i));
                     std::swap(U(pivot_index, i), U(best_row, i));
-
-                    if (pivot_index > 0) {
-                        for (std::size_t j = 0; j < pivot_index; j++) {
-                            std::swap(L(pivot_index, j), L(best_row, j));
-                        }
-                    }
                 }
+
+                for (std::size_t j = 0; j < pivot_index; j++) {
+                    std::swap(L(pivot_index, j), L(best_row, j));
+                }
+                
                 std::swap(row_scale[pivot_index], row_scale[best_row]);
             }
             

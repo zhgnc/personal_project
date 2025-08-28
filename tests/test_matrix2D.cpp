@@ -737,7 +737,7 @@ void runRandomInverseCheck(std::mt19937& rng) {
     double sigma_min = svd.singularValues()(N - 1);
     double cond_num  = sigma_max / sigma_min;
 
-    if (std::abs(eigA.determinant()) < 1e-12 || cond_num > 1e8) {
+    if (std::abs(eigA.determinant()) < 1e-12 || cond_num > 1e10) {
         return;
     }
 
@@ -746,7 +746,7 @@ void runRandomInverseCheck(std::mt19937& rng) {
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            EXPECT_NEAR(A_inv(i, j), eigA_inv(i, j), 1e-6);
+            EXPECT_NEAR(A_inv(i, j), eigA_inv(i, j), 1e-12);
         }
     }
 }
