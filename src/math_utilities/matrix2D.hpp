@@ -116,6 +116,13 @@ public:
         return new_matrix; 
     }
 
+    Matrix2D<T, rows, columns>& operator*=(const Matrix2D<T, rows, columns>& rhs) {
+        static_assert(rows == columns, "In-place multiplication only valid for square matrices.");
+        
+        *this = (*this) * rhs;
+        return *this;
+    }
+
     // A = B + C
     Matrix2D<T, rows, columns> operator+(const Matrix2D<T, rows, columns>& right_hand_side) const {
         Matrix2D<T, rows, columns> new_matrix{}; 
@@ -435,6 +442,40 @@ public:
         }
 
         return inverse_matrix;
+    }
+
+    // Matrix to a power uses exponentiation by squaring algorithm to improve efficiency
+    Matrix2D<T, rows, columns> pow(int exponent) const {
+        static_assert(rows == columns, "Matrix power only defined for square matrices.");
+
+        Matrix2D<T, rows, columns> new_matrix;
+        Matrix2D<T, rows, columns> matrix_copy(*this);
+        new_matrix.setIdentity();
+
+        if (exponent == 0) {
+            return new_matrix;
+        }
+        
+        if (exponent < 0) {
+            matrix_copy = matrix_copy.inv();
+            exponent    = -exponent;
+        }
+        
+        
+        bool exponent_is_odd;
+
+        while (exponent > 0) {
+            exponent_is_odd = (exponent % 2 == 1);
+
+            if (exponent_is_odd) {
+                new_matrix *= matrix_copy;
+            }
+
+            matrix_copy *= matrix_copy;
+            exponent = exponent / 2;
+        }       
+
+        return new_matrix;
     }
 
 private:

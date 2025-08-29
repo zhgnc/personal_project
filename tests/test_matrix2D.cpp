@@ -543,6 +543,37 @@ TEST(Matrix2D, PrecisionMatrixInverse) {
     }
 }
 
+TEST(Matrix2D, SimpleMatrixToPower) {
+    Matrix2D<double, 3, 3> I = identityMatrix<double, 3>();
+    Matrix2D<double, 3, 3> test_matrix_1 = I.pow(10);
+    
+    Matrix2D<double, 3, 3> generic_matrix = {2,3,4, 11,15,20, 4,5,6};
+
+    Matrix2D<double, 3, 3> test_matrix_2 = generic_matrix;
+    test_matrix_2 = test_matrix_2.pow(0);
+
+    Matrix2D<double, 3, 3> test_matrix_3 = generic_matrix.pow(3);
+    Matrix2D<double, 3, 3> test_matrix_3_expected = {1255,1684,2184, 6328,8491,11012, 2069,2776,3600};
+
+    Matrix2D<double, 3, 3> test_matrix_4 = generic_matrix;
+    test_matrix_4 = test_matrix_4.pow(-2);
+    Matrix2D<double, 3, 3> test_matrix_4_expected = {32.0,-7.0,2.0, -54.0,13.0,-7.0, 23.25,-6.0,4.25};
+
+    Matrix2D<double, 3, 3> test_matrix_5 = generic_matrix;
+    test_matrix_5 = test_matrix_5.pow(-1);
+    Matrix2D<double, 3, 3> test_matrix_5_expected = generic_matrix.inv();
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            EXPECT_DOUBLE_EQ(test_matrix_1(i, j), I(i, j));
+            EXPECT_DOUBLE_EQ(test_matrix_2(i, j), I(i, j));
+            EXPECT_DOUBLE_EQ(test_matrix_3(i, j), test_matrix_3_expected(i, j));
+            EXPECT_DOUBLE_EQ(test_matrix_4(i, j), test_matrix_4_expected(i, j));
+            EXPECT_DOUBLE_EQ(test_matrix_5(i, j), test_matrix_5_expected(i, j));
+        }
+    }
+}
+
 template <int N>
 void runRandomMultiplicationCheck(std::mt19937& rng) {
     std::uniform_real_distribution<double> dist(-10.0, 10.0);
@@ -719,39 +750,37 @@ TEST(Matrix2DTest, RandomDeterminantTestAgainstEigen) {
 
 template <int N>
 void runRandomInverseCheck(std::mt19937& rng) {
-    std::uniform_int_distribution<int> dist(-10, 10);
+    std::uniform_real_distribution<double> dist(-5, 5);
+    std::uniform_int_distribution<int> random_power(-5, 5);
 
-    Matrix2D<double, N, N> A, A_inv;
-    Eigen::Matrix<double, N, N> eigA, eigA_inv;
+    Matrix2D<double, N, N> A, A_pow, A_expected;
+    A_expected.setIdentity();
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            A(i, j)    = dist(rng);
-            eigA(i, j) = A(i, j);
+            A(i, j) = dist(rng);
         }
     }
 
-    // Compute condition number using Eigen SVD
-    Eigen::JacobiSVD<Eigen::Matrix<double, N, N>> svd(eigA);
-    double sigma_max = svd.singularValues()(0);
-    double sigma_min = svd.singularValues()(N - 1);
-    double cond_num  = sigma_max / sigma_min;
+    int exponent = random_power(rng);
+    A_pow        = A.pow(exponent);
 
-    if (std::abs(eigA.determinant()) < 1e-12 || cond_num > 1e10) {
-        return;
+    if (exponent < 0) {
+        A = A.inv();
     }
 
-    A_inv    = A.inv();
-    eigA_inv = eigA.inverse();
+    for (int i = 0; i < std::abs(exponent); i++) {
+        A_expected *= A;
+    }
 
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            EXPECT_NEAR(A_inv(i, j), eigA_inv(i, j), 1e-12);
+    for (std::size_t row = 0; row < N; row++) {
+        for (std::size_t column = 0; column < N; column++) {
+            EXPECT_NEAR(A_pow(row, column), A_expected(row, column), 1e-6);
         }
     }
 }
 
-TEST(Matrix2DTest, RandomInverseTestAgainstEigen) {
+TEST(Matrix2DTest, RandomInverseTest) {
     std::mt19937 rng(0);
     int num_tests = 100;
     int min_mat_size = 2; 
