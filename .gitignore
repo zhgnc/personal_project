@@ -4,6 +4,11 @@
 /build/*
 !/build/.gitkeep
 
+#############################
+# Ignore External Libraries #
+#############################
+external/
+
 ###############
 # CMake Files #
 ###############
