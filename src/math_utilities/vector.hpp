@@ -1,49 +1,87 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef VECTOR_HPP
+#define VECTOR_HPP
 
-#include <iostream>
-#include <array>
-#include <initializer_list>
-#include <stdexcept>
+#include "matrix.hpp"
+#include <algorithm> // std::clamp
+#include <cmath>
 
 template <typename T, std::size_t length>
-class Vector 
+class vector : public matrix<T, length, 1> 
 {
 public:
-    std::array<T, length> vector{};
-    std::size_t size = 0; 
+    using matrix<T, length, 1>::matrix; // Inherit base constructors
 
-    // Default constructor
-    Vector() = default;
+    // Allows a matrix with 1 column to initialize a vector object.
+    // For example this is now valid syntax: vector = matrix * vector;
+    vector(const matrix<T, length, 1>& mat) : matrix<T, length, 1>(mat) {}; 
 
-    // constructor if using initializer list
-    Vector(std::initializer_list<T> initial_vector) {
-        if (initial_vector.size() > length) {
-            throw std::out_of_range("Too many elements in vector initialize list");
-        }   
+    T& operator()(std::size_t row_to_return) {
+        return matrix<T,length,1>::data[row_to_return][0];
+    }
+
+    const T& operator()(std::size_t row_to_return) const {
+        return matrix<T,length,1>::data[row_to_return][0];
+    }
+
+    T dot(const vector<T, length>& v2) const {
+        T output = 0;
         
-        std::size_t i = 0;
-        for (T value : initial_vector) {
-            vector[i] = value;
-            i++; 
+        for (std::size_t row = 0; row < length; row++) {
+            output += (*this)(row) * v2(row);
         }
+
+        return output;
     }
 
-    T& operator[](std::size_t index) {
-        return vector[index];
+    vector<T, length> cross(const vector<T,length>& v2) const {
+        static_assert(length == 3, "Cross product only defined for 3D vectors");
+        
+        vector<T,3> output;
+        
+        output(0) = (*this)(1) * v2(2) - (*this)(2) * v2(1);
+        output(1) = (*this)(2) * v2(0) - (*this)(0) * v2(2);
+        output(2) = (*this)(0) * v2(1) - (*this)(1) * v2(0);
+        
+        return output;
     }
 
-    const T& operator[](std::size_t index) const {
-        return vector[index];
-    } 
+    T mag() const {
+        T output = 0;
 
-    Vector operator*(const Vector& other_vector) const {
-        Vector output_vector; 
-        for (std::size_t i = 0; i < length; i++) {
-            output_vector[i] = vector[i] * other_vector[i];
+        for (std::size_t row = 0; row < length; row++) {
+            output += (*this)(row) * (*this)(row);
         }
-    
-        return output_vector;
+
+        return std::sqrt(output);
+    }
+
+    vector<T, length> norm() const {
+        T magnitude = mag();
+        if (magnitude == 0) throw std::runtime_error("Cannot normalize vector with all elements zero!");
+
+        vector<T,length> output;
+        for (std::size_t row = 0; row < length; row++) {
+            output(row) = (*this)(row) / mag;
+        }
+
+        return output;
+    }
+
+    T angle_between(const vector<T,length>& v2) const {
+        T magnitude_1 = mag();
+        T magnitude_2 = v2.mag();
+
+        if (magnitude_1 < 1e-12 || magnitude_2 < 1e-12) {
+            throw std::runtime_error("Cannot comput angle with zero length vector!");
+        }
+
+        T temp = (*this).dot(v2) / (magnitude_1 * magnitude_2);
+        temp = std::clamp(temp, T(-1), T(1));
+
+        T angle_in_radians = std::acos(temp);
+
+
+        return angle_in_radians;
     }
 
 private: 
