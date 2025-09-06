@@ -1,3 +1,0 @@
-# Force LF endings for shell scripts (so they run on Linux)
-*.sh text eol=lf
-tests/*.sh text eol=lf
