@@ -53,9 +53,6 @@ public:
     T det() const;
     matrix<T, rows, columns> inv() const;
     matrix<T, rows, columns> pow(int exponent) const;
-
-private:
-
 };
 
 #endif

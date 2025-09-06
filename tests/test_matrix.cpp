@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include "../src/math_utilities/matrix.hpp"
+#include "../src/math_utilities/matrix/matrix.hpp"
 #include <Eigen/Dense>
 #include <random>
 #include <limits> 
 
 // Test constructor and element access
-TEST(matrixTest, ElementAccess) {
+TEST(matrixTest, ConstructorAndAccessTest) {
     matrix<int, 2, 2> mat = {1, 2, 3, 4};
     EXPECT_EQ(mat(0, 0), 1);
     EXPECT_EQ(mat(0, 1), 2);
