@@ -95,5 +95,17 @@ matrix<T, num_rows, num_columns> zerosMatrix() {
     return zerosMat;
 }
 
+template <typename T, std::size_t rows, std::size_t columns>
+T matrix<T, rows, columns>::trace() const {
+    static_assert(rows == columns, "Trace function requires square matrix.");
+
+    T output = 0; 
+    for (std::size_t i = 0; i < rows; i++) {
+        output += data[i][i];
+    }
+
+    return output; 
+}
+
 
 #endif

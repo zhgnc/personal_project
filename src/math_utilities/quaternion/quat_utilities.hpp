@@ -24,6 +24,12 @@ const T& quat<T>::operator()(std::size_t element_to_return) const {
 }
 
 template <typename T>
+quat<T>& quat<T>::operator=(const quat<T>& another_quaternion) {
+    data = another_quaternion.data;
+    return (*this);
+}
+
+template <typename T>
 void quat<T>::print() const {
     for (std::size_t row = 0; row < 4; row++) {
         std::cout << data[row] << "\n"; 
