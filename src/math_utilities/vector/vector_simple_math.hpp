@@ -49,7 +49,7 @@ vector<T, length> vector<T,length>::norm() const {
 
     vector<T,length> output;
     for (std::size_t row = 0; row < length; row++) {
-        output(row) = (*this)(row) / mag;
+        output(row) = (*this)(row) / magnitude;
     }
 
     return output;
