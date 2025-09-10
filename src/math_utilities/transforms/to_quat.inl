@@ -1,10 +1,10 @@
-#ifndef TRANSFORMS_TO_QUAT_HPP
-#define TRANSFORMS_TO_QUAT_HPP
+#ifndef TO_QUAT_INL
+#define TO_QUAT_INL
 
 #include "transforms.hpp"
 
 template<typename T>
-quat<T> transforms<T>::to_quat(const rot_vec<T>& rotation_vector) {
+quat<T> to_quat(const rot_vec<T>& rotation_vector) {
     vector<T,3> unit_axis = rotation_vector.axis(); 
     T angle               = rotation_vector.angle();
     
@@ -16,7 +16,7 @@ quat<T> transforms<T>::to_quat(const rot_vec<T>& rotation_vector) {
 };
 
 template<typename T>
-quat<T> transforms<T>::to_quat(const matrix<T,3,3>& dcm) {
+quat<T> to_quat(const matrix<T,3,3>& dcm) {
     quat<T> output;
     const T numerical_limits = 100.0 * std::numeric_limits<T>::epsilon();
 
