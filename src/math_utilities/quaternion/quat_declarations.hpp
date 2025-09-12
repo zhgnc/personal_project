@@ -27,6 +27,7 @@ public:
     vector<T,3> vec() const;
     void setVector(vector<T, 3> vector);
     void setScalar(T scalar);
+    quat<T> neg() const;
 
     // Math
     quat<T> normalize() const;

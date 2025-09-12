@@ -70,4 +70,9 @@ void quat<T>::setScalar(T scalar) {
     data[3] = scalar;
 }
 
+template <typename T>
+quat<T> quat<T>::neg() const{
+    return quat<T>({-data[0], -data[1], -data[2], -data[3]});
+}
+
 #endif
