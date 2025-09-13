@@ -47,10 +47,10 @@ int main() {
   // dcm_2 = to_dcm(quat_2);
   // dcm_2.print();
 
-  matrix<double,3,3> dcm   = {0,1,0, -1,0,0, 0,0,1};
-  vector<double,3>   vec   = {1,0,0};
-  vector<double,3>   vec_1 = dcm * vec;
-  vector<double,3>   vec_2 = dcm.transpose() * vec;
+  matrix<double, 3, 3> dcm = {0, 1, 0, -1, 0, 0, 0, 0, 1};
+  vector<double, 3> vec = {1, 0, 0};
+  vector<double, 3> vec_1 = dcm * vec;
+  vector<double, 3> vec_2 = dcm.transpose() * vec;
   dcm.print();
   vec_1.print();
   vec_2.print();
@@ -58,19 +58,19 @@ int main() {
   quat<double> q = to_quat(dcm);
   q.print();
 
-  vector<double,3>   vec_3 = q * vec;
-  matrix<double,3,3> rot_mat   = to_rotation_matrix(q);
-  matrix<double,3,3> trans_mat = to_transformation_matrix(q);
+  vector<double, 3> vec_3 = q * vec;
+  matrix<double, 3, 3> rot_mat = to_rotation_matrix(q);
+  matrix<double, 3, 3> trans_mat = to_transformation_matrix(q);
 
   // rot_mat   = static_cast<matrix<int,3,3>>(rot_mat);
   // trans_mat = static_cast<matrix<int,3,3>>(trans_mat);
-  
+
   vec_3.print();
   rot_mat.print();
   trans_mat.print();
 
-  vector<double,3> vec_4 = rot_mat * vec;
-  vector<double,3> vec_5 = trans_mat * vec;
+  vector<double, 3> vec_4 = rot_mat * vec;
+  vector<double, 3> vec_5 = trans_mat * vec;
   vec_4.print();
   vec_5.print();
 
