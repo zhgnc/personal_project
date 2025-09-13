@@ -31,7 +31,7 @@ quat<T> to_quat(const matrix<T,3,3>& matrix) {
         output(1)  = constant * (matrix(2,0) - matrix(0,2));
         output(2)  = constant * (matrix(0,1) - matrix(1,0));
 
-        return output;
+        return output.inv();
     }
 
     T sqrt_1 = std::sqrt(std::max(1.0 + matrix(0,0) - matrix(1,1) - matrix(2,2), 0.0));
@@ -73,7 +73,7 @@ quat<T> to_quat(const matrix<T,3,3>& matrix) {
             break;
     }
 
-    return output;     
+    return output.inv();     
 };
 
 #endif
