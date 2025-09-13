@@ -167,3 +167,23 @@ TEST(transformsTest, RotationVectorToQuaternion) {
         EXPECT_NEAR(q_me(3), q_eigen.w(), 1e-9);
     }
 }
+
+TEST(transformsTest, QuaternionToRotationMatrix) {
+    std::mt19937 rng(0);
+    std::uniform_real_distribution<double> dist(-1.0, 1.0);
+    int number_of_tests = 1;
+
+    for (std::size_t i = 0; i < number_of_tests; i++) {
+        Eigen::Quaterniond q_eigen(dist(rng), dist(rng), dist(rng), dist(rng));
+        q_eigen.normalize();
+        Eigen::AngleAxisd rot_vec_eigen(q_eigen);
+        Eigen::Vector3d rot_vec_ref = rot_vec_eigen.angle() * rot_vec_eigen.axis();
+
+        quat<double> q_me = toMyQuat(q_eigen);
+        rot_vec<double> rot_vec_me = to_rot_vec(q_me);
+
+        for (std::size_t j = 0; j < 3; j++) {
+            EXPECT_NEAR(rot_vec_me(j), rot_vec_ref(j), 1e-9);
+        }
+    }
+}
