@@ -43,6 +43,7 @@ public:
     matrix<T, rows, columns> operator+(const T& scalar) const;
     matrix<T, rows, columns> operator-(const matrix<T, rows, columns>& right_hand_side) const;
     matrix<T, rows, columns> operator-(const T& scalar) const;
+    matrix<T, rows, columns> operator-() const;
     matrix<T, rows, columns> operator/(const T& scalar) const;
 
 
