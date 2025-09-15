@@ -1,7 +1,6 @@
 #ifndef TO_ROTATION_MATRIX_INL
 #define TO_ROTATION_MATRIX_INL
 
-// Equation 9
 template<typename T>
 matrix<T,3,3> to_rotation_matrix(const rot_vec<T>& rotation_vector) {
     return to_transformation_matrix(rotation_vector).transpose();
