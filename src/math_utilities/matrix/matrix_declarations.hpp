@@ -27,11 +27,11 @@ public:
     void set_row(std::size_t row_index, std::initializer_list<T> row_values);
     void set_column(std::size_t column_index, std::initializer_list<T> column_values);
     T trace() const;
-
-    
-    // Operators
     T& operator()(std::size_t desired_row, std::size_t desired_column);
     const T& operator()(std::size_t desired_row, std::size_t desired_column) const;
+    
+    template <typename U>
+    explicit operator matrix<U, rows, columns>() const; 
 
 
     // Basic Math

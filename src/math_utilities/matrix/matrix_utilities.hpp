@@ -107,5 +107,19 @@ T matrix<T, rows, columns>::trace() const {
     return output; 
 }
 
+template <typename T, std::size_t rows, std::size_t columns>
+template <typename U>
+matrix<T, rows,columns>::operator matrix<U, rows, columns>() const {
+    matrix<U, rows,columns> output;
+
+    for (std::size_t row = 0; row < rows; row++) {
+        for (std::size_t column = 0; column < columns; column++) {
+            output(row, column) = static_cast<U>(data[row][column]);
+        }
+    }
+
+    return output;
+}
+
 
 #endif
