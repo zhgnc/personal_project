@@ -24,6 +24,12 @@ const T& quat<T>::operator()(std::size_t element_to_return) const {
 }
 
 template <typename T>
+quat<T>& quat<T>::operator=(const quat<T>& another_quaternion) {
+    data = another_quaternion.data;
+    return (*this);
+}
+
+template <typename T>
 void quat<T>::print() const {
     for (std::size_t row = 0; row < 4; row++) {
         std::cout << data[row] << "\n"; 
@@ -62,6 +68,11 @@ void quat<T>::setVector(vector<T, 3> vector) {
 template <typename T>
 void quat<T>::setScalar(T scalar) {
     data[3] = scalar;
+}
+
+template <typename T>
+quat<T> quat<T>::neg() const{
+    return quat<T>({-data[0], -data[1], -data[2], -data[3]});
 }
 
 #endif

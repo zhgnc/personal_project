@@ -66,7 +66,7 @@ TEST(quatTest, QuatInverse) {
 }
 
 
-quat<double> toMyQuat(const Eigen::Quaternion<double>& q) {
+inline quat<double> toMyQuat(const Eigen::Quaternion<double>& q) {
     quat<double> my_quat = {q.x(), q.y(), q.z(), q.w()};
     return my_quat;
 }

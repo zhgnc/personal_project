@@ -7,7 +7,7 @@
 template <typename T, std::size_t rows, std::size_t columns>
 template <std::size_t other_columns>
 matrix<T, rows, other_columns> matrix<T, rows, columns>::operator*(const matrix<T, columns, other_columns>& right_hand_side) const {
-    matrix<T, rows, other_columns> new_matrix{}; 
+    matrix<T, rows, other_columns> new_matrix; 
     
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < other_columns; new_column++) {
@@ -23,7 +23,7 @@ matrix<T, rows, other_columns> matrix<T, rows, columns>::operator*(const matrix<
 // A = B * scalar
 template <typename T, std::size_t rows, std::size_t columns>
 matrix<T, rows, columns> matrix<T, rows, columns>::operator*(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix{}; 
+    matrix<T, rows, columns> new_matrix; 
     
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -45,7 +45,7 @@ matrix<T, rows, columns>& matrix<T, rows, columns>::operator*=(const matrix<T, r
 // A = B + C
 template <typename T, std::size_t rows, std::size_t columns>
 matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const matrix<T, rows, columns>& right_hand_side) const {
-    matrix<T, rows, columns> new_matrix{}; 
+    matrix<T, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -59,7 +59,7 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const matrix<T, row
 // A = B + scalar
 template <typename T, std::size_t rows, std::size_t columns>
 matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix{}; 
+    matrix<T, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -73,7 +73,7 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const T& scalar) co
 // A = B - C
 template <typename T, std::size_t rows, std::size_t columns>
 matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const matrix<T, rows, columns>& right_hand_side) const {
-    matrix<T, rows, columns> new_matrix{}; 
+    matrix<T, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -87,7 +87,7 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const matrix<T, row
 // A = B - scalar
 template <typename T, std::size_t rows, std::size_t columns>
 matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix{}; 
+    matrix<T, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -98,10 +98,24 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const T& scalar) co
     return new_matrix;
 }
 
+// A = -B
+template <typename T, std::size_t rows, std::size_t columns>
+matrix<T, rows, columns> matrix<T, rows, columns>::operator-() const {
+    matrix<T, rows, columns> new_matrix; 
+
+    for (std::size_t new_row = 0; new_row < rows; new_row++) {
+        for (std::size_t new_column = 0; new_column < columns; new_column++) {
+            new_matrix(new_row, new_column) = -data[new_row][new_column]; 
+        }
+    }
+
+    return new_matrix;
+}
+
 // A = B / scalar
 template <typename T, std::size_t rows, std::size_t columns>
 matrix<T, rows, columns> matrix<T, rows, columns>::operator/(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix{}; 
+    matrix<T, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {

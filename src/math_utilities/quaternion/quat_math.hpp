@@ -36,8 +36,8 @@ quat<T> quat<T>::operator*(quat<T> q_12) const {
     vector<T, 3> v12 = q_12.vec();
     vector<T, 3> v23 = q_23.vec();
 
-    q_13.setVector(s12*v23 + s23*v12 - v12.cross(v23));
-    q_13.setScalar(s12*s23 - v12.dot(v23));
+    q_13.setVector(s12*v23 + s23*v12 + v23.cross(v12));
+    q_13.setScalar(s12*s23 - v23.dot(v12));
 
     return q_13;
 }

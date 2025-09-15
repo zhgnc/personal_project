@@ -15,16 +15,19 @@ public:
     // Constructors
     quat();
     quat(std::initializer_list<T> initial_quaternion);
+    quat(const quat<T>& another_quaternion);
 
     // Utilities
     T& operator()(std::size_t element_to_return);
     const T& operator()(std::size_t element_to_return) const;
+    quat<T>& operator=(const quat<T>& another_quaternion);
     void print() const;
     void setIdentity();
     T scalar() const;
     vector<T,3> vec() const;
     void setVector(vector<T, 3> vector);
     void setScalar(T scalar);
+    quat<T> neg() const;
 
     // Math
     quat<T> normalize() const;

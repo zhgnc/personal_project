@@ -26,6 +26,7 @@ public:
     void setIdentity();
     void set_row(std::size_t row_index, std::initializer_list<T> row_values);
     void set_column(std::size_t column_index, std::initializer_list<T> column_values);
+    T trace() const;
 
     
     // Operators
@@ -42,6 +43,7 @@ public:
     matrix<T, rows, columns> operator+(const T& scalar) const;
     matrix<T, rows, columns> operator-(const matrix<T, rows, columns>& right_hand_side) const;
     matrix<T, rows, columns> operator-(const T& scalar) const;
+    matrix<T, rows, columns> operator-() const;
     matrix<T, rows, columns> operator/(const T& scalar) const;
 
 

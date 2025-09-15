@@ -21,4 +21,9 @@ quat<T>::quat(std::initializer_list<T> initial_quaternion) {
     }
 }
 
+template <typename T>
+quat<T>::quat(const quat<T>& another_quaternion) {    
+    data = another_quaternion.data;
+}
+
 #endif

@@ -1,21 +1,30 @@
 ######################
 ##### UNIT TESTS #####
 ######################
+
 add_compile_definitions(_POSIX_C_SOURCE=200809L)
 
-set(GTEST_DIR "${PROJECT_SOURCE_DIR}/external/googletest")
-add_subdirectory(${GTEST_DIR} ${CMAKE_BINARY_DIR}/googletest_build)
-
-include_directories("C:/git/personal_project/external/Eigen")
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
+)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-foreach(test_source IN LISTS TEST_SOURCES)
-  get_filename_component(test_name ${test_source} NAME_WE)
-  add_executable(${test_name} ${test_source})
-  target_link_libraries(${test_name} PRIVATE gtest gtest_main)
-  target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-  add_test(NAME ${test_name} COMMAND ${test_name})
-endforeach()
+add_executable(unit_tests ${TEST_SOURCES})
+
+target_include_directories(unit_tests
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/src
+        SYSTEM ${PROJECT_SOURCE_DIR}/external/Eigen
+)
+
+target_link_libraries(unit_tests PRIVATE gtest_main)
+
+add_test(NAME unit_tests COMMAND unit_tests)
