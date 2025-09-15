@@ -838,7 +838,21 @@ TEST(matrixTest, RandomInverseTest) {
     }
 }
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST(matrixTest, StaticCastTest) {
+    matrix<double, 2,2> M1 = {1.1, 2.2, 3.3, 4.4};
+    matrix<int, 2,2> M2 = static_cast<matrix<int,2,2>>(M1);
+    
+    M1 = static_cast<matrix<double,2,2>>(M2);
+
+    EXPECT_TRUE((std::is_same_v<decltype(M1), matrix<double, 2,2>>));
+    EXPECT_TRUE((std::is_same_v<decltype(M2), matrix<int, 2,2>>));
+
+    int value = 1;    
+    for (std::size_t row = 0; row < 2; row++) {
+        for (std::size_t column = 0; column < 2; column++) {
+            EXPECT_EQ(M2(row, column), value); 
+            EXPECT_DOUBLE_EQ(M1(row, column), static_cast<double>(value));
+            value += 1;
+        }
+    }   
 }

@@ -116,3 +116,19 @@ TEST(quatTest, RotateVectorUsingQuatVsEigen) {
         }
     }
 }
+
+TEST(quatTest, StaticCastTest) {
+    quat<double> q_1 = {1.0, 2.0, 3.0, 4.0};
+    q_1 = q_1.normalize();
+
+    quat<int> q_2 = static_cast<quat<int>>(q_1);
+    q_1           = static_cast<quat<double>>(q_2);
+
+    EXPECT_TRUE((std::is_same_v<decltype(q_1), quat<double>>));
+    EXPECT_TRUE((std::is_same_v<decltype(q_2), quat<int>>));
+
+    for (std::size_t row = 0; row < 4; row++) {
+        EXPECT_EQ(q_2(row), 0); 
+        EXPECT_DOUBLE_EQ(q_1(row), 0.0);
+    }   
+}

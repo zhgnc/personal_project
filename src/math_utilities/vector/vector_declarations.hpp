@@ -16,6 +16,9 @@ public:
     T& operator()(std::size_t row_to_return);
     const T& operator()(std::size_t row_to_return) const;
 
+    template<typename U>
+    explicit operator vector<U,length>() const;
+
     // Simple Math
     T dot(const vector<T, length>& v2) const;
     vector<T, length> cross(const vector<T,length>& v2) const;

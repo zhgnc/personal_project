@@ -29,6 +29,9 @@ public:
     void setScalar(T scalar);
     quat<T> neg() const;
 
+    template <typename U>
+    explicit operator quat<U>() const;
+
     // Math
     quat<T> normalize() const;
     quat<T> conjugate() const;

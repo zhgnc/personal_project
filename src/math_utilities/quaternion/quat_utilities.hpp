@@ -75,4 +75,16 @@ quat<T> quat<T>::neg() const{
     return quat<T>({-data[0], -data[1], -data[2], -data[3]});
 }
 
+template <typename T>
+template <typename U>
+quat<T>::operator quat<U>() const {
+    quat<U> output;
+
+    for (std::size_t row = 0; row < 4; row++) {
+        output(row) = static_cast<U>(data[row]);
+    }
+
+    return output;
+}
+
 #endif
