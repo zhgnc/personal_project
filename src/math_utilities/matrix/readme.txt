@@ -1,10 +1,9 @@
 To use the matrix math library in your code #include "Matrix.hpp". Matrixes under the hood are stored as standard arrays. 
 At construction a matrix object is initialized to all zeros by default but the user can pass an initializer list to set 
-the matrix to specific values. 
+the matrix to specific values. One last general note is that the individual elements of a matrix can be set or retrieved 
+with the () operator where the first element is an integer for the row and the second is an integer for the column. 
 
-The individual elements of a matrix can be set or retrieved with the () operator where the first element is an integer 
-for the row and the second is an integer for the column. 
-
+Here is a table of the currect functionality of the templated matrix library. 
 
 | Function Name         | Parameters                                                       | Return Type  | Description                                     | Example Usage                                 |
 |:----------------------|:-----------------------------------------------------------------|:-------------|:------------------------------------------------|:----------------------------------------------|
