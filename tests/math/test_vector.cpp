@@ -110,3 +110,20 @@ TEST(vectorTest, AngleBetweenVectors) {
         EXPECT_NEAR(angle, output, 1e-6);
     }
 }
+
+TEST(vectorTest, StaticCastTest) {
+    vector<double,2> v1 = {1.1, 2.2};
+    vector<int, 2> v2   = static_cast<vector<int,2>>(v1);
+    
+    v1 = static_cast<vector<double,2>>(v2);
+
+    EXPECT_TRUE((std::is_same_v<decltype(v1), vector<double,2>>));
+    EXPECT_TRUE((std::is_same_v<decltype(v2), vector<int, 2>>));
+
+    int value = 1;    
+    for (std::size_t row = 0; row < 2; row++) {
+        EXPECT_EQ(v2(row), value); 
+        EXPECT_DOUBLE_EQ(v1(row), static_cast<double>(value));
+        value += 1;
+    }   
+}

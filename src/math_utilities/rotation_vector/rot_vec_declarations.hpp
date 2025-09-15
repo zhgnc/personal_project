@@ -19,6 +19,9 @@ class rot_vec : public matrix<T,3,1>
     const T& operator()(std::size_t row_to_return) const; 
     T angle() const; 
     vector<T,3> axis() const; 
+    
+    template<typename U>
+    explicit operator rot_vec<U>() const;
 };
 
 #endif

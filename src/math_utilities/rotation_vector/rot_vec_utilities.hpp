@@ -23,4 +23,17 @@ vector<T,3> rot_vec<T>::axis() const{
     return vec.norm();
 };
 
+template<typename T>
+template<typename U>
+rot_vec<T>::operator rot_vec<U>() const {
+    rot_vec<U> output;
+    vector<T,3> vec = (*this);
+
+    for (std::size_t row = 0; row < 3; row++) {
+        output(row) = static_cast<U>(vec(row));
+    }
+
+    return output;
+};
+
 #endif

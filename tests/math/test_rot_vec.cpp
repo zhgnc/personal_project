@@ -75,3 +75,20 @@ TEST(rotVecTest, InhertianceTestFromMatrix) {
     EXPECT_NEAR(v5(1), 0.4, 1e-6);
     EXPECT_NEAR(v5(2), 0.6, 1e-6);
 }
+
+TEST(rotVecTest, StaticCastTest) {
+    rot_vec<double> rot_vec_1 = {1.1, 2.2, 3.3};
+    rot_vec<int> rot_vec_2 = static_cast<rot_vec<int>>(rot_vec_1);
+    
+    rot_vec_1 = static_cast<rot_vec<double>>(rot_vec_2);
+
+    EXPECT_TRUE((std::is_same_v<decltype(rot_vec_1), rot_vec<double>>));
+    EXPECT_TRUE((std::is_same_v<decltype(rot_vec_2), rot_vec<int>>));
+
+    int value = 1;    
+    for (std::size_t row = 0; row < 3; row++) {
+        EXPECT_EQ(rot_vec_2(row), value); 
+        EXPECT_DOUBLE_EQ(rot_vec_1(row), static_cast<double>(value));
+        value += 1;
+    }   
+}
