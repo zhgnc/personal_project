@@ -1,7 +1,7 @@
 The math library provides essential linear algebra and 3D rotations capabilities. The included libraries use classes to offer a variety of
 functionality while storing all the data as fixed size standard arrays. The library is entirely header-only, allowing for simple inclusion 
 without the need for separate compilation. A single include, `#include "math.hpp"`, provides access to all modules and utilities, making 
-setup quick and straightforward. 
+setup quick and straightforward. All math in the library has been verified against the Eigen C++ math library to ensure that it is working.
 
 Each component is organized into its own folder with a dedicated readme.txt files for more specific information and a table of all the
 currently avalible functions. Each folder contains a similar set of files: (1) a header aggregator like matrix.hpp, (2) a declarations file 
