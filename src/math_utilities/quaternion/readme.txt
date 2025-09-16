@@ -8,8 +8,7 @@ should be followed: q_1_to_3 = q_2_to_3 * q_1_to_2. Also rotating a vector by a 
 v_new = q * v. The default rotation is active which is defined as (v_new, 0) = q * (v, 0) * (q*). If a passive rotation is
 desired, (v_new, 0) = (q*) * (v, 0) * q, use the syntax v_new = q.inv() * v.
 
-To only use the quaternion library, #include "quaternion.hpp" and here is a table of the current functionality of the 
-quaternion library:
+To only use the quaternion library, #include "quaternion.hpp" and here is a table of the current functionality.
 
 | Function Name       | Parameters                              | Return Type  | Description                                                        | Example Usage                           |
 |:--------------------|:----------------------------------------|:-------------|:-------------------------------------------------------------------|:----------------------------------------|
