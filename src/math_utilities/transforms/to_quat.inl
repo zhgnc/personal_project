@@ -16,7 +16,7 @@ quat<T> to_quat(const rot_vec<T>& rotation_vector) {
 };
 
 // Matrix can be either a rotation or transformation matrix 
-// but the quaternion will not be the same
+// but the quaternion will be active
 template<typename T>
 quat<T> to_quat(const matrix<T,3,3>& matrix) {
     quat<T> output;
