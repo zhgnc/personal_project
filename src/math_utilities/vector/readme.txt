@@ -12,7 +12,7 @@ Here is a table of the current functionality unique to the templated vector libr
 | Function Name       | Parameters                                        | Return Type | Description                                      | Example Usage                            |
 |:--------------------|:--------------------------------------------------|:------------|:-------------------------------------------------|:-----------------------------------------|
 | vector()            | None                                              | vector      | Construct an all zero column vector              | vector<double,3> v(m);                   |
-| vector()            | std::initializer_list<T> initial_matrix           | vector      | Construct a vector from an initializer list      | vector<int,3> v(m) = {1, 2, 3};          |
+| vector()            | std::initializer_list<T> initial_vector           | vector      | Construct a vector from an initializer list      | vector<int,3> v(m) = {1, 2, 3};          |
 | operator()          | std::size_t row_index                             | T&          | Access element at row for modification           | v(0) = 5;                                |
 | operator() const    | std::size_t row_index                             | const T&    | Access element at row for reading                | double val = v(1);                       |
 | dot()               | const vector<T, length>& v2                       | T           | Computes the dot product of two vectors          | double d = v1.dot(v2);                   |
