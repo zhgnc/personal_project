@@ -34,4 +34,4 @@ Here is a table of the currect functionality of the templated matrix library.
 | inv()                 | None                                                             | matrix       | Computes the inverse of the matrix              | B = A.inv();                                  |
 | pow()                 | int positive_or_negative_exponent                                | matrix       | Raises the matrix to an integer power           | B = A.pow(3);                                 |
 | identityMatrix()      | Type, int size                                                   | matrix       | Used to initialize a matrix to identity         | matrix<int,3,3> A = identityMatrix<int,3>();  |
-
+| explicit operator     | template<typename U> operator matrix<U, rows, columns>()         | matrix       | Converts matrix to a new type of same size      | B = static_cast<vector<double,3,3>(A_int);    |
