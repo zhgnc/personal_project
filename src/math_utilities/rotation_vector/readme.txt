@@ -2,9 +2,8 @@ A rotation vector (also known as an axis-angle representation) describes a 3D ro
 multiplied by the angle of rotation in radians. Under the hood, the rotation vector class inherits from the matrix class as a fixed-size 
 `3x1` column matrix.  
  
-
-To only use the rotation vector library in your code `#include "rot_vec.hpp"`. At construction, a rotation vector can either be 
-initialized directly from a `3x1` matrix, or from an explicit axis and angle pair. Individual elements can be accessed using the `()` 
+To only use the rotation vector library in your code `#include "rot_vec.hpp"`. At construction, a rotation vector willl default to all
+zeros unless a '3x1' matrix, initializer list, or an axis and angle pair is used. Individual elements can be accessed using the `()` 
 operator with a row index (just like vectors).  
 
 In addition to general matrix/vector functionality, the rotation vector class provides utilities to extract the angle, compute the 
