@@ -9,7 +9,8 @@ option(ENABLE_TESTING "Enable unit tests" OFF)
 
 # Build main executable only if tests are not enabled
 if(NOT ENABLE_TESTING)
-  add_executable(${PROJECT_NAME} src/main.cpp)
+  file(GLOB_RECURSE SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+  add_executable(${PROJECT_NAME} ${SRC_FILES})
   target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
   target_compile_options(${PROJECT_NAME} PRIVATE 
