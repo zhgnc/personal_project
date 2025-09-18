@@ -6,12 +6,12 @@
 #include "math_utilities/math.hpp"
 #include "sensor_models/gyro/gyro.hpp"
 
-int main() { 
-    gyro g;
+int main() {
+  gyro g;
 
-    // g.initialize();
+  // g.initialize();
 
-    std::cout << g.frequency << "\n";
-    
-    return 0; 
+  std::cout << g.frequency << "\n";
+
+  return 0;
 };
