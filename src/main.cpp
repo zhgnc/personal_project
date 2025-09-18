@@ -4,7 +4,14 @@
 #include <iostream>
 
 #include "math_utilities/math.hpp"
+#include "sensor_models/gyro/gyro.hpp"
 
-template <typename T> T pi(3.1415926535);
+int main() { 
+    gyro g;
 
-int main() { return 0; };
+    // g.initialize();
+
+    std::cout << g.frequency << "\n";
+    
+    return 0; 
+};
