@@ -1,4 +1,4 @@
-# Description
+## Description
 This codebase for personal project development and includes a custom math library, app scheduler, and 
 other custom infastructure.
 
@@ -9,14 +9,14 @@ feel free to set it up however you'd like.
 1. Install VSCode (https://code.visualstudio.com/download)
 2. Install MSYS terminal (https://www.msys2.org/) and required packages
 	- After download run the following commands
-		```
+		``` bash
 		pacman -Syu
 		pacman -S mingw-w64-x86_64-toolchain base-devel
 		pacman -S git
 		pacman -S cmake
 		```
 	- Check successful download
-		```
+		``` bash
 		python --version
 		cmake --version
 		gcc --version
@@ -29,7 +29,7 @@ feel free to set it up however you'd like.
 	- In VSCode use the shortcut `Ctrl Shift P`
 	- Search for `Preferences: Open User Settings (JSON)`
 	- Copy following configuration code into file and save
-		```
+		``` json
 		{
 		"terminal.integrated.profiles.windows": {
 				"MSYS2": {
