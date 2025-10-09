@@ -10,19 +10,44 @@ public:
     gyro();
     gyro(const std::string& config_file);
 
-    void initialize();
-    void get_inputs(); 
+    void intialize();
+    void copy_inputs_to_class(); 
     void execute(); 
     void set_outputs();
 
-    double frequency;
+    gyro_inputs  inputs; 
+    gyro_outputs outputs;
 
 private:
-    gyro_config config;
+    gyro_default_config default_config;
+
+    double init_bias_1_sigma;
     double arw_1_sigma; 
     double rrw_1_sigma; 
     double sf_1_sigma; 
     double misalign_1_sigma;
+    double frequency;
+    int random_seed;
+
+    quat<double> q_j2000_to_body_now; 
+    quat<double> q_j2000_to_body_prev;
+    quat<double> q_prev_to_now;
+    vector<double, 3> true_delta_angles;
+    vector<double, 3> meas_delta_angles;
+
+    vector<double, 3> initial_rate_biases;
+    vector<double, 3> rate_biases;
+    vector<double, 3> scale_factors;
+    vector<double, 3> misalignments;
+
+    double dt;
+    vector<double, 3> arw_error;
+    vector<double, 3> bias_error;
+    matrix<double, 3,3> sf_misalign_matrix;
+    matrix<double, 3,3> I3;
+
+    bool gyro_meas_valid;
+
 };
 
 #endif
