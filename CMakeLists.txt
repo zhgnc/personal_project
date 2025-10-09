@@ -12,17 +12,17 @@ if(NOT ENABLE_TESTING)
   add_executable(${PROJECT_NAME} src/main.cpp)
   target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
-  target_compile_options(${PROJECT_NAME} PRIVATE 
-      -Wall                   # Common warnings
-      -Wextra                 # Extra useful warnings
-      -Werror                 # Treat warnings as errors (enforce clean code)
-      -pedantic               # Enforce strict ISO C++ compliance
-      -Wshadow                # Warn about variable shadowing (common bug source)
-      -Wformat=2              # More thorough printf/scanf format checks
-      -fno-omit-frame-pointer # Better debug info and profiling
-      -O0                     # Optimization level 0 (best for debugging)
-      -g                      # Debug symbols
-  )
+target_compile_options(${PROJECT_NAME} PRIVATE 
+    # -Wall                   # Common warnings
+    # -Wextra                 # Extra useful warnings
+    -Werror                 # Treat warnings as errors (enforce clean code)
+    # -pedantic               # Enforce strict ISO C++ compliance
+    -Wshadow                # Warn about variable shadowing
+    -Wformat=2              # More thorough printf/scanf format checks
+    -fno-omit-frame-pointer # Better debug info and profiling
+    -O0                     # Optimization level 0
+    -g                      # Debug symbols
+)
 endif()
 
 # Enable tests only if requested
