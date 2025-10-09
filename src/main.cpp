@@ -7,7 +7,7 @@
 
 template <typename T> T pi(3.1415926535);
 
-int main() { 
-    std::cout << "Hello World!\n";    
-    return 0; 
+int main() {
+  std::cout << "Hello World!\n";
+  return 0;
 };
