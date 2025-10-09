@@ -17,14 +17,14 @@ target_include_directories(unit_tests
       ${PROJECT_SOURCE_DIR}/src
     SYSTEM
       ${PROJECT_SOURCE_DIR}/external/eigen
-      ${PROJECT_SOURCE_DIR}/external/googletest/gmock/include
-      ${PROJECT_SOURCE_DIR}/external/googletest/gtest/include
+      ${PROJECT_SOURCE_DIR}/external/google_test/gmock/include
+      ${PROJECT_SOURCE_DIR}/external/google_test/gtest/include
 )
 
 target_link_libraries(unit_tests
     PRIVATE
-    ${PROJECT_SOURCE_DIR}/external/googletest/lib/libgtest.a
-    ${PROJECT_SOURCE_DIR}/external/googletest/lib/libgmock.a
+    ${PROJECT_SOURCE_DIR}/external/google_test/lib/libgtest.a
+    ${PROJECT_SOURCE_DIR}/external/google_test/lib/libgmock.a
 )
 
 add_test(NAME unit_tests COMMAND unit_tests)
