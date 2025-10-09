@@ -7,11 +7,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(ENABLE_TESTING "Enable unit tests" OFF)
 
+
+include_directories(${PROJECT_SOURCE_DIR}/external/yaml-cpp/include)
+link_directories(${PROJECT_SOURCE_DIR}/external/yaml-cpp/lib)
+
+include_directories(${PROJECT_SOURCE_DIR}/external/hdf5/include)
+link_directories(${PROJECT_SOURCE_DIR}/external/hdf5/lib)
+
+
 # Build main executable only if tests are not enabled
 if(NOT ENABLE_TESTING)
   file(GLOB_RECURSE SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
   add_executable(${PROJECT_NAME} ${SRC_FILES})
   target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+  target_link_libraries(${PROJECT_NAME} 
+    yaml-cpp
+    hdf5)
 
   target_compile_options(${PROJECT_NAME} PRIVATE 
       -Wall                   # Common warnings

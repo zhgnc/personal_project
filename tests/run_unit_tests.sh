@@ -3,11 +3,6 @@
 # Get the absolute path to the script directory
 ROOT_DIR=$(pwd)
 
-# If on Cygwin or Git Bash, convert to Windows-native path
-if command -v cygpath &> /dev/null; then
-  ROOT_DIR="$(cygpath -w "$ROOT_DIR")"
-fi
-
 # Set build directory relative to project root
 BUILD_DIR="$ROOT_DIR\build"
 

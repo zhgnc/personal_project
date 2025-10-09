@@ -1,0 +1,5 @@
+angle_random_walk_1_sigma: 1.0; 
+rate_random_walk_1_sigma: 2.0;
+scale_factor_1_sigma: 3.0;  
+misalignment_1_sigma: 4.0;
+rate_hz: 5.0;

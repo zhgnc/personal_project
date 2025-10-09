@@ -7,12 +7,13 @@
 class gyro 
 {
 public:
-    gyro(); 
+    gyro();
+    gyro(const std::string& config_file);
 
     void initialize();
     void get_inputs(); 
     void execute(); 
-    void set_outputs();  // fixed typo
+    void set_outputs();
 
     double frequency;
 
