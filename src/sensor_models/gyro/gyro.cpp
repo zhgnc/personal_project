@@ -12,14 +12,14 @@ gyro::gyro() {
   frequency = config.rate_hz;
 }
 
-gyro::gyro(const std::string& config_file) {
-  YAML::Node config_data = YAML::LoadFile(config_file); 
-  
-  arw_1_sigma      = config_data["angle_random_walk_1_sigma"].as<double>();
-  rrw_1_sigma      = config_data["rate_random_walk_1_sigma"].as<double>();
-  sf_1_sigma       = config_data["scale_factor_1_sigma"].as<double>();
+gyro::gyro(const std::string &config_file) {
+  YAML::Node config_data = YAML::LoadFile(config_file);
+
+  arw_1_sigma = config_data["angle_random_walk_1_sigma"].as<double>();
+  rrw_1_sigma = config_data["rate_random_walk_1_sigma"].as<double>();
+  sf_1_sigma = config_data["scale_factor_1_sigma"].as<double>();
   misalign_1_sigma = config_data["misalignment_1_sigma"].as<double>();
-  frequency        = config_data["rate_hz"].as<double>();
+  frequency = config_data["rate_hz"].as<double>();
 }
 
 void gyro::initialize() {
