@@ -6,44 +6,43 @@
 #include "yaml-cpp/yaml.h"
 #include <random>
 
-
 gyro::gyro() {
   init_bias_1_sigma = default_config.turn_on_bias_1_sigma;
-  arw_1_sigma       = default_config.angle_random_walk_1_sigma;
-  rrw_1_sigma       = default_config.rate_random_walk_1_sigma;
-  sf_1_sigma        = default_config.scale_factor_1_sigma;
-  misalign_1_sigma  = default_config.misalignment_1_sigma;
-  frequency         = default_config.rate_hz;
-  random_seed       = default_config.random_seed;
+  arw_1_sigma = default_config.angle_random_walk_1_sigma;
+  rrw_1_sigma = default_config.rate_random_walk_1_sigma;
+  sf_1_sigma = default_config.scale_factor_1_sigma;
+  misalign_1_sigma = default_config.misalignment_1_sigma;
+  frequency = default_config.rate_hz;
+  random_seed = default_config.random_seed;
 };
 
-gyro::gyro(const std::string& config_file) {
-  YAML::Node config_data = YAML::LoadFile(config_file); 
-  
+gyro::gyro(const std::string &config_file) {
+  YAML::Node config_data = YAML::LoadFile(config_file);
+
   init_bias_1_sigma = config_data["turn_on_bias_1_sigma"].as<double>();
-  arw_1_sigma       = config_data["angle_random_walk_1_sigma"].as<double>();
-  rrw_1_sigma       = config_data["rate_random_walk_1_sigma"].as<double>();
-  sf_1_sigma        = config_data["scale_factor_1_sigma"].as<double>();
-  misalign_1_sigma  = config_data["misalignment_1_sigma"].as<double>();
-  frequency         = config_data["rate_hz"].as<double>();
-  random_seed       = config_data["random_seed"].as<double>();
+  arw_1_sigma = config_data["angle_random_walk_1_sigma"].as<double>();
+  rrw_1_sigma = config_data["rate_random_walk_1_sigma"].as<double>();
+  sf_1_sigma = config_data["scale_factor_1_sigma"].as<double>();
+  misalign_1_sigma = config_data["misalignment_1_sigma"].as<double>();
+  frequency = config_data["rate_hz"].as<double>();
+  random_seed = config_data["random_seed"].as<double>();
 };
 
 void gyro::intialize() {
   std::mt19937 rng(random_seed);
-  std::normal_distribution<> normal_distribution(-1.0, 1.0); 
+  std::normal_distribution<> normal_distribution(-1.0, 1.0);
 
-  for(std::size_t i = 0; i < initial_rate_biases.num_rows; i++) {
+  for (std::size_t i = 0; i < initial_rate_biases.num_rows; i++) {
     initial_rate_biases(i) = init_bias_1_sigma * normal_distribution(rng);
-    scale_factors(i)       = sf_1_sigma        * normal_distribution(rng);
-    misalignments(i)       = misalign_1_sigma  * normal_distribution(rng);
+    scale_factors(i) = sf_1_sigma * normal_distribution(rng);
+    misalignments(i) = misalign_1_sigma * normal_distribution(rng);
   }
 
-  sf_misalign_matrix = {scale_factors(0), -misalignments(2),  misalignments(1), 
-                        misalignments(2),  scale_factors(1), -misalignments(0),
-                       -misalignments(1),  misalignments(0),  scale_factors(2)};
+  sf_misalign_matrix = {scale_factors(0),  -misalignments(2), misalignments(1),
+                        misalignments(2),  scale_factors(1),  -misalignments(0),
+                        -misalignments(1), misalignments(0),  scale_factors(2)};
   I3.setIdentity();
-  dt = 1/frequency;
+  dt = 1 / frequency;
 
   gyro_meas_valid = false;
 };
@@ -56,15 +55,17 @@ void gyro::execute() {
   std::mt19937 rng(random_seed);
   std::normal_distribution<> normal_distribution(-1.0, 1.0);
 
-  q_prev_to_now     = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
+  q_prev_to_now = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
   true_delta_angles = to_rot_vec(q_prev_to_now);
 
   for (std::size_t i = 0; i < arw_error.num_rows; i++) {
-    arw_error(i)  = arw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
-    bias_error(i) = initial_rate_biases(i) * dt + rrw_1_sigma * (3/2 * dt) * normal_distribution(rng);
+    arw_error(i) = arw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
+    bias_error(i) = initial_rate_biases(i) * dt +
+                    rrw_1_sigma * (3 / 2 * dt) * normal_distribution(rng);
   }
 
-  meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + bias_error + arw_error;
+  meas_delta_angles =
+      (I3 + sf_misalign_matrix) * true_delta_angles + bias_error + arw_error;
 
   q_j2000_to_body_prev = q_j2000_to_body_now;
   random_seed += 1;
@@ -72,7 +73,7 @@ void gyro::execute() {
 
 void gyro::set_outputs() {
   outputs.gyro_measurement_valid = gyro_meas_valid;
-  outputs.measured_delta_angles  = meas_delta_angles;
+  outputs.measured_delta_angles = meas_delta_angles;
 };
 
 #endif

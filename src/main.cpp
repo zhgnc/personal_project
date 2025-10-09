@@ -1,8 +1,8 @@
 // Copyright 2025 Zachary Hart
 
 #include <array>
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 #include "math_utilities/math.hpp"
 #include "sensor_models/gyro/gyro.hpp"
@@ -19,7 +19,7 @@ int main() {
 
     g.outputs.measured_delta_angles.print();
   }
-  
+
   // std::cout << g.frequency << "\n";
 
   return 0;
