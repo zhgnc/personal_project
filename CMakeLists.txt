@@ -7,22 +7,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(ENABLE_TESTING "Enable unit tests" OFF)
 
+
+include_directories(${PROJECT_SOURCE_DIR}/external/yaml-cpp/include)
+link_directories(${PROJECT_SOURCE_DIR}/external/yaml-cpp/lib)
+
+
 # Build main executable only if tests are not enabled
 if(NOT ENABLE_TESTING)
   add_executable(${PROJECT_NAME} src/main.cpp)
   target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
-target_compile_options(${PROJECT_NAME} PRIVATE 
-    -Wall                   # Common warnings
-    -Wextra                 # Extra useful warnings
-    -Werror                 # Treat warnings as errors (enforce clean code)
-    -pedantic               # Enforce strict ISO C++ compliance
-    -Wshadow                # Warn about variable shadowing
-    -Wformat=2              # More thorough printf/scanf format checks
-    -fno-omit-frame-pointer # Better debug info and profiling
-    -O0                     # Optimization level 0
-    -g                      # Debug symbols
-)
+  target_link_libraries(${PROJECT_NAME} yaml-cpp)
+
+  target_compile_options(${PROJECT_NAME} PRIVATE 
+      -Wall                   # Common warnings
+      -Wextra                 # Extra useful warnings
+      -Werror                 # Treat warnings as errors (enforce clean code)
+      -pedantic               # Enforce strict ISO C++ compliance
+      -Wshadow                # Warn about variable shadowing
+      -Wformat=2              # More thorough printf/scanf format checks
+      -fno-omit-frame-pointer # Better debug info and profiling
+      -O0                     # Optimization level 0
+      -g                      # Debug symbols
+  )
 endif()
 
 # Enable tests only if requested
