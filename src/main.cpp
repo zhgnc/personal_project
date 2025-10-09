@@ -9,7 +9,7 @@
 
 int main() {
   gyro g("src/config_files/gyro_config.yaml");
-  g.intialize();
+  g.initialize();
 
   for (std::size_t i = 0; i < 5; i++) {
     g.inputs.q_j2000_to_body_true.setIdentity();

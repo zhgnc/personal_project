@@ -3,6 +3,7 @@
 
 #include "../../math_utilities/math.hpp"
 #include "struct_defs.hpp"
+#include <random>
 
 class gyro 
 {
@@ -10,7 +11,7 @@ public:
     gyro();
     gyro(const std::string& config_file);
 
-    void intialize();
+    void initialize();
     void copy_inputs_to_class(); 
     void execute(); 
     void set_outputs();
@@ -48,6 +49,8 @@ private:
 
     bool gyro_meas_valid;
 
+    std::mt19937 rng;
+    std::normal_distribution<> normal_distribution;
 };
 
 #endif
