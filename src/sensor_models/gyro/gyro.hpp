@@ -47,6 +47,7 @@ private:
     matrix<double, 3,3> sf_misalign_matrix;
     matrix<double, 3,3> I3;
 
+    bool first_cycle;
     bool gyro_meas_valid;
 
     std::mt19937 rng;

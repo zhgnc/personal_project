@@ -7,24 +7,24 @@
 
 gyro::gyro() {
   init_bias_1_sigma = default_config.turn_on_bias_1_sigma;
-  arw_1_sigma       = default_config.angle_random_walk_1_sigma;
-  rrw_1_sigma       = default_config.rate_random_walk_1_sigma;
-  sf_1_sigma        = default_config.scale_factor_1_sigma;
-  misalign_1_sigma  = default_config.misalignment_1_sigma;
-  frequency         = default_config.rate_hz;
-  random_seed       = default_config.random_seed;
+  arw_1_sigma = default_config.angle_random_walk_1_sigma;
+  rrw_1_sigma = default_config.rate_random_walk_1_sigma;
+  sf_1_sigma = default_config.scale_factor_1_sigma;
+  misalign_1_sigma = default_config.misalignment_1_sigma;
+  frequency = default_config.rate_hz;
+  random_seed = default_config.random_seed;
 };
 
-gyro::gyro(const std::string& config_file) {
-  YAML::Node config_data = YAML::LoadFile(config_file); 
-  
+gyro::gyro(const std::string &config_file) {
+  YAML::Node config_data = YAML::LoadFile(config_file);
+
   init_bias_1_sigma = config_data["turn_on_bias_1_sigma"].as<double>();
-  arw_1_sigma       = config_data["angle_random_walk_1_sigma"].as<double>();
-  rrw_1_sigma       = config_data["rate_random_walk_1_sigma"].as<double>();
-  sf_1_sigma        = config_data["scale_factor_1_sigma"].as<double>();
-  misalign_1_sigma  = config_data["misalignment_1_sigma"].as<double>();
-  frequency         = config_data["rate_hz"].as<double>();
-  random_seed       = config_data["random_seed"].as<double>();
+  arw_1_sigma = config_data["angle_random_walk_1_sigma"].as<double>();
+  rrw_1_sigma = config_data["rate_random_walk_1_sigma"].as<double>();
+  sf_1_sigma = config_data["scale_factor_1_sigma"].as<double>();
+  misalign_1_sigma = config_data["misalignment_1_sigma"].as<double>();
+  frequency = config_data["rate_hz"].as<double>();
+  random_seed = config_data["random_seed"].as<double>();
 };
 
 void gyro::initialize() {
@@ -34,7 +34,7 @@ void gyro::initialize() {
   rng.seed(random_seed); 
   normal_distribution = std::normal_distribution<>(mean, std); 
 
-  for(std::size_t i = 0; i < initial_rate_biases.num_rows; i++) {
+  for (std::size_t i = 0; i < initial_rate_biases.num_rows; i++) {
     initial_rate_biases(i) = init_bias_1_sigma * normal_distribution(rng);
     bias_error(i)          = initial_rate_biases(i);
 
@@ -42,13 +42,14 @@ void gyro::initialize() {
     misalignments(i)       = misalign_1_sigma * normal_distribution(rng);
   }
 
-  sf_misalign_matrix = {scale_factors(0), -misalignments(2),  misalignments(1), 
-                        misalignments(2),  scale_factors(1), -misalignments(0),
-                       -misalignments(1),  misalignments(0),  scale_factors(2)};
+  sf_misalign_matrix = {scale_factors(0),  -misalignments(2), misalignments(1),
+                        misalignments(2),  scale_factors(1),  -misalignments(0),
+                        -misalignments(1), misalignments(0),  scale_factors(2)};
   I3.setIdentity();
-  dt = 1/frequency;
+  dt = 1 / frequency;
 
   gyro_meas_valid = false;
+  first_cycle     = true;
 };
 
 void gyro::copy_inputs_to_class() {
@@ -56,6 +57,13 @@ void gyro::copy_inputs_to_class() {
 };
 
 void gyro::execute() {
+  if (first_cycle == true) {
+    first_cycle          = false;
+    q_j2000_to_body_prev = q_j2000_to_body_now;
+    meas_delta_angles.setZeros();
+    return;
+  };
+
   q_prev_to_now     = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
   true_delta_angles = to_rot_vec(q_prev_to_now);
 
@@ -67,6 +75,7 @@ void gyro::execute() {
   meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + bias_error * dt + arw_error;
 
   q_j2000_to_body_prev = q_j2000_to_body_now;
+  gyro_meas_valid      = true;
 };
 
 void gyro::set_outputs() {
