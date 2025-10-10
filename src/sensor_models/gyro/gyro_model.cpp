@@ -1,11 +1,11 @@
 #ifndef GYRO_CPP
 #define GYRO_CPP
 
-#include "gyro.hpp"
+#include "gyro_model.hpp"
 #include "struct_defs.hpp"
 #include "yaml-cpp/yaml.h"
 
-gyro::gyro() {
+GyroModel::GyroModel() {
   init_bias_1_sigma = default_config.turn_on_bias_1_sigma;
   arw_1_sigma = default_config.angle_random_walk_1_sigma;
   rrw_1_sigma = default_config.rate_random_walk_1_sigma;
@@ -15,7 +15,7 @@ gyro::gyro() {
   random_seed = default_config.random_seed;
 };
 
-gyro::gyro(const std::string &config_file) {
+GyroModel::GyroModel(const std::string &config_file) {
   YAML::Node config_data = YAML::LoadFile(config_file);
 
   init_bias_1_sigma = config_data["turn_on_bias_1_sigma"].as<double>();
@@ -27,7 +27,7 @@ gyro::gyro(const std::string &config_file) {
   random_seed = config_data["random_seed"].as<double>();
 };
 
-void gyro::initialize() {
+void GyroModel::initialize() {
   const double mean = 0.0;
   const double std = 1.0;
 
@@ -52,11 +52,11 @@ void gyro::initialize() {
   first_cycle = true;
 };
 
-void gyro::copy_inputs_to_class() {
+void GyroModel::copy_inputs_to_class() {
   q_j2000_to_body_now = inputs.q_j2000_to_body_true;
 };
 
-void gyro::execute() {
+void GyroModel::execute() {
   if (first_cycle == true) {
     first_cycle = false;
     q_j2000_to_body_prev = q_j2000_to_body_now;
@@ -79,7 +79,7 @@ void gyro::execute() {
   gyro_meas_valid = true;
 };
 
-void gyro::set_outputs() {
+void GyroModel::set_outputs() {
   outputs.gyro_measurement_valid = gyro_meas_valid;
   outputs.measured_delta_angles = meas_delta_angles;
 };

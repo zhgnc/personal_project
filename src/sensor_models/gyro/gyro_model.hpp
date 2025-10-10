@@ -1,15 +1,15 @@
-#ifndef GYRO_HPP
-#define GYRO_HPP
+#ifndef GYRO_MODEL_HPP
+#define GYRO_MODEL_HPP
 
 #include "../../math_utilities/math.hpp"
 #include "struct_defs.hpp"
 #include <random>
 
-class gyro 
+class GyroModel 
 {
 public:
-    gyro();
-    gyro(const std::string& config_file);
+    GyroModel();
+    GyroModel(const std::string& config_file);
 
     void initialize();
     void copy_inputs_to_class(); 
