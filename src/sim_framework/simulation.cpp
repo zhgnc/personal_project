@@ -2,6 +2,7 @@
 
 #include "yaml-cpp/yaml.h"
 #include <iostream>
+#include <chrono>
 
 Simulation::Simulation(const std::string &path_to_sim_config) {
   YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
@@ -46,20 +47,24 @@ void Simulation::run() {
   initialize_apps();  
 
   for (int run_num = 0; run_num < num_monte_carlos; run_num++) {
-	  std::cout << "[Simulation] Run #" << run_num << " Started\n";
-	  std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec << "     " << current_sim_time_usec << "\n";
+	computer_start_time = std::chrono::high_resolution_clock::now();
+	std::cout << "[Simulation] Run #" << run_num << " started\n";
+	std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec << "     " << current_sim_time_usec << "\n";
 	  
 	  
-	  while (current_sim_time_usec <= stop_time_usec) {
+	while (current_sim_time_usec <= stop_time_usec) {
 
-		  for (std::shared_ptr<SimApp>& app : app_list) {
-			  app->step(current_sim_time_usec);
-		  }  
-		  current_sim_time_usec += sim_dt_usec;
-		  current_sim_time_sec  = current_sim_time_usec / sec2usec;
+		for (std::shared_ptr<SimApp>& app : app_list) {
+			app->step(current_sim_time_usec);
+		}  
+		current_sim_time_usec += sim_dt_usec;
+		current_sim_time_sec  = current_sim_time_usec / sec2usec;
 		  
-		  std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec << "     " << current_sim_time_usec << "\n";
-	  }
-	  std::cout << "[Simulation] Run #"  << run_num << " Ended\n";
+		std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec << "     " << current_sim_time_usec << "\n";
+	}
+	computer_stop_time       = std::chrono::high_resolution_clock::now();
+	computer_elapsed_seconds = computer_stop_time - computer_start_time;
+    sim_to_real_time         = stop_time_sec / computer_elapsed_seconds.count();
+	std::cout << "[Simulation] Run #"  << run_num << " ended after " << computer_elapsed_seconds.count() << "(x" << sim_to_real_time << " real time)\n";
   }
 }

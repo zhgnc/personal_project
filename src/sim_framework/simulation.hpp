@@ -7,6 +7,7 @@
 #include <memory>
 #include <cstdint>
 #include <algorithm>
+#include <chrono>
 
 class Simulation {
 public:
@@ -34,6 +35,11 @@ private:
     uint32_t sim_dt_usec;
 
     double sec2usec = 1e6;
+
+    std::chrono::high_resolution_clock::time_point computer_start_time;
+    std::chrono::high_resolution_clock::time_point computer_stop_time;
+    std::chrono::duration<double> computer_elapsed_seconds; 
+    double sim_to_real_time;
 };
 
 #endif
