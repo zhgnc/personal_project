@@ -12,7 +12,7 @@ warning() { echo -e "\e[1;33m$*\e[0m"; }     # Yellow, bold (optional)
 ROOT_DIR=$(pwd)
 
 # Set build directory relative to project root
-BUILD_DIR="$ROOT_DIR\build"
+BUILD_DIR="$ROOT_DIR/build"
 
 # Create build directory if it does not exist 
 mkdir -p "$BUILD_DIR"

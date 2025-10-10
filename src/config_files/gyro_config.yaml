@@ -1,0 +1,7 @@
+turn_on_bias_1_sigma: 0.001745
+angle_random_walk_1_sigma: 3.14e-7
+rate_random_walk_1_sigma: 3.14e-10
+scale_factor_1_sigma: 1e-3
+misalignment_1_sigma: 0.001745
+rate_hz: 10.0
+random_seed: 1.0

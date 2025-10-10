@@ -45,7 +45,9 @@ T vector<T,length>::mag() const {
 template <typename T, std::size_t length>
 vector<T, length> vector<T,length>::norm() const {
     T magnitude = mag();
-    if (magnitude == 0) throw std::runtime_error("Cannot normalize vector with all elements zero!");
+    if (magnitude == 0) {
+        return {0.0, 0.0, 0.0};
+    };
 
     vector<T,length> output;
     for (std::size_t row = 0; row < length; row++) {
