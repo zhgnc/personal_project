@@ -29,17 +29,17 @@ gyro::gyro(const std::string &config_file) {
 
 void gyro::initialize() {
   const double mean = 0.0;
-  const double std  = 1.0;
+  const double std = 1.0;
 
-  rng.seed(random_seed); 
-  normal_distribution = std::normal_distribution<>(mean, std); 
+  rng.seed(random_seed);
+  normal_distribution = std::normal_distribution<>(mean, std);
 
   for (std::size_t i = 0; i < initial_rate_biases.num_rows; i++) {
     initial_rate_biases(i) = init_bias_1_sigma * normal_distribution(rng);
-    bias_error(i)          = initial_rate_biases(i);
+    bias_error(i) = initial_rate_biases(i);
 
-    scale_factors(i)       = sf_1_sigma       * normal_distribution(rng);
-    misalignments(i)       = misalign_1_sigma * normal_distribution(rng);
+    scale_factors(i) = sf_1_sigma * normal_distribution(rng);
+    misalignments(i) = misalign_1_sigma * normal_distribution(rng);
   }
 
   sf_misalign_matrix = {scale_factors(0),  -misalignments(2), misalignments(1),
@@ -49,7 +49,7 @@ void gyro::initialize() {
   dt = 1 / frequency;
 
   gyro_meas_valid = false;
-  first_cycle     = true;
+  first_cycle = true;
 };
 
 void gyro::copy_inputs_to_class() {
@@ -58,29 +58,30 @@ void gyro::copy_inputs_to_class() {
 
 void gyro::execute() {
   if (first_cycle == true) {
-    first_cycle          = false;
+    first_cycle = false;
     q_j2000_to_body_prev = q_j2000_to_body_now;
     meas_delta_angles.setZeros();
     return;
   };
 
-  q_prev_to_now     = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
+  q_prev_to_now = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
   true_delta_angles = to_rot_vec(q_prev_to_now);
 
   for (std::size_t i = 0; i < arw_error.num_rows; i++) {
-    arw_error(i)   = arw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
+    arw_error(i) = arw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
     bias_error(i) += rrw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
   }
 
-  meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + bias_error * dt + arw_error;
+  meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles +
+                      bias_error * dt + arw_error;
 
   q_j2000_to_body_prev = q_j2000_to_body_now;
-  gyro_meas_valid      = true;
+  gyro_meas_valid = true;
 };
 
 void gyro::set_outputs() {
   outputs.gyro_measurement_valid = gyro_meas_valid;
-  outputs.measured_delta_angles  = meas_delta_angles;
+  outputs.measured_delta_angles = meas_delta_angles;
 };
 
 #endif
