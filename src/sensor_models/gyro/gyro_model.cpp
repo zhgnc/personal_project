@@ -7,24 +7,24 @@
 
 GyroModel::GyroModel() {
   init_bias_1_sigma = default_config.turn_on_bias_1_sigma;
-  arw_1_sigma       = default_config.angle_random_walk_1_sigma;
-  rrw_1_sigma       = default_config.rate_random_walk_1_sigma;
-  sf_1_sigma        = default_config.scale_factor_1_sigma;
-  misalign_1_sigma  = default_config.misalignment_1_sigma;
-  frequency         = default_config.rate_hz;
-  random_seed       = default_config.random_seed;
+  arw_1_sigma = default_config.angle_random_walk_1_sigma;
+  rrw_1_sigma = default_config.rate_random_walk_1_sigma;
+  sf_1_sigma = default_config.scale_factor_1_sigma;
+  misalign_1_sigma = default_config.misalignment_1_sigma;
+  frequency = default_config.rate_hz;
+  random_seed = default_config.random_seed;
 };
 
 GyroModel::GyroModel(const std::string &config_file) {
   YAML::Node config_data = YAML::LoadFile(config_file);
 
   init_bias_1_sigma = config_data["turn_on_bias_1_sigma"].as<double>();
-  arw_1_sigma       = config_data["angle_random_walk_1_sigma"].as<double>();
-  rrw_1_sigma       = config_data["rate_random_walk_1_sigma"].as<double>();
-  sf_1_sigma        = config_data["scale_factor_1_sigma"].as<double>();
-  misalign_1_sigma  = config_data["misalignment_1_sigma"].as<double>();
-  frequency         = config_data["rate_hz"].as<double>();
-  random_seed       = config_data["random_seed"].as<double>();
+  arw_1_sigma = config_data["angle_random_walk_1_sigma"].as<double>();
+  rrw_1_sigma = config_data["rate_random_walk_1_sigma"].as<double>();
+  sf_1_sigma = config_data["scale_factor_1_sigma"].as<double>();
+  misalign_1_sigma = config_data["misalignment_1_sigma"].as<double>();
+  frequency = config_data["rate_hz"].as<double>();
+  random_seed = config_data["random_seed"].as<double>();
 };
 
 void GyroModel::initialize() {
