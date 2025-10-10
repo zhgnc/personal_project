@@ -30,7 +30,7 @@ void Simulation::sort_apps_by_priority() {
 bool Simulation::compare_by_priority(const std::shared_ptr<SimApp> &app_A,
                                      const std::shared_ptr<SimApp> &app_B) {
   // ">" sorts by ascending piority (lower number = higher priority)
-  return app_A->priority < app_B->priority;
+  return app_A->priority > app_B->priority;
 };
 
 void Simulation::initialize_apps() {
