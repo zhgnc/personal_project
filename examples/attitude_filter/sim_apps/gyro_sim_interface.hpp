@@ -24,8 +24,8 @@ public:
         gyro.execute();
         gyro.set_outputs();
 
-        std::cout << gyro.outputs.gyro_measurement_valid << "\n";
-        gyro.outputs.measured_delta_angles.print();
+        // std::cout << gyro.outputs.gyro_measurement_valid << "\n";
+        // gyro.outputs.measured_delta_angles.print();
     }
 
 
