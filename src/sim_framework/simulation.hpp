@@ -2,6 +2,7 @@
 #define SIMULATION_HPP
 
 #include "sim_app.hpp"
+#include "data_bus.hpp"
 
 #include <vector>
 #include <memory>
@@ -11,7 +12,7 @@
 
 class Simulation {
 public:
-    Simulation(const std::string& path_to_sim_config);
+    Simulation(const std::string& path_to_sim_config, DataBus& data_bus);
 
     void add_app(std::shared_ptr<SimApp> new_app);
     void run();
@@ -40,6 +41,8 @@ private:
     std::chrono::high_resolution_clock::time_point computer_stop_time;
     std::chrono::duration<double> computer_elapsed_seconds; 
     double sim_to_real_time;
+
+    DataBus data_bus;
 };
 
 #endif

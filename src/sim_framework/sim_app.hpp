@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <string>
 
+class DataBus; // Forward declaration to speed up compile time
+
 class SimApp {
 public: 
     SimApp(std::shared_ptr<SimAppBaseInterface> pointer_to_app, 
@@ -14,7 +16,7 @@ public:
            int schedule_priority, 
            const std::string& path_to_config);
 
-    void initialize();
+    void initialize(DataBus& data_bus);
     void step(const uint32_t& sim_time_usec);
 
     int priority;

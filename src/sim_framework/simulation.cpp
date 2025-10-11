@@ -4,7 +4,7 @@
 #include <chrono>
 #include <iostream>
 
-Simulation::Simulation(const std::string &path_to_sim_config) {
+Simulation::Simulation(const std::string &path_to_sim_config, DataBus& bus) {
   YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
 
   start_time_sec = config_data["sim_start_time_sec"].as<double>();
@@ -17,6 +17,8 @@ Simulation::Simulation(const std::string &path_to_sim_config) {
   current_sim_time_usec = static_cast<uint32_t>(sec2usec * start_time_sec);
   current_sim_time_sec = start_time_sec;
   stop_time_usec = static_cast<uint32_t>(sec2usec * stop_time_sec);
+
+  data_bus = bus;
 };
 
 void Simulation::add_app(std::shared_ptr<SimApp> new_app) {
@@ -33,10 +35,9 @@ bool Simulation::compare_by_priority(const std::shared_ptr<SimApp> &app_A,
   return app_A->priority > app_B->priority;
 };
 
-void Simulation::initialize_apps() {
-  std::cout << "[Simulation] Initializing Apps\n";
+void Simulation::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
   for (std::shared_ptr<SimApp> &app : app_list) {
-    app->initialize();
+    app->initialize(data_bus);
   }
   std::cout << "[Simulation] Apps Initialized\n\n";
 }

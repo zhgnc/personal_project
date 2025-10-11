@@ -13,7 +13,9 @@ SimApp::SimApp(std::shared_ptr<SimAppBaseInterface> pointer_to_app,
   config_path = path_to_config;
 };
 
-void SimApp::initialize() { app->initialize(config_path); };
+void SimApp::initialize(DataBus& data_bus) { 
+  app->initialize(config_path, data_bus); 
+};
 
 void SimApp::step(const uint32_t &sim_time_usec) {
   time_to_step = sim_time_usec % app_dt_usec == 0;
