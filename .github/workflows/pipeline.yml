@@ -19,21 +19,22 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install and Update MSYS2 (Make GitHub Compiler Match Local Compiler)
-        shell: bash
+      - name: Install MSYS2 (Make GitHub Compiler Match Local Compiler)
+        shell: powershell
         run: |
           choco install msys2 -y --no-progress
-      - name: Update MSYS2 and install packages
-        shell: bash
+          refreshenv
+      - name: Install MSYS packages (New Step Restarts Terminal to Allow Pacman Commands)
+        shell: powershell
         run: |
-          pacman -Syu
-          pacman -S mingw-w64-x86_64-toolchain base-devel
-          pacman -S cmake
+          & 'C:\tools\msys64\usr\bin\bash.exe' -lc "pacman -Syu"
+          & 'C:\tools\msys64\usr\bin\bash.exe' -lc "pacman -S mingw-w64-x86_64-toolchain base-devel"
+          & 'C:\tools\msys64\usr\bin\bash.exe' -lc "pacman -S cmake"
       - name: Run unit test script
-        shell: bash
+        shell: powershell
         run: |
           pwd
-          ./tests/run_unit_tests.sh
+          & 'C:\tools\msys64\usr\bin\bash.exe' -lc "./tests/run_unit_tests.sh"
 
   # --------------------------------------
   # Lint C++ code using Clang-Tidy
