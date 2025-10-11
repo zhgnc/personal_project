@@ -27,7 +27,7 @@
 /* #undef H5_HAVE_VISUAL_STUDIO */
 
 /* Define the default plugins path to compile */
-#define H5_DEFAULT_PLUGINDIR "/usr/local/HDF_Group/HDF5/2.0.0/lib/plugin:/usr/local/hdf5/lib/plugin"
+#define H5_DEFAULT_PLUGINDIR "/c/git/personal_project/external/hdf5_redownload/hdf5/install/lib/plugin:/usr/local/hdf5/lib/plugin"
 
 /* Define if your system is IBM ppc64le and cannot convert some long double
    values correctly. */

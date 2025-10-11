@@ -23,7 +23,8 @@ if(NOT ENABLE_TESTING)
 
   target_link_libraries(${PROJECT_NAME} 
     yaml-cpp
-    hdf5)
+    hdf5_cpp  
+    hdf5) # The hdf5_cpp API calls the HDF5 C code (hdf5) so both libraries must be linked
 
   target_compile_options(${PROJECT_NAME} PRIVATE 
       -Wall                   # Common warnings

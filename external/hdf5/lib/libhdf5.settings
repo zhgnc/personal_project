@@ -1,0 +1,94 @@
+        SUMMARY OF THE HDF5 CONFIGURATION
+        =================================
+
+General Information:
+-------------------
+                   HDF5 Version: 2.0.0.3
+                  Configured on: 2025-10-11
+                  Configured by: Unix Makefiles
+                    Host system: MSYS-3.6.4-dea57136.x86_64
+              Uname information: MSYS
+                       Byte sex: little-endian
+             Installation point: /c/git/personal_project/external/hdf5_redownload/hdf5/install
+
+Compiling Options:
+------------------
+                     Build Mode: Release
+              Debugging Symbols: OFF
+                        Asserts: OFF
+                      Profiling: OFF
+             Optimization Level: OFF
+
+Linking Options:
+----------------
+                      Libraries: 
+  Statically Linked Executables: OFF
+                        LDFLAGS: 
+                     H5_LDFLAGS: 
+                     AM_LDFLAGS: 
+                Extra libraries: m;dl;ws2_32;wsock32;Threads::Threads
+                       Archiver: /usr/bin/ar.exe
+                       AR_FLAGS:
+                         Ranlib: /usr/bin/ranlib.exe
+
+Languages:
+----------
+                              C: YES
+                     C Compiler: /usr/bin/cc.exe 15.2.0
+                       CPPFLAGS: 
+                    H5_CPPFLAGS: 
+                    AM_CPPFLAGS: 
+                         CFLAGS:   -std=c11  -fstdarg-opt -fdiagnostics-urls=never -fno-diagnostics-color -fmessage-length=0 -O3 -DNDEBUG
+                      H5_CFLAGS: -Wall;-Wcast-qual;-Wconversion;-Wextra;-Wfloat-equal;-Wformat=2;-Wformat-nonliteral;-Winit-self;-Winvalid-pch;-Wmissing-include-dirs;-Wshadow;-Wundef;-Wwrite-strings;-pedantic;-Wno-c++-compat;-Wbad-function-cast;-Wcast-align;-Wformat;-Wimplicit-function-declaration;-Wint-to-pointer-cast;-Wmissing-declarations;-Wmissing-prototypes;-Wnested-externs;-Wold-style-definition;-Wpacked;-Wpointer-sign;-Wpointer-to-int-cast;-Wredundant-decls;-Wstrict-prototypes;-Wswitch;-Wunused-but-set-variable;-Wunused-variable;-Wunused-function;-Wunused-parameter;-finline-functions;-Wno-aggregate-return;-Wno-inline;-Wno-missing-format-attribute;-Wno-missing-noreturn;-Wno-overlength-strings;-Wlarger-than=2560;-Wlogical-op;-Wframe-larger-than=16384;-Wpacked-bitfield-compat;-Wsync-nand;-Wno-unsuffixed-float-constants;-Wdouble-promotion;-Wtrampolines;-Wstack-usage=8192;-Wmaybe-uninitialized;-Wno-jump-misses-init;-Wstrict-overflow=2;-Wno-suggest-attribute=const;-Wno-suggest-attribute=noreturn;-Wno-suggest-attribute=pure;-Wno-suggest-attribute=format;-Wdate-time;-Warray-bounds=2;-Wincompatible-pointer-types;-Wint-conversion;-Wshadow;-Wduplicated-cond;-Whsa;-Wnormalized;-Wnull-dereference;-Wunused-const-variable;-Walloca;-Walloc-zero;-Wduplicated-branches;-Wformat-overflow=2;-Wformat-truncation=1;-Wrestrict;-Wattribute-alias;-Wshift-overflow=2;-Wcast-function-type;-Wmaybe-uninitialized;-Wcast-align=strict;-Wno-suggest-attribute=cold;-Wno-suggest-attribute=malloc;-Wattribute-alias=2;-Wmissing-profile;-Wc11-c2x-compat
+                      AM_CFLAGS: 
+               Shared C Library: NO
+               Static C Library: YES
+
+                        Fortran: OFF
+               Fortran Compiler:  
+                  Fortran Flags:  
+               H5 Fortran Flags: 
+               AM Fortran Flags: 
+         Shared Fortran Library: NO
+         Static Fortran Library: YES
+               Module Directory: /c/git/personal_project/external/hdf5_redownload/hdf5/build/mod
+
+                            C++: ON
+                   C++ Compiler: /usr/bin/c++.exe 15.2.0
+                      C++ Flags:    -fstdarg-opt -fdiagnostics-urls=never -fno-diagnostics-color -fmessage-length=0 -O3 -DNDEBUG
+                   H5 C++ Flags: -Wall;-Wcast-qual;-Wconversion;-Wctor-dtor-privacy;-Weffc++;-Wextra;-Wfloat-equal;-Wformat=2;-Winit-self;-Winvalid-pch;-Wmissing-include-dirs;-Wnon-virtual-dtor;-Wold-style-cast;-Woverloaded-virtual;-Wreorder;-Wshadow;-Wsign-promo;-Wundef;-Wwrite-strings;-pedantic;-Wcast-align;-Wmissing-declarations;-Wpacked;-Wredundant-decls;-Wswitch;-Wunused-but-set-variable;-Wunused-function;-Wunused-variable;-Wunused-parameter;-Wno-aggregate-return;-Wno-inline;-Wno-missing-format-attribute;-Wno-missing-noreturn;-Wno-overlength-strings;-Wlarger-than=2560;-Wlogical-op;-Wframe-larger-than=16384;-Wpacked-bitfield-compat;-Wsync-nand;-Wdouble-promotion;-Wtrampolines;-Wstack-usage=8192;-Wmaybe-uninitialized;-Wstrict-overflow=2;-Wno-suggest-attribute=const;-Wno-suggest-attribute=noreturn;-Wno-suggest-attribute=pure;-Wno-suggest-attribute=format;-Wdate-time;-Wopenmp-simd;-Warray-bounds=2;-Wshadow;-Wduplicated-cond;-Whsa;-Wnormalized;-Wnull-dereference;-Wunused-const-variable;-Wattribute-alias;-Wshift-overflow=2;-Wcast-function-type;-Wmaybe-uninitialized;-Wcast-align=strict;-Wno-suggest-attribute=cold;-Wno-suggest-attribute=malloc;-Wattribute-alias=2;-Wmissing-profile;-Wno-deprecated-copy;-Wcast-align;-Wmissing-declarations;-Wpacked;-Wredundant-decls;-Wswitch;-Wunused-but-set-variable;-Wunused-function;-Wunused-variable;-Wunused-parameter;-Wno-aggregate-return;-Wno-inline;-Wno-missing-format-attribute;-Wno-missing-noreturn;-Wno-overlength-strings;-Wlarger-than=2560;-Wlogical-op;-Wframe-larger-than=16384;-Wpacked-bitfield-compat;-Wsync-nand;-Wdouble-promotion;-Wtrampolines;-Wstack-usage=8192;-Wmaybe-uninitialized;-Wstrict-overflow=2;-Wno-suggest-attribute=const;-Wno-suggest-attribute=noreturn;-Wno-suggest-attribute=pure;-Wno-suggest-attribute=format;-Wdate-time;-Wopenmp-simd;-Warray-bounds=2;-Wshadow;-Wduplicated-cond;-Whsa;-Wnormalized;-Wnull-dereference;-Wunused-const-variable;-Wattribute-alias;-Wshift-overflow=2;-Wcast-function-type;-Wmaybe-uninitialized;-Wcast-align=strict;-Wno-suggest-attribute=cold;-Wno-suggest-attribute=malloc;-Wattribute-alias=2;-Wmissing-profile;-Wno-deprecated-copy
+                   AM C++ Flags: 
+             Shared C++ Library: NO
+             Static C++ Library: YES
+
+                           JAVA: OFF
+                  JAVA Compiler:  
+
+Features:
+---------
+                     Parallel HDF5: OFF
+  Parallel Filtered Dataset Writes: 
+                Large Parallel I/O: 
+                High-level library: ON
+Dimension scales w/ new references: 
+                  Build HDF5 Tests: ON
+                  Build HDF5 Tools: OFF
+                           Threads: ON
+                      Threadsafety: OFF
+                       Concurrency: OFF
+               Default API mapping: v200
+    With deprecated public symbols: ON
+            I/O filters (external): 
+                  _Float16 support: ON
+                     Map (H5M) API: OFF
+                        Direct VFD: OFF
+                        Mirror VFD: OFF
+                     Subfiling VFD: OFF
+                (Read-Only) S3 VFD: OFF
+              (Read-Only) HDFS VFD: OFF
+    Packages w/ extra debug output: 
+                       API Tracing: OFF
+              Using memory checker: OFF
+                  Use file locking: best-effort
+         Strict File Format Checks: OFF
+      Optimization Instrumentation: 
