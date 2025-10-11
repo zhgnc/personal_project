@@ -24,17 +24,17 @@ jobs:
         run: |
           choco install msys2 -y --no-progress
           refreshenv
-      - name: Install MSYS packages (New Step Restarts Terminal to Allow Pacman Commands)
+      - name: Install MSYS Packages
         shell: powershell
         run: |
           & 'C:\tools\msys64\usr\bin\bash.exe' -lc "pacman -Syu --noconfirm"
           & 'C:\tools\msys64\usr\bin\bash.exe' -lc "pacman -S --noconfirm mingw-w64-x86_64-toolchain base-devel"
           & 'C:\tools\msys64\usr\bin\bash.exe' -lc "pacman -S --noconfirm cmake"
       - name: Run unit test script
-        shell: powershell
+        shell: bash
         run: |
           pwd
-          & 'C:\tools\msys64\usr\bin\bash.exe' -lc "./tests/run_unit_tests.sh"
+          ./tests/run_unit_tests.sh
 
   # --------------------------------------
   # Lint C++ code using Clang-Tidy
