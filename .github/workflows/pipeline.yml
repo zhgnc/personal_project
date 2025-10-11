@@ -20,6 +20,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run unit test script
+        shell: bash
         run: |
           pwd
           .\tests\run_unit_tests.sh
@@ -36,17 +37,20 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install clang-tidy and CMake
+        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y clang-tidy cmake
 
       - name: Configure CMake and generate compile_commands.json
+        shell: bash
         run: |
           mkdir -p build
           cd build
           cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 
       - name: Run clang-tidy on changed files
+        shell: bash
         run: |
           git fetch origin main
           git diff --name-only origin/main...HEAD > changed_files.txt
@@ -80,6 +84,8 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install pylint
+        shell: bash
         run: pip install pylint
       - name: Run pylint
+        shell: bash
         run: pylint **/*.py || true
