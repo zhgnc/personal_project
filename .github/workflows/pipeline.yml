@@ -12,7 +12,7 @@ jobs:
   # --------------------------------------
   # Create placeholder
   # --------------------------------------
-  Placeholder Job:
+  placeholder_job:
     runs-on: windows-latest
     steps:
       - name: Checkout code
