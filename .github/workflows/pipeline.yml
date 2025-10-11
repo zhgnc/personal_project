@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           pwd
-          .\tests\run_unit_tests.sh
+          ./tests/run_unit_tests.sh
 
   # --------------------------------------
   # Lint C++ code using Clang-Tidy
