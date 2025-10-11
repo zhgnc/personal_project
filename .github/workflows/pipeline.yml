@@ -12,7 +12,7 @@ jobs:
   # --------------------------------------
   # Create placeholder
   # --------------------------------------
-  lint_cpp_code:
+  Placeholder Job:
     runs-on: windows-latest
     steps:
       - name: Checkout code
