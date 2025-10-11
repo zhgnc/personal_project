@@ -22,8 +22,7 @@ jobs:
       - name: Install MSYS2
         shell: bash
         run: |
-          choco install msys2 --no-progress -y
-          refreshenv
+          choco install msys2 -y
       - name: Update MSYS2 and install packages
         shell: bash
         run: |
