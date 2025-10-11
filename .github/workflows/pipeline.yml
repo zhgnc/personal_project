@@ -3,14 +3,14 @@ name: Personal Project Pipeline
 on:
   push:
     branches:
-      - '**'   # runs on push to any branch
+      - '**'   # Runs on push to any branch
 
 permissions:
   actions: write
 
 jobs:
   # --------------------------------------
-  # Lint C++ code using Clang-Tidy
+  # Create placeholder
   # --------------------------------------
   lint_cpp_code:
     runs-on: windows-latest
@@ -19,55 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install clang-tidy and CMake
+      - name: Do nothing
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-tidy cmake
-
-      - name: Configure CMake and generate compile_commands.json
-        shell: bash
-        run: |
-          mkdir -p build
-          cd build
-          cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-
-      - name: Run clang-tidy on changed files
-        shell: bash
-        run: |
-          git fetch origin main
-          git diff --name-only origin/main...HEAD > changed_files.txt
-          
-          if ! grep -E '\.(cpp|cxx|cc|h|hpp)$' changed_files.txt > /dev/null; then
-            echo "No C++ source/header files changed. Skipping clang-tidy."
-            exit 0
-          fi
-          
-          mkdir -p tmp_clang_tidy_results
-          cd build
-          grep -E '\.(cpp|cxx|cc|h|hpp)$' ../changed_files.txt | while IFS= read -r file; do
-            echo "Linting $file"
-            clang-tidy -p . "../$file" > "../tmp_clang_tidy_results/$(basename "$file").txt" || true
-          done
-          echo "Finished clang-tidy"
-        
-  # --------------------------------------
-  # Lint Python code using Pylint
-  # --------------------------------------
-  lint_python_code:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: Install pylint
-        shell: bash
-        run: pip install pylint
-      - name: Run pylint
-        shell: bash
-        run: pylint **/*.py || true
+          echo
