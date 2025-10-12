@@ -37,8 +37,10 @@ int main() {
 
   // sim.run();
 
-  HDF5Logger logger;
-  logger.create_file("zach_test.hdf5", "C:/git/personal_project/src");
+  HDF5Logger logger("zach_test.hdf5", "C:/git/personal_project/src/");
+  logger.create_file();
+  logger.close_file();
+  logger.open_file();
   logger.close_file();
 
   return 0;
