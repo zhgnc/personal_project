@@ -1,68 +1,66 @@
-#include "external\hdf5\include\H5Cpp.h"
+#ifndef CPP_TO_HDF5_TYPE_MAPPING_HPP
+#define CPP_TO_HDF5_TYPE_MAPPING_HPP
+
+#include "../../external/hdf5/include/H5Cpp.h"
+
 #include <cstdint>
 
 // Maps C++ types to HDF5 library types when adding datasets 
 template<typename T>
-hid_t getHDF5Type();
+H5::DataType getHDF5Type();
 
 //***********//
 // Integers //
 //*********//
 template<>
-hid_t getHDF5Type<int>() { return H5T_NATIVE_INT; }
+inline H5::DataType getHDF5Type<int8_t>() { return H5::PredType::NATIVE_INT8; }
 
 template<>
-hid_t getHDF5Type<unsigned int>() { return H5T_NATIVE_UINT; }
+inline H5::DataType getHDF5Type<uint8_t>() { return H5::PredType::NATIVE_UINT8; }
 
 template<>
-hid_t getHDF5Type<int8_t>() { return H5T_NATIVE_INT8; }
+inline H5::DataType getHDF5Type<int16_t>() { return H5::PredType::NATIVE_INT16; }
 
 template<>
-hid_t getHDF5Type<uint8_t>() { return H5T_NATIVE_UINT8; }
+inline H5::DataType getHDF5Type<uint16_t>() { return H5::PredType::NATIVE_UINT16; }
 
 template<>
-hid_t getHDF5Type<int16_t>() { return H5T_NATIVE_INT16; }
+inline H5::DataType getHDF5Type<int32_t>() { return H5::PredType::NATIVE_INT32; }
 
 template<>
-hid_t getHDF5Type<uint16_t>() { return H5T_NATIVE_UINT16; }
+inline H5::DataType getHDF5Type<uint32_t>() { return H5::PredType::NATIVE_UINT32; }
 
 template<>
-hid_t getHDF5Type<int32_t>() { return H5T_NATIVE_INT32; }
+inline H5::DataType getHDF5Type<int64_t>() { return H5::PredType::NATIVE_INT64; }
 
 template<>
-hid_t getHDF5Type<uint32_t>() { return H5T_NATIVE_UINT32; }
-
-template<>
-hid_t getHDF5Type<int64_t>() { return H5T_NATIVE_INT64; }
-
-template<>
-hid_t getHDF5Type<uint64_t>() { return H5T_NATIVE_UINT64; }
+inline H5::DataType getHDF5Type<uint64_t>() { return H5::PredType::NATIVE_UINT64; }
 
 //*******************//
 // Floats & Doubles //
 //*****************//
 
 template<>
-hid_t getHDF5Type<float>() { return H5T_NATIVE_FLOAT; }
+inline H5::DataType getHDF5Type<float>() { return H5::PredType::NATIVE_FLOAT; }
 
 template<>
-hid_t getHDF5Type<double>() { return H5T_NATIVE_DOUBLE; }
+inline H5::DataType getHDF5Type<double>() { return H5::PredType::NATIVE_DOUBLE; }
 
 template<>
-hid_t getHDF5Type<long double>() { return H5T_NATIVE_LDOUBLE; }
+inline H5::DataType getHDF5Type<long double>() { return H5::PredType::NATIVE_LDOUBLE; }
 
 //**************//
 // Other Types //
 //************//
 
 template<>
-hid_t getHDF5Type<bool>() { return H5T_NATIVE_HBOOL; }
+inline H5::DataType getHDF5Type<bool>() { return H5::PredType::NATIVE_HBOOL; }
 
 template<>
-hid_t getHDF5Type<char>() { return 	H5T_NATIVE_CHAR; }
+inline H5::DataType getHDF5Type<char>() { return H5::PredType::NATIVE_CHAR; }
 
 template<>
-hid_t getHDF5Type<std::string>() {
+inline H5::DataType getHDF5Type<std::string>() {
     // H5::StrType is a HDF5 C++ RAII wrapper class to represent string datatypes
     
     // The constructor arguments for str_type are:
@@ -70,5 +68,7 @@ hid_t getHDF5Type<std::string>() {
     // - H5T_VARIABLE: This constant indicates that the string is variable-length
     
     H5::StrType str_type(H5::PredType::C_S1, H5T_VARIABLE);
-    return str_type.getId(); // getID() retuns the HDF5 string dataype (hid_t) 
+    return str_type;
 }
+
+#endif 

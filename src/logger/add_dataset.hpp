@@ -1,0 +1,32 @@
+#ifndef ADD_DATASET_HPP
+#define ADD_DATASET_HPP
+
+#include <string>
+#include <array>
+#include "../../external/hdf5/include/H5Cpp.h"
+#include "../../src/logger/cpp_to_hdf5_type_mapping.hpp" 
+#include "../../src/logger/hdf5_logger.hpp"
+
+template<typename T, std::size_t num_dimensions>
+void HDF5Logger::add_dataset(const std::string& dataset_name, const std::array<hsize_t, num_dimensions>& dimensions, const std::string& group_data_is_in) {
+    if (is_file_open() == false) {
+        open_file();
+    }
+
+    if (hdf5_file->exists(group_data_is_in) == false) {
+        throw std::runtime_error("[hdf5_logger.cpp] Cannot add data set to a group that does exist. Group path: " + group_data_is_in);
+    }
+
+    H5::Group group = hdf5_file->openGroup(group_data_is_in);
+
+    H5::DataType hdf5_datatype = getHDF5Type<T>();
+    H5::DataSpace num_dimensions_and_sizes(static_cast<hsize_t>(num_dimensions), dimensions.data());
+
+    if (group.exists(dataset_name)) {
+        group.unlink(dataset_name); // Unlink == delete
+    }
+    
+    H5::DataSet dataset = group.createDataSet(dataset_name, hdf5_datatype, num_dimensions_and_sizes);
+}
+
+#endif
