@@ -168,3 +168,13 @@ std::string HDF5Logger::getCppType(const H5::DataType& hdf5_type) {
 
     return "unknown";
 }
+
+std::vector<hsize_t> HDF5Logger::get_dataset_dimensions(const H5::DataSet& dataset) {
+    H5::DataSpace dataspace  = dataset.getSpace();
+    int number_of_dimensions = dataspace.getSimpleExtentNdims();
+
+    std::vector<hsize_t> dataset_dimensions(number_of_dimensions);
+    dataspace.getSimpleExtentDims(dataset_dimensions.data(), nullptr);
+
+    return dataset_dimensions;
+};

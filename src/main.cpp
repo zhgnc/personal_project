@@ -49,7 +49,29 @@ int main() {
   logger.add_dataset<double>("test_data_name", data_dimensions, "group_root");
   logger.add_sim_dataset<double>("sim_data_test", data_dimensions, "root_group_2");
   logger.add_sim_dataset<double>("sim_data_test", data_dimensions, "group_root/group_a/group_b");
-  logger.print_file_tree();
+  // logger.print_file_tree();
+
+  double data_to_log = 10.0;
+  std::unique_ptr<double[]> data_buffer_in(new double[1]);
+  data_buffer_in.get()[0] = data_to_log;
+  std::array<hsize_t, 3> offsets    = {0, 0, 0};
+  std::array<hsize_t, 3> data_shape = {1, 9, 1};
+
+  logger.write_data<double>("group_root/test_data_name", data_buffer_in.get(), offsets, data_shape);
+
+  std::unique_ptr<double[]> data_buffer_out(new double[24]);
+  offsets    = {4, 5, 6};
+  data_shape = data_dimensions;
+
+  logger.read_data<double>("group_root/test_data_name", data_buffer_out.get(), offsets, data_shape);
+
+
+  // Suppose data_pointer is std::unique_ptr<T[]> and you know size N
+  for (size_t i = 0; i < 24; i++) {
+      std::cout << data_buffer_out[i] << " ";
+  }
+  std::cout << std::endl;
+
   logger.close_file();
 
   // for (std::size_t i = 0; i < 5; i++ ) {
