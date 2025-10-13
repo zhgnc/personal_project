@@ -26,7 +26,7 @@ void HDF5Logger::add_dataset(const std::string& dataset_name, const std::array<h
         group.unlink(dataset_name); // Unlink == delete
     }
     
-    H5::DataSet dataset = group.createDataSet(dataset_name, hdf5_datatype, num_dimensions_and_sizes);
+    group.createDataSet(dataset_name, hdf5_datatype, num_dimensions_and_sizes);
 }
 
 #endif

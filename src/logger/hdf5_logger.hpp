@@ -21,10 +21,12 @@ public:
 
   template<typename T, std::size_t num_dimensions>
   void add_dataset(const std::string& name, const std::array<hsize_t, num_dimensions>& dimensions, const std::string& group_data_is_in);
-  void add_attibutes(); 
+  template<typename T, std::size_t num_dimensions>
+  void add_sim_dataset(const std::string& name, const std::array<hsize_t, num_dimensions>& dimensions, const std::string& group_data_is_in);
+  void add_attibutes(); // Create this
   void add_group(const std::string& new_group_name); 
 
-  void log_data();
+  void log_data(); // Create this
   void print_file_tree();
   bool is_file_open();
 
@@ -43,6 +45,8 @@ private:
 
 };
 
+// #include templated header implementations after class definition for proper linking
 #include "../../src/logger/add_dataset.hpp"
+#include "../../src/logger/add_sim_dataset.hpp"
 
 #endif

@@ -44,11 +44,11 @@ int main() {
   logger.add_group("group_root/group_c/group_d");
   logger.add_group("group_root/group_c/group_e");
   logger.add_group("root_group_2/group_f/group_g");
-  logger.print_file_tree();
-
 
   std::array<hsize_t, 3> data_dimensions = {2, 3, 4}; // Tells hdf5 logger this data set is 2x3x4
   logger.add_dataset<double>("test_data_name", data_dimensions, "group_root");
+  logger.add_sim_dataset<double>("sim_data_test", data_dimensions, "root_group_2");
+  logger.add_sim_dataset<double>("sim_data_test", data_dimensions, "group_root/group_a/group_b");
   logger.print_file_tree();
   logger.close_file();
 

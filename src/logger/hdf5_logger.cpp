@@ -83,16 +83,19 @@ void HDF5Logger::print_file_tree() {
 
     H5::Group root_group       = hdf5_file->openGroup("/");
     std::size_t level_to_print = 0;
+
     HDF5Logger::print_file_tree_helper(root_group, level_to_print);
     std::cout << "\n";
 }
 
 void HDF5Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to_print) {
     std::size_t num_objs = group.getNumObjs();
+    std::string obj_name;
+    H5G_obj_t obj_type;
 
     for (std::size_t i = 0; i < num_objs; i++) {
-        std::string obj_name = group.getObjnameByIdx(i);
-        H5G_obj_t obj_type   = group.getObjTypeByIdx(i);
+        obj_name = group.getObjnameByIdx(i);
+        obj_type = group.getObjTypeByIdx(i);
 
         for (std::size_t j = 0; j < level_to_print; j++) {
             std::cout << "    ";
@@ -137,7 +140,7 @@ void HDF5Logger::print_file_tree_helper(const H5::Group& group, std::size_t leve
 }
 
 std::string HDF5Logger::getCppType(const H5::DataType& hdf5_type) {
-    if (hdf5_type == H5::PredType::NATIVE_INT8)   return "int8_t";
+    if (hdf5_type == H5::PredType::NATIVE_INT8)    return "int8_t";
     if (hdf5_type == H5::PredType::NATIVE_UINT8)   return "uint8_t";
     if (hdf5_type == H5::PredType::NATIVE_INT16)   return "int16_t";
     if (hdf5_type == H5::PredType::NATIVE_UINT16)  return "uint16_t";
@@ -153,14 +156,13 @@ std::string HDF5Logger::getCppType(const H5::DataType& hdf5_type) {
     if (hdf5_type == H5::PredType::NATIVE_HBOOL)   return "bool";
     if (hdf5_type == H5::PredType::NATIVE_CHAR)    return "char";
 
-    // Check for variable-length strings
     if (hdf5_type.getClass() == H5T_STRING) {
         const H5::StrType& strType = static_cast<const H5::StrType&>(hdf5_type);
         
         if (strType.isVariableStr()) {
-            return "Variable length string (std::string)";
+            return "std::string"; // Variable length string 
         } else {
-            return "Fixed length string (char[256])";
+            return "char[256]"; // Fixed length string 
         }
     }
 
