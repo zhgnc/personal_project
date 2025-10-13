@@ -55,18 +55,45 @@ int main() {
   std::unique_ptr<double[]> data_buffer_in(new double[1]);
   data_buffer_in.get()[0] = data_to_log;
   std::array<hsize_t, 3> offsets    = {0, 0, 0};
-  std::array<hsize_t, 3> data_shape = {1, 9, 1};
+  std::array<hsize_t, 3> data_shape = {1, 1, 1};
 
   logger.write_data<double>("group_root/test_data_name", data_buffer_in.get(), offsets, data_shape);
 
   std::unique_ptr<double[]> data_buffer_out(new double[24]);
-  offsets    = {4, 5, 6};
+  offsets    = {0, 0, 0};
   data_shape = data_dimensions;
 
   logger.read_data<double>("group_root/test_data_name", data_buffer_out.get(), offsets, data_shape);
 
+  for (size_t i = 0; i < 24; i++) {
+      std::cout << data_buffer_out[i] << " ";
+  }
+  std::cout << std::endl;
 
-  // Suppose data_pointer is std::unique_ptr<T[]> and you know size N
+  // logger.close_file();
+
+
+  // APPEND DATA TEST
+  // logger.open_file();
+
+  double sim_step_data[2 * 3 * 4] = {
+    0.0, 0.1, 0.2, 0.3,
+    1.0, 1.1, 1.2, 1.3,
+    2.0, 2.1, 2.2, 2.3,
+
+    3.0, 3.1, 3.2, 3.3,
+    4.0, 4.1, 4.2, 4.3,
+    5.0, 5.1, 5.2, 5.3
+  };
+
+  std::array<hsize_t, 4> offsets_append    = {0, 0, 0, 0};
+  std::array<hsize_t, 4> data_shape_append = {1, 2, 3, 4};
+
+  std::array<hsize_t, 4> new_data_shape = {1, 2, 3, 4};
+  logger.append_data<double>("root_group_2/sim_data_test", new_data_shape, sim_step_data);
+  logger.read_data<double>("root_group_2/sim_data_test", data_buffer_out.get(), offsets_append, data_shape_append);
+
+
   for (size_t i = 0; i < 24; i++) {
       std::cout << data_buffer_out[i] << " ";
   }

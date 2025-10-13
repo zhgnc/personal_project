@@ -40,7 +40,10 @@ public:
                   const std::array<hsize_t, num_dimensions>& offsets, 
                   const std::array<hsize_t, num_dimensions>& data_shape);
   
-  void append_data(); // Create this
+  template<typename T, std::size_t num_dimensions>
+  void  append_data(const std::string& dataset_name,
+                    const std::array<hsize_t, num_dimensions>& data_shape,
+                    const T* data_pointer);
 
   template<typename T, std::size_t num_dimensions>
   void read_data(const std::string& dataset_path, 
@@ -70,13 +73,17 @@ private:
   void check_desired_data_size(const std::array<hsize_t, num_dimensions>& offsets, 
                                const std::array<hsize_t, num_dimensions>& data_shape, 
                                const H5::DataSet& dataset);
+  
+  template<std::size_t num_dimensions>
+  void check_desired_data_size(const std::array<hsize_t, num_dimensions>& data_shape, 
+                               const H5::DataSet& dataset);
 
   std::vector<hsize_t> get_dataset_dimensions(const H5::DataSet& dataset);
 
   std::unique_ptr<H5::H5File> hdf5_file;
   bool file_is_open; 
   std::string directory_path;
-  std::string desired_read_write_path;
+  std::string dataset_path;
 
 };
 
