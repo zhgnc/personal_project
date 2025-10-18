@@ -1,4 +1,4 @@
-#include "hdf5_logger.hpp"
+#include "../../src/data_logger/hdf5_logger.hpp"
 
 HDF5Logger::HDF5Logger(const std::string& new_file_name, const std::string& path_to_save_location) {
     directory_path = path_to_save_location;

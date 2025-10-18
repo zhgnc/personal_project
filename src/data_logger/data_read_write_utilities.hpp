@@ -1,7 +1,7 @@
 #ifndef DATA_READ_WRITE_UTILITIES_HPP
 #define DATA_READ_WRITE_UTILITIES_HPP
 
-#include "../../src/logger/hdf5_logger.hpp"
+#include "../../src/data_logger/hdf5_logger.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 
 template<typename T, std::size_t num_dimensions>

@@ -4,8 +4,8 @@
 #include <string>
 #include <array>
 #include "../../external/hdf5/include/H5Cpp.h"
-#include "../../src/logger/cpp_to_hdf5_type_mapping.hpp" 
-#include "../../src/logger/hdf5_logger.hpp"
+#include "../../src/data_logger/cpp_to_hdf5_type_mapping.hpp" 
+#include "../../src/data_logger/hdf5_logger.hpp"
 
 template<typename T, std::size_t num_dimensions>
 void HDF5Logger::add_sim_dataset(const std::string& dataset_name, const std::array<hsize_t, num_dimensions>& dimensions, const std::string& group_data_is_in) {
