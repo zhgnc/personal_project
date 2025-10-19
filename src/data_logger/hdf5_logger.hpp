@@ -13,7 +13,8 @@
 
 class HDF5Logger {
 public:
-  HDF5Logger(const std::string& new_file_name, const std::string& path_to_save_location);
+  HDF5Logger() = default;
+  HDF5Logger(const std::string& config_file);
 
   void create_file();
   void open_file();

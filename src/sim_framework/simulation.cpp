@@ -7,16 +7,15 @@
 Simulation::Simulation(const std::string &path_to_sim_config, DataBus& bus) {
   YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
 
-  start_time_sec = config_data["sim_start_time_sec"].as<double>();
-  stop_time_sec = config_data["sim_stop_time_sec"].as<double>();
-  sim_rate_hz = config_data["simulation_rate_hz"].as<double>();
-  logging_rate_hz = config_data["logging_rate_hz"].as<double>();
+  start_time_sec   = config_data["sim_start_time_sec"].as<double>();
+  stop_time_sec    = config_data["sim_stop_time_sec"].as<double>();
+  sim_rate_hz      = config_data["simulation_rate_hz"].as<double>();
   num_monte_carlos = config_data["number_of_monte_carlo_runs"].as<int>();
 
-  sim_dt_usec = static_cast<uint32_t>(sec2usec * (1.0 / sim_rate_hz));
+  sim_dt_usec           = static_cast<uint32_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint32_t>(sec2usec * start_time_sec);
-  current_sim_time_sec = start_time_sec;
-  stop_time_usec = static_cast<uint32_t>(sec2usec * stop_time_sec);
+  current_sim_time_sec  = start_time_sec;
+  stop_time_usec        = static_cast<uint32_t>(sec2usec * stop_time_sec);
 
   data_bus = bus;
 };

@@ -1,9 +1,13 @@
 #include "../../src/data_logger/hdf5_logger.hpp"
+#include "yaml-cpp/yaml.h"
 
-HDF5Logger::HDF5Logger(const std::string& new_file_name, const std::string& path_to_save_location) {
-    directory_path = path_to_save_location;
-    full_file_path = (std::filesystem::path(directory_path) / new_file_name).string();
-    hdf5_file_name = new_file_name;
+HDF5Logger::HDF5Logger(const std::string& config_file) {
+    YAML::Node config_data = YAML::LoadFile(config_file);
+
+    directory_path = config_data["save_data_directory"].as<std::string>();
+    hdf5_file_name = config_data["save_data_file"].as<std::string>();
+
+    full_file_path = (std::filesystem::path(directory_path) / hdf5_file_name).string();
     file_is_open   = false;
 
     HDF5Logger::verify_file_path();
