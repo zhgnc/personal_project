@@ -24,6 +24,10 @@ void Simulation::add_app(std::shared_ptr<SimApp> new_app) {
   app_list.push_back(new_app);
 };
 
+void Simulation::add_logger(std::shared_ptr<LoggingAppBase> logger) {
+  data_logger = logger;
+}
+
 void Simulation::sort_apps_by_priority() {
   std::sort(app_list.begin(), app_list.end(), Simulation::compare_by_priority);
 };
@@ -58,6 +62,9 @@ void Simulation::run() {
       for (std::shared_ptr<SimApp> &app : app_list) {
         app->step(current_sim_time_usec);
       }
+
+      data_logger->log_data(current_sim_time_usec);
+
       current_sim_time_usec += sim_dt_usec;
       current_sim_time_sec = current_sim_time_usec / sec2usec;
 

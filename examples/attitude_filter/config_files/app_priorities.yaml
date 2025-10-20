@@ -2,4 +2,3 @@ dynamics_priority: 1
 gyro_priority: 2
 star_tracker_priority: 3
 attitude_filter_priority: 4
-data_logging_priority: 5

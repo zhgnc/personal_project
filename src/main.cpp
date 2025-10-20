@@ -16,8 +16,8 @@
 
 #include "../external/hdf5/include/H5Cpp.h"
 
-#include "../examples/attitude_filter/sim_apps/gyro_sim_interface.hpp"
-#include "../examples/attitude_filter/sim_apps/logger_sim_interface.hpp"
+#include "../examples/attitude_filter/apps/gyro_sim_interface.hpp"
+#include "../examples/attitude_filter/apps/logging_sim_app.hpp"
 
 int main() {
   const std::string &sim_config_path      = "examples/attitude_filter/config_files/simulation_config.yaml";
@@ -39,12 +39,8 @@ int main() {
   std::shared_ptr<SimApp> gyro_app = std::make_shared<SimApp>(gyro_interface, gyro_rate, gyro_priority, gyro_config_path);
   sim.add_app(gyro_app);
 
-  double logging_rate  = logger_config_data["fastest_logging_rate_hz"].as<double>();
-  int logging_priority = app_priority_data["data_logging_priority"].as<int>();
-  std::shared_ptr<LoggerSimInterface> logging_interface = std::make_shared<LoggerSimInterface>();
-  std::shared_ptr<SimApp> logging_app = std::make_shared<SimApp>(logging_interface, logging_rate, logging_priority, logger_config_path);
-  sim.add_app(logging_app);
-
+  std::shared_ptr<LoggingSimApp> logging_app = std::make_shared<LoggingSimApp>(logger_config_path);
+  sim.add_logger(logging_app);
 
   sim.run();
 

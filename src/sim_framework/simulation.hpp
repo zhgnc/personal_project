@@ -3,6 +3,7 @@
 
 #include "sim_app.hpp"
 #include "data_bus.hpp"
+#include "logging_app_base.hpp"
 
 #include <vector>
 #include <memory>
@@ -15,6 +16,7 @@ public:
     Simulation(const std::string& path_to_sim_config, DataBus& data_bus);
 
     void add_app(std::shared_ptr<SimApp> new_app);
+    void add_logger(std::shared_ptr<LoggingAppBase> logger);
     void run();
 
 private:
@@ -30,6 +32,8 @@ private:
     int    num_monte_carlos;
 
     std::vector<std::shared_ptr<SimApp>> app_list;
+    std::shared_ptr<LoggingAppBase> data_logger;
+
     double current_sim_time_sec;
     uint32_t current_sim_time_usec;
     uint32_t stop_time_usec;
