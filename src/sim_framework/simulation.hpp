@@ -29,7 +29,7 @@ private:
     double stop_time_sec;
     double sim_rate_hz;
     double logging_rate_hz;
-    int    num_monte_carlos;
+    std::size_t num_monte_carlos;
 
     std::vector<std::shared_ptr<SimApp>> app_list;
     std::shared_ptr<LoggingAppBase> data_logger;

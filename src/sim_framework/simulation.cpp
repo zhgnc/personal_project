@@ -10,7 +10,7 @@ Simulation::Simulation(const std::string &path_to_sim_config, DataBus& bus) {
   start_time_sec   = config_data["sim_start_time_sec"].as<double>();
   stop_time_sec    = config_data["sim_stop_time_sec"].as<double>();
   sim_rate_hz      = config_data["simulation_rate_hz"].as<double>();
-  num_monte_carlos = config_data["number_of_monte_carlo_runs"].as<int>();
+  num_monte_carlos = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
 
   sim_dt_usec           = static_cast<uint32_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint32_t>(sec2usec * start_time_sec);
@@ -51,9 +51,11 @@ void Simulation::run() {
   sort_apps_by_priority();
   initialize_apps();
 
-  for (int run_num = 0; run_num < num_monte_carlos; run_num++) {
+  for (std::size_t run_num = 0; run_num < num_monte_carlos; run_num++) {
     computer_start_time = std::chrono::high_resolution_clock::now();
     std::cout << "[Simulation] Run #" << run_num << " started\n";
+
+    data_logger->initialize_logger(run_num);
     // std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec <<
     // "     " << current_sim_time_usec << "\n";
 
@@ -71,6 +73,9 @@ void Simulation::run() {
       // std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec
       // << "     " << current_sim_time_usec << "\n";
     }
+    
+    data_logger->logger.close_file();
+
     computer_stop_time = std::chrono::high_resolution_clock::now();
     computer_elapsed_seconds = computer_stop_time - computer_start_time;
     sim_to_real_time = stop_time_sec / computer_elapsed_seconds.count();

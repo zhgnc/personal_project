@@ -1,5 +1,4 @@
-fastest_logging_rate_hz: 10.0
+fastest_logging_rate_hz: 2.0
 medium_logging_rate_hz: 1.0
 slowest_logging_rate_hz: 0.2
 save_data_directory: "C:/git/personal_project/examples/attitude_filter/results"
-save_data_file: "test_log.yaml"

@@ -3,6 +3,8 @@
 
 HDF5Logger::HDF5Logger(const std::string& file_name, const std::string& path_to_file) {
     full_file_path = (std::filesystem::path(path_to_file) / file_name).string();
+    hdf5_file_name = file_name;
+    directory_path = path_to_file;
     file_is_open   = false;
 
     HDF5Logger::verify_file_path();
