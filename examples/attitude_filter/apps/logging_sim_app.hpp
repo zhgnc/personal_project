@@ -16,7 +16,17 @@ public:
     using LoggingAppBase::LoggingAppBase;
 
     void configure_hdf5_file() override {
-        // std::cout << "I'm here 1!\n\n";
+        logger.add_group("fake_dynamics");
+        logger.add_group("gyro");
+        logger.add_group("star_tracker");
+        logger.add_group("attitude_filter");
+
+        logger.add_sim_dataset<double>("fake_quaternion", {3}, "fake_dynamics");
+
+        logger.add_sim_dataset<double>("delta_thetas", {3}, "gyro");
+        logger.add_sim_dataset<bool>("valid_measurement", {1}, "gyro");
+
+        logger.print_file_tree();
     };
 
     void data_to_log () override {

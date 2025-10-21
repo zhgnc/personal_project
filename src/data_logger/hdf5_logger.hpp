@@ -1,5 +1,5 @@
-#ifndef LOGGER_HPP
-#define LOGGER_HPP
+#ifndef HDF5_LOGGER_HPP
+#define HDF5_LOGGER_HPP
 
 #include "../../src/math_utilities/math.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
@@ -20,36 +20,36 @@ public:
   void open_file();
   void close_file();
 
-  template<typename T, std::size_t num_dimensions>
+  template<typename T>
   void add_dataset(const std::string& name, 
-                   const std::array<hsize_t, num_dimensions>& dimensions, 
+                   const std::initializer_list<hsize_t>& dimensions, 
                    const std::string& group_data_is_in);
 
-  template<typename T, std::size_t num_dimensions>
+  template<typename T>
   void add_sim_dataset(const std::string& name, 
-                       const std::array<hsize_t, num_dimensions>& dimensions, 
+                       const std::initializer_list<hsize_t>& dimension_vector, 
                        const std::string& group_data_is_in);
 
-  void add_attibutes(); // Create this
+  void add_attributes(); // Create this
 
   void add_group(const std::string& new_group_name); 
 
-  template<typename T, std::size_t num_dimensions>
+  template<typename T>
   void write_data(const std::string& dataset_path, 
                   const T* data_pointer,  
-                  const std::array<hsize_t, num_dimensions>& offsets, 
-                  const std::array<hsize_t, num_dimensions>& data_shape);
+                  const std::initializer_list<hsize_t>& offsets, 
+                  const std::initializer_list<hsize_t>& data_shape);
   
-  template<typename T, std::size_t num_dimensions>
+  template<typename T>
   void append_data(const std::string& dataset_name,
-                    const std::array<hsize_t, num_dimensions>& data_shape,
+                    const std::initializer_list<hsize_t>& data_shape,
                     const T* data_pointer);
 
-  template<typename T, std::size_t num_dimensions>
+  template<typename T>
   void read_data(const std::string& dataset_path, 
                  T* data_pointer, 
-                 const std::array<hsize_t, num_dimensions>& offsets, 
-                 const std::array<hsize_t, num_dimensions>& data_shape);
+                 const std::initializer_list<hsize_t>& offsets, 
+                 const std::initializer_list<hsize_t>& data_shape);
 
   void print_data(); // Create this
 
@@ -69,13 +69,11 @@ private:
   
   std::string getCppType(const H5::DataType& hdf5_type);
 
-  template<std::size_t num_dimensions>
-  void check_desired_data_size(const std::array<hsize_t, num_dimensions>& offsets, 
-                               const std::array<hsize_t, num_dimensions>& data_shape, 
+  inline void check_desired_data_size(const std::vector<hsize_t>& offsets, 
+                               const std::vector<hsize_t>& data_shape, 
                                const H5::DataSet& dataset);
   
-  template<std::size_t num_dimensions>
-  void check_desired_data_size(const std::array<hsize_t, num_dimensions>& data_shape, 
+  inline void check_desired_data_size(const std::vector<hsize_t>& data_shape, 
                                const H5::DataSet& dataset);
 
   std::vector<hsize_t> get_dataset_dimensions(const H5::DataSet& dataset);

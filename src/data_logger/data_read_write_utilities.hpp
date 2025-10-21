@@ -4,11 +4,11 @@
 #include "../../src/data_logger/hdf5_logger.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 
-template<typename T, std::size_t num_dimensions>
+template<typename T>
 void HDF5Logger::write_data(const std::string& path_to_data_set, 
                             const T* data_pointer, 
-                            const std::array<hsize_t, num_dimensions>& offsets, 
-                            const std::array<hsize_t, num_dimensions>& data_shape) 
+                            const std::initializer_list<hsize_t>& offsets, 
+                            const std::initializer_list<hsize_t>& data_shape) 
 {
     dataset_path = path_to_data_set;
     HDF5Logger::verify_file_exists();
@@ -17,13 +17,17 @@ void HDF5Logger::write_data(const std::string& path_to_data_set,
         open_file();
     }
 
+    std::vector<hsize_t> offset_vector(offsets);
+    std::vector<hsize_t> data_shape_vector(data_shape);
+    std::size_t num_dimensions = offsets.size();
+
     H5::DataSet dataset = hdf5_file->openDataSet(dataset_path);
-    HDF5Logger::check_desired_data_size(offsets, data_shape, dataset);
+    HDF5Logger::check_desired_data_size(offset_vector, data_shape_vector, dataset);
 
     H5::DataSpace where_to_write_data = dataset.getSpace();
-    where_to_write_data.selectHyperslab(H5S_SELECT_SET, data_shape.data(), offsets.data());
+    where_to_write_data.selectHyperslab(H5S_SELECT_SET, data_shape_vector.data(), offset_vector.data());
 
-    H5::DataSpace shape_of_data(num_dimensions, data_shape.data());
+    H5::DataSpace shape_of_data(num_dimensions, data_shape_vector.data());
 
     dataset.write(data_pointer, getHDF5Type<T>(), shape_of_data, where_to_write_data);
     // Need to check that the data size can fit into desired spot, data types match, 
@@ -35,9 +39,9 @@ void HDF5Logger::write_data(const std::string& path_to_data_set,
 
 };
 
-template<typename T, std::size_t num_dimensions>
+template<typename T>
 void HDF5Logger::append_data(const std::string& path_to_data_set,
-                             const std::array<hsize_t, num_dimensions>& data_shape_to_append,
+                             const std::initializer_list<hsize_t>& data_shape_to_append,
                              const T* data_pointer) 
 {
     dataset_path = path_to_data_set;
@@ -47,8 +51,11 @@ void HDF5Logger::append_data(const std::string& path_to_data_set,
         open_file();
     }
 
+    std::vector<hsize_t> data_shape_vec(data_shape_to_append);
+    std::size_t num_dimensions = data_shape_to_append.size();
+
     H5::DataSet dataset = hdf5_file->openDataSet(dataset_path);
-    HDF5Logger::check_desired_data_size(data_shape_to_append, dataset);
+    HDF5Logger::check_desired_data_size(data_shape_vec, dataset);
 
     std::vector<hsize_t> dataset_dimensions = HDF5Logger::get_dataset_dimensions(dataset);
     dataset_dimensions[0] += 1;
@@ -56,26 +63,26 @@ void HDF5Logger::append_data(const std::string& path_to_data_set,
     dataset.extend(dataset_dimensions.data());
     H5::DataSpace where_to_write_data = dataset.getSpace();
 
-    std::array<hsize_t, num_dimensions + 1> offsets = {0};
+    std::vector<hsize_t> offsets(num_dimensions + 1);
     offsets[0] = dataset_dimensions[0] - 1; // dataset_dimensions is 1 past the last element (due to non-zero based indexing)
 
-    std::array<hsize_t, num_dimensions + 1> expanded_data_shape;
+    std::vector<hsize_t> expanded_data_shape(num_dimensions + 1);
     expanded_data_shape[0] = 1;  // appending one slice
     for (size_t i = 0; i < num_dimensions; i++) {
-        expanded_data_shape[i+1] = data_shape_to_append[i];
+        expanded_data_shape[i+1] = data_shape_vec[i];
     }
 
-    where_to_write_data.selectHyperslab(H5S_SELECT_SET, data_shape_to_append.data(), offsets.data());
+    where_to_write_data.selectHyperslab(H5S_SELECT_SET, data_shape_vec.data(), offsets.data());
     H5::DataSpace data_write_dimensions(num_dimensions + 1, expanded_data_shape.data());
 
     dataset.write(data_pointer, getHDF5Type<T>(), data_write_dimensions, where_to_write_data);
 };
 
-template<typename T, std::size_t num_dimensions>
+template<typename T>
 void HDF5Logger::read_data(const std::string& path_to_data_set, 
                            T* data_pointer, 
-                           const std::array<hsize_t, num_dimensions>& offsets, 
-                           const std::array<hsize_t, num_dimensions>& data_shape) 
+                           const std::initializer_list<hsize_t>& offsets, 
+                           const std::initializer_list<hsize_t>& data_shape) 
 {
     dataset_path = path_to_data_set;
     HDF5Logger::verify_file_exists();
@@ -84,27 +91,32 @@ void HDF5Logger::read_data(const std::string& path_to_data_set,
         open_file();
     }
 
+    std::vector<hsize_t> offset_vector(offsets);
+    std::vector<hsize_t> data_shape_vector(data_shape);
+    std::size_t num_dimensions = offsets.size();
+
     H5::DataSet dataset = hdf5_file->openDataSet(dataset_path);
-    HDF5Logger::check_desired_data_size(offsets, data_shape, dataset);
+    HDF5Logger::check_desired_data_size(offset_vector, data_shape_vector, dataset);
 
     H5::DataSpace where_to_read_data = dataset.getSpace();
-    where_to_read_data.selectHyperslab(H5S_SELECT_SET, data_shape.data(), offsets.data());
+    where_to_read_data.selectHyperslab(H5S_SELECT_SET, data_shape_vector.data(), offset_vector.data());
 
-    H5::DataSpace shape_of_data(num_dimensions, data_shape.data());
+    H5::DataSpace shape_of_data(num_dimensions, data_shape_vector.data());
 
     dataset.read(data_pointer, getHDF5Type<T>(), shape_of_data, where_to_read_data);
 
     // Need to add ability to read all data from a dataset and put in checks like mentioned above
 };
 
-template<std::size_t num_dimensions>
-void HDF5Logger::check_desired_data_size(const std::array<hsize_t, num_dimensions>& offsets, 
-                                         const std::array<hsize_t, num_dimensions>& data_shape, 
+inline void HDF5Logger::check_desired_data_size(const std::vector<hsize_t>& offsets, 
+                                         const std::vector<hsize_t>& data_shape, 
                                          const H5::DataSet& dataset) 
 {
     std::ostringstream error_message;
     bool has_error = false;
     std::vector<hsize_t> dataset_dimensions = HDF5Logger::get_dataset_dimensions(dataset);
+
+    std::size_t num_dimensions = offsets.size();
     
     for (std::size_t i = 0; i < num_dimensions; i++) {
         if (offsets[i] + data_shape[i] > dataset_dimensions[i]) {
@@ -121,14 +133,14 @@ void HDF5Logger::check_desired_data_size(const std::array<hsize_t, num_dimension
     }
 };
 
-template<std::size_t num_dimensions>
-void HDF5Logger::check_desired_data_size(const std::array<hsize_t, num_dimensions>& data_shape, 
-                                         const H5::DataSet& dataset) 
+inline void HDF5Logger::check_desired_data_size(const std::vector<hsize_t>& data_shape, const H5::DataSet& dataset) 
 {
     std::ostringstream error_message;
     bool has_error = false;
     std::vector<hsize_t> dataset_dimensions = HDF5Logger::get_dataset_dimensions(dataset);
     hsize_t one_element_slice = 1;
+
+    std::size_t num_dimensions = data_shape.size();
     
     if (data_shape[0] != one_element_slice) {
         has_error = true;

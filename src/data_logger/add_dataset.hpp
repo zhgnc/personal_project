@@ -7,8 +7,8 @@
 #include "../../src/data_logger/cpp_to_hdf5_type_mapping.hpp" 
 #include "../../src/data_logger/hdf5_logger.hpp"
 
-template<typename T, std::size_t num_dimensions>
-void HDF5Logger::add_dataset(const std::string& dataset_name, const std::array<hsize_t, num_dimensions>& dimensions, const std::string& group_data_is_in) {
+template<typename T>
+void HDF5Logger::add_dataset(const std::string& dataset_name, const std::initializer_list<hsize_t>& dimension_vector, const std::string& group_data_is_in) {
     if (is_file_open() == false) {
         open_file();
     }
@@ -18,9 +18,12 @@ void HDF5Logger::add_dataset(const std::string& dataset_name, const std::array<h
     }
 
     H5::Group group = hdf5_file->openGroup(group_data_is_in);
+    
+    std::vector<hsize_t> dimensions(dimension_vector);
+    hsize_t num_dimensions = dimensions.size(); 
 
     H5::DataType hdf5_datatype = getHDF5Type<T>();
-    H5::DataSpace num_dimensions_and_sizes(static_cast<hsize_t>(num_dimensions), dimensions.data());
+    H5::DataSpace num_dimensions_and_sizes(num_dimensions, dimensions.data());
 
     if (group.exists(dataset_name)) {
         group.unlink(dataset_name); // Unlink == delete

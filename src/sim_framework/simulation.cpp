@@ -78,8 +78,12 @@ void Simulation::run() {
     data_logger->logger.close_file();
 
     computer_stop_time = std::chrono::high_resolution_clock::now();
-    computer_elapsed_seconds = computer_stop_time - computer_start_time;
-    sim_to_real_time = stop_time_sec / computer_elapsed_seconds.count();
-    std::cout << "[Simulation] Run #" << run_num << " ended after " << computer_elapsed_seconds.count() << "(x" << sim_to_real_time << " real time)\n";
+    Simulation::display_run_status_time(run_num);
   }
 }
+
+void Simulation::display_run_status_time(const int& run_number) {
+    computer_elapsed_seconds = computer_stop_time - computer_start_time;
+    sim_to_real_time = stop_time_sec / computer_elapsed_seconds.count();
+    std::cout << "[Simulation] Run #" << run_number << " ended after " << computer_elapsed_seconds.count() << "(x" << sim_to_real_time << " real time)\n";
+};

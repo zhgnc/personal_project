@@ -7,8 +7,8 @@
 #include "../../src/data_logger/cpp_to_hdf5_type_mapping.hpp" 
 #include "../../src/data_logger/hdf5_logger.hpp"
 
-template<typename T, std::size_t num_dimensions>
-void HDF5Logger::add_sim_dataset(const std::string& dataset_name, const std::array<hsize_t, num_dimensions>& dimensions, const std::string& group_data_is_in) {
+template<typename T>
+void HDF5Logger::add_sim_dataset(const std::string& dataset_name, const std::initializer_list<hsize_t>& dimension_vector, const std::string& group_data_is_in) {
     if (is_file_open() == false) {
         open_file();
     }
@@ -20,10 +20,13 @@ void HDF5Logger::add_sim_dataset(const std::string& dataset_name, const std::arr
     H5::Group group = hdf5_file->openGroup(group_data_is_in);
     H5::DataType hdf5_datatype = getHDF5Type<T>();
 
-    // Add a dimension for saving data at each simulation step. to first dimension. 
-    std::array<hsize_t, num_dimensions + 1> expanded_size;
-    std::array<hsize_t, num_dimensions + 1> max_dimensions;
-    std::array<hsize_t, num_dimensions + 1> chunk_size;
+    std::vector<hsize_t> dimensions(dimension_vector);
+    std::size_t num_dimensions = dimensions.size();
+
+    // Add a dimension for saving data at each simulation step to first dimension
+    std::vector<hsize_t> expanded_size(num_dimensions + 1);
+    std::vector<hsize_t> max_dimensions(num_dimensions + 1);
+    std::vector<hsize_t> chunk_size(num_dimensions + 1);
 
     expanded_size[0]  = 0;             
     max_dimensions[0] = H5S_UNLIMITED; 
