@@ -15,15 +15,13 @@ class LoggingSimApp : public LoggingAppBase {
 public:
     using LoggingAppBase::LoggingAppBase;
 
-    void initialize_logger(const int& monte_carlo_run_number) override {
-        std::string new_file_name = std::format("test_log_RUN_{:05}.hdf5", monte_carlo_run_number);
-        logger = HDF5Logger(new_file_name, data_output_directory);
-        logger.create_file();
+    void configure_hdf5_file() override {
+        // std::cout << "I'm here 1!\n\n";
     };
 
     void data_to_log () override {
-        std::cout << "I'm here 2!\n\n";
-    }
+        // std::cout << "I'm here 2!\n\n";
+    };
 
 
 private:
