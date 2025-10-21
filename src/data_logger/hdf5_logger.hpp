@@ -8,7 +8,6 @@
 #include <array>
 #include <memory>
 #include <filesystem>
-#include <iostream>
 #include <vector>
 
 class HDF5Logger {
@@ -55,7 +54,7 @@ public:
 
   void print_file_tree();
  
-  bool is_file_open();
+  bool is_file_open() const;
 
   std::string hdf5_file_name;
   std::string full_file_path;

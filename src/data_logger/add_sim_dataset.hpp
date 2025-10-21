@@ -30,7 +30,7 @@ void HDF5Logger::add_sim_dataset(const std::string& dataset_name, const std::ini
 
     expanded_size[0]  = 0;             
     max_dimensions[0] = H5S_UNLIMITED; 
-    chunk_size[0]     = 64;
+    chunk_size[0]     = 64; // TODO: Make this configurable
     
     for (size_t i = 0; i < num_dimensions; i++) {
         expanded_size[i+1]  = dimensions[i];

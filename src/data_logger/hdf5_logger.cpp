@@ -37,7 +37,7 @@ void HDF5Logger::open_file() {
     file_is_open = true;
 };
 
-bool HDF5Logger::is_file_open() {
+bool HDF5Logger::is_file_open() const {
     return file_is_open;
 };
 
