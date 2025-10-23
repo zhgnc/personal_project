@@ -14,6 +14,10 @@ LoggingAppBase::LoggingAppBase(const std::string& config_file) {
     log_dt_usec           = static_cast<uint32_t>(sec2usec * log_dt_sec);
 };
 
+void LoggingAppBase::set_data_source(DataBus& bus) {
+  data_bus = &bus;
+}
+
 void LoggingAppBase::log_data(const uint32_t &sim_time_usec) {
   time_to_step = sim_time_usec % log_dt_usec == 0;
 

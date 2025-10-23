@@ -42,6 +42,7 @@ void Simulation::initialize_apps() {std::cout << "[Simulation] Initializing Apps
   for (std::shared_ptr<SimApp> &app : app_list) {
     app->initialize(data_bus);
   }
+  data_logger->set_data_source(data_bus);
   std::cout << "[Simulation] Apps Initialized\n\n";
 }
 
