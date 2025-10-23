@@ -24,7 +24,7 @@ public:
         gyro.inputs.q_j2000_to_body_true = data_bus->fake_dynamics_outputs.q_fake;
 
         gyro.run();
-
+        
         data_bus->gyro_outputs.measured_delta_angles = gyro.outputs.measured_delta_angles;
         data_bus->gyro_outputs.measurement_valid     = gyro.outputs.gyro_measurement_valid;
     }
