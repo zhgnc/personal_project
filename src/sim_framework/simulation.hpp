@@ -25,6 +25,7 @@ private:
     static bool compare_by_priority(const std::shared_ptr<SimAppBase>& app_A, 
                                     const std::shared_ptr<SimAppBase>& app_B);
     void display_run_status_time(const int& run_number);
+    void display_sorted_app_info();
 
     double start_time_sec;
     double stop_time_sec;

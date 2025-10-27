@@ -20,10 +20,9 @@ public:
     void check_step(const uint32_t& sim_time_usec);
 
     int priority;
-
+    double app_dt_sec;
     
 private:   
-    double app_dt_sec;
     uint32_t app_dt_usec;
     uint32_t next_run_time_usec;    
     bool time_to_step;
