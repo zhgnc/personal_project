@@ -20,7 +20,7 @@ Simulation::Simulation(const std::string &path_to_sim_config, DataBus& bus) {
   data_bus = bus;
 };
 
-void Simulation::add_app(std::shared_ptr<SimApp> new_app) {
+void Simulation::add_app(std::shared_ptr<SimAppBase> new_app) {
   app_list.push_back(new_app);
 };
 
@@ -32,24 +32,40 @@ void Simulation::sort_apps_by_priority() {
   std::sort(app_list.begin(), app_list.end(), Simulation::compare_by_priority);
 };
 
-bool Simulation::compare_by_priority(const std::shared_ptr<SimApp> &app_A,
-                                     const std::shared_ptr<SimApp> &app_B) {
-  // ">" sorts by ascending piority (lower number = higher priority)
-  return app_A->priority > app_B->priority;
+bool Simulation::compare_by_priority(const std::shared_ptr<SimAppBase> &app_A,
+                                     const std::shared_ptr<SimAppBase> &app_B) {
+  // ">" gives lower numbers a higher priority
+  return app_A->priority < app_B->priority;
 };
 
 void Simulation::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
-  for (std::shared_ptr<SimApp> &app : app_list) {
+  for (std::shared_ptr<SimAppBase> &app : app_list) {
     app->initialize(data_bus);
   }
+
   data_logger->set_data_source(data_bus);
   std::cout << "[Simulation] Apps Initialized\n\n";
+}
+
+void Simulation::display_sorted_app_info() {
+  std::cout << "[Simulation] Sorted Application List\n\n";
+  for (const std::shared_ptr<SimAppBase>& app : app_list) {
+      // Use RTTI to get the class name
+      std::string class_name = typeid(*app).name();
+
+      // Print class name, priority, and rate
+      std::cout << "Class: " << class_name
+                << " | Priority: " << app->priority
+                << " | Time Step (s): " << app->app_dt_sec << '\n';
+  }
+  std::cout << "\n";
 }
 
 void Simulation::run() {
   std::cout << "[Simulation] Starting Simulation\n";
 
   sort_apps_by_priority();
+  // display_sorted_app_info();
   initialize_apps();
 
   for (std::size_t run_num = 0; run_num < num_mc_runs; run_num++) {
@@ -64,8 +80,8 @@ void Simulation::run() {
 
     while (current_sim_time_usec <= stop_time_usec) {
 
-      for (std::shared_ptr<SimApp> &app : app_list) {
-        app->step(current_sim_time_usec);
+      for (std::shared_ptr<SimAppBase> &app : app_list) {
+        app->check_step(current_sim_time_usec);
       }
 
       data_logger->log_data(current_sim_time_usec);
@@ -85,6 +101,6 @@ void Simulation::run() {
 
 void Simulation::display_run_status_time(const int& run_number) {
     computer_elapsed_seconds = computer_stop_time - computer_start_time;
-    sim_to_real_time = stop_time_sec / computer_elapsed_seconds.count();
+    sim_to_real_time         = stop_time_sec / computer_elapsed_seconds.count();
     std::cout << "[Simulation] Run #" << run_number << " ended after " << computer_elapsed_seconds.count() << "(x" << sim_to_real_time << " real time)\n";
 };

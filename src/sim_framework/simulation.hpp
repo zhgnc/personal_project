@@ -1,7 +1,7 @@
 #ifndef SIMULATION_HPP
 #define SIMULATION_HPP
 
-#include "sim_app.hpp"
+#include "sim_app_base.hpp"
 #include "data_bus.hpp"
 #include "logging_app_base.hpp"
 
@@ -15,16 +15,17 @@ class Simulation {
 public:
     Simulation(const std::string& path_to_sim_config, DataBus& data_bus);
 
-    void add_app(std::shared_ptr<SimApp> new_app);
+    void add_app(std::shared_ptr<SimAppBase> new_app);
     void add_logger(std::shared_ptr<LoggingAppBase> logger);
     void run();
 
 private:
     void initialize_apps();
     void sort_apps_by_priority();
-    static bool compare_by_priority(const std::shared_ptr<SimApp>& app_A, 
-                                    const std::shared_ptr<SimApp>& app_B);
+    static bool compare_by_priority(const std::shared_ptr<SimAppBase>& app_A, 
+                                    const std::shared_ptr<SimAppBase>& app_B);
     void display_run_status_time(const int& run_number);
+    void display_sorted_app_info();
 
     double start_time_sec;
     double stop_time_sec;
@@ -32,7 +33,7 @@ private:
     double logging_rate_hz;
     std::size_t num_mc_runs;
 
-    std::vector<std::shared_ptr<SimApp>> app_list;
+    std::vector<std::shared_ptr<SimAppBase>> app_list;
     std::shared_ptr<LoggingAppBase> data_logger;
 
     double current_sim_time_sec;
