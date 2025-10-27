@@ -20,7 +20,7 @@ Simulation::Simulation(const std::string &path_to_sim_config, DataBus& bus) {
   data_bus = bus;
 };
 
-void Simulation::add_app(std::shared_ptr<SimApp> new_app) {
+void Simulation::add_app(std::shared_ptr<SimAppBase> new_app) {
   app_list.push_back(new_app);
 };
 
@@ -32,14 +32,14 @@ void Simulation::sort_apps_by_priority() {
   std::sort(app_list.begin(), app_list.end(), Simulation::compare_by_priority);
 };
 
-bool Simulation::compare_by_priority(const std::shared_ptr<SimApp> &app_A,
-                                     const std::shared_ptr<SimApp> &app_B) {
+bool Simulation::compare_by_priority(const std::shared_ptr<SimAppBase> &app_A,
+                                     const std::shared_ptr<SimAppBase> &app_B) {
   // ">" sorts by ascending piority (lower number = higher priority)
   return app_A->priority > app_B->priority;
 };
 
 void Simulation::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
-  for (std::shared_ptr<SimApp> &app : app_list) {
+  for (std::shared_ptr<SimAppBase> &app : app_list) {
     app->initialize(data_bus);
   }
   data_logger->set_data_source(data_bus);
@@ -64,8 +64,8 @@ void Simulation::run() {
 
     while (current_sim_time_usec <= stop_time_usec) {
 
-      for (std::shared_ptr<SimApp> &app : app_list) {
-        app->step(current_sim_time_usec);
+      for (std::shared_ptr<SimAppBase> &app : app_list) {
+        app->check_step(current_sim_time_usec);
       }
 
       data_logger->log_data(current_sim_time_usec);

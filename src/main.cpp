@@ -9,14 +9,14 @@
 #include "math_utilities/math.hpp"
 #include "yaml-cpp/yaml.h"
 
-#include "sim_framework/sim_app.hpp"
+#include "sim_framework/sim_app_base.hpp"
 #include "sim_framework/simulation.hpp"
 #include "sim_framework/data_bus.hpp"
 #include "data_logger/hdf5_logger.hpp"
 
 #include "../external/hdf5/include/H5Cpp.h"
 
-#include "../examples/attitude_filter/apps/gyro_sim_interface.hpp"
+#include "../examples/attitude_filter/apps/gyro_sim_app.hpp"
 #include "../examples/attitude_filter/apps/logging_sim_app.hpp"
 
 int main() {
@@ -35,8 +35,7 @@ int main() {
 
   double gyro_rate  = gyro_config_data["rate_hz"].as<double>();
   int gyro_priority = app_priority_data["gyro_priority"].as<int>();
-  std::shared_ptr<GyroSimInterface> gyro_interface = std::make_shared<GyroSimInterface>();
-  std::shared_ptr<SimApp> gyro_app = std::make_shared<SimApp>(gyro_interface, gyro_rate, gyro_priority, gyro_config_path);
+  std::shared_ptr<SimAppBase> gyro_app = std::make_shared<GyroSimApp>(gyro_rate, gyro_priority, gyro_config_path);
   sim.add_app(gyro_app);
 
   std::shared_ptr<LoggingSimApp> logging_app = std::make_shared<LoggingSimApp>(logger_config_path);
