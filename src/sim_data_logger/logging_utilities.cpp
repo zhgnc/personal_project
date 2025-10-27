@@ -1,0 +1,151 @@
+#include "../../src/sim_data_logger/logging_utilities.hpp"
+#include "yaml-cpp/yaml.h"
+
+void LoggingUtilities::create_file(const std::string& full_file_path) {
+    // H5File() creates a file if one does not exist or opens the existing file
+    // If the file exists, all data is cleared and H5F_ACC_TRUNC gives read and write permissions 
+    hdf5_file    = std::make_unique<H5::H5File>(full_file_path, H5F_ACC_TRUNC); 
+    file_path    = full_file_path; 
+    file_is_open = true;
+};
+
+void LoggingUtilities::close_file() {
+    LoggingUtilities::verify_file_exists();
+  
+    if (LoggingUtilities::is_file_open() == true) {  
+        hdf5_file->close();
+        file_is_open = false;      
+    }   
+};
+
+void LoggingUtilities::open_file() {
+    LoggingUtilities::verify_file_exists();
+
+    if (LoggingUtilities::is_file_open() == true) { 
+        return;
+    }
+
+    hdf5_file    = std::make_unique<H5::H5File>(file_path, H5F_ACC_RDWR);
+    file_is_open = true;
+};
+
+bool LoggingUtilities::is_file_open() const { return file_is_open; };
+
+void LoggingUtilities::verify_file_exists() const {
+    if (std::filesystem::exists(file_path) == false) {
+        throw std::runtime_error("[logging_utilities.cpp] File does not exist here: " + file_path);
+    }
+};
+
+void LoggingUtilities::create_group(const std::string& path_to_group) {
+    if (LoggingUtilities::is_file_open() == false) {
+        LoggingUtilities::open_file();
+    }
+
+    std::stringstream remaining_path(path_to_group);
+    H5::Group current_group = hdf5_file->openGroup("/");
+    std::string path_segment;
+
+    while (std::getline(remaining_path, path_segment, '/')) {
+        if (path_segment.empty()) { continue; } // Protects against leading '/' and '//' between path segements
+
+        if (current_group.exists(path_segment)) {
+            current_group = current_group.openGroup(path_segment);
+        } else {
+            current_group = current_group.createGroup(path_segment);
+        }
+    }
+}
+
+void LoggingUtilities::print_file_tree() {
+    if (LoggingUtilities::is_file_open() == false) {
+        LoggingUtilities::open_file();
+    }
+
+    H5::Group root_group       = hdf5_file->openGroup("/");
+    std::size_t level_to_print = 0;
+
+    LoggingUtilities::print_file_tree_helper(root_group, level_to_print);
+    std::cout << "\n";
+};
+
+void LoggingUtilities::print_file_tree_helper(const H5::Group& group, std::size_t level_to_print) {
+    std::size_t num_objs = group.getNumObjs();
+    std::string obj_name;
+    H5G_obj_t obj_type;
+
+    for (std::size_t i = 0; i < num_objs; i++) {
+        obj_name = group.getObjnameByIdx(i);
+        obj_type = group.getObjTypeByIdx(i);
+
+        for (std::size_t j = 0; j < level_to_print; j++) {
+            std::cout << "    ";
+        }
+
+        if (obj_type == H5G_GROUP) {
+            std::cout << "|- " << "\033[34m" << obj_name << " (Group)\n" << "\033[0m";
+
+            H5::Group subgroup = group.openGroup(obj_name);
+            print_file_tree_helper(subgroup, level_to_print + 1);
+
+        } else if (obj_type == H5G_DATASET) {
+            std::cout << "\033[32m" << "|- " << obj_name << " (Dataset) " << "\033[0m";
+            
+            H5::DataSet dataset        = group.openDataSet(obj_name);
+            H5::DataType hdf5_datatype = dataset.getDataType();
+            H5::DataSpace dataspace    = dataset.getSpace();
+
+            std::string cpp_data_type = LoggingUtilities::getCppType(hdf5_datatype);
+
+            int num_dimensions = dataspace.getSimpleExtentNdims();
+            std::vector<hsize_t> dataset_dimensions(num_dimensions);
+            dataspace.getSimpleExtentDims(dataset_dimensions.data());
+
+            std::cout << "{Type: " << cpp_data_type << ", Shape: [";
+            
+            for (std::size_t dim_num = 0; dim_num < dataset_dimensions.size(); dim_num++) {
+                std::cout << dataset_dimensions[dim_num];
+                bool if_not_last_element = dim_num < dataset_dimensions.size() - 1;
+
+                if (if_not_last_element) {
+                    std::cout << ",";
+                }
+            }
+
+            std::cout << "]}\n";
+
+        } else {
+            std::cout << " (Other)\n";
+        }
+    }
+}
+
+std::string LoggingUtilities::getCppType(const H5::DataType& hdf5_type) {
+    if (hdf5_type == H5::PredType::NATIVE_INT8)    return "int8_t";
+    if (hdf5_type == H5::PredType::NATIVE_UINT8)   return "uint8_t";
+    if (hdf5_type == H5::PredType::NATIVE_INT16)   return "int16_t";
+    if (hdf5_type == H5::PredType::NATIVE_UINT16)  return "uint16_t";
+    if (hdf5_type == H5::PredType::NATIVE_INT32)   return "int32_t";
+    if (hdf5_type == H5::PredType::NATIVE_UINT32)  return "uint32_t";
+    if (hdf5_type == H5::PredType::NATIVE_INT64)   return "int64_t";
+    if (hdf5_type == H5::PredType::NATIVE_UINT64)  return "uint64_t";
+
+    if (hdf5_type == H5::PredType::NATIVE_FLOAT)   return "float";
+    if (hdf5_type == H5::PredType::NATIVE_DOUBLE)  return "double";
+    if (hdf5_type == H5::PredType::NATIVE_LDOUBLE) return "long double";
+ 
+    if (hdf5_type == H5::PredType::NATIVE_HBOOL)   return "bool";
+    if (hdf5_type == H5::PredType::NATIVE_CHAR)    return "char";
+
+    if (hdf5_type.getClass() == H5T_STRING) {
+        const H5::StrType& strType = static_cast<const H5::StrType&>(hdf5_type);
+        
+        if (strType.isVariableStr()) {
+            return "std::string"; // Variable length string 
+        } else {
+            return "char[256]"; // Fixed length string 
+        }
+    }
+
+    return "unknown";
+}
