@@ -12,14 +12,16 @@ public:
     GyroModel(const std::string& config_file);
 
     void initialize();
-    void copy_inputs_to_class(); 
-    void execute(); 
-    void set_outputs();
+    void run();
 
     gyro_inputs  inputs; 
     gyro_outputs outputs;
 
 private:
+    void copy_inputs_to_class(); 
+    void execute(); 
+    void set_outputs();
+
     gyro_default_config default_config;
 
     double init_bias_1_sigma;

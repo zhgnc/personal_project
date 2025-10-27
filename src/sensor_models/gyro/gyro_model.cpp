@@ -52,6 +52,12 @@ void GyroModel::initialize() {
   first_cycle = true;
 };
 
+void GyroModel::run() {
+    GyroModel::copy_inputs_to_class(); 
+    GyroModel::execute(); 
+    GyroModel::set_outputs();
+}
+
 void GyroModel::copy_inputs_to_class() {
   q_j2000_to_body_now = inputs.q_j2000_to_body_true;
 };

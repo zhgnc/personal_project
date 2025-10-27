@@ -4,6 +4,11 @@
 /build/*
 !/build/.gitkeep
 
+##################################
+# Ignore all results directories #
+##################################
+**/results/
+
 ###############
 # CMake Files #
 ###############

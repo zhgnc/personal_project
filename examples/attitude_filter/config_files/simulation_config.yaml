@@ -1,5 +1,4 @@
 sim_start_time_sec: 0.0
-sim_stop_time_sec: 3600.0
+sim_stop_time_sec: 2.0
 simulation_rate_hz: 10.0
-logging_rate_hz: 1.0
-number_of_monte_carlo_runs: 1
+number_of_monte_carlo_runs: 3
