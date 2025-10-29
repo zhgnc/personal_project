@@ -41,44 +41,36 @@ DatasetOverrides<T>::DatasetOverrides(const std::string& name,
                                       int record_rate_hz,
                                       int buffer_length)
 {
-    dataset_name  = name;
-    group_path    = full_group_path;
-    logging_rate  = record_rate_hz;
-    buffer_size   = buffer_size;
-    hdf5_file_ptr = file;
+    dataset_name    = name;
+    group_path      = full_group_path;
+    logging_rate    = record_rate_hz;
+    logging_dt_usec = (1/logging_rate) * sec2usec;
+    buffer_size     = buffer_size;
+    hdf5_file_ptr   = file;
+    hdf5_data_type  = getHDF5Type<T>();
+    data_ptr        = data_pointer;
+    group           = hdf5_file_ptr->openGroup(group_path);
 
-    this->data_ptr(std::move(data_pointer)); // May not need this->
-    datatype = deduceType();
 
     create_dataset(file);
 }
 
 // This is where I left off
 template<typename T>
-void DatasetOverrides<T>::create_dataset()
-{
-    try {
-        auto shape = DataTraits<T>::shape();
-        dataspace = H5::DataSpace(shape.size(), shape.data());
+void DatasetOverrides<T>::create_dataset() {
+        std::array<hsize_t, DataTraits<T>::num_dimensions> shape = DataTraits<T>::dimension_sizes();
 
-        H5::Group group = create_group_recursive(hdf5_file_ptr, group_path);
-        dataset = group.createDataSet(dataset_name, datatype, dataspace);
-    }
-    catch (const H5::Exception& e) {
-        std::cerr << "Error creating dataset: " << e.getDetailMsg() << std::endl;
-    }
+        dataspace = H5::DataSpace(shape.size(), shape.data());
+        dataset   = group.createDataSet(dataset_name, hdf5_data_type, dataspace);
 }
 
 template<typename T>
-void DatasetOverrides<T>::log_if_needed()
-{
-    try {
-        const void* ptr = DataTraits<T>::data(data_ptr_.get());
-        dataset.write(ptr, datatype);
-    }
-    catch (const H5::Exception& e) {
-        std::cerr << "Error writing dataset: " << e.getDetailMsg() << std::endl;
-    }
+void DatasetOverrides<T>::log_if_needed(const uint32_t& current_sim_time_usec) {
+    if (current_sim_time_usec % logging_dt_usec != 0) {
+        return;
+    }        
+
+    dataset.write(data_ptr, datatype, dataspace);
 }
 
 template<typename T>

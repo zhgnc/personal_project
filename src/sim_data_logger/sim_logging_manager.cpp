@@ -11,7 +11,7 @@ SimLoggingManager::SimLoggingManager(const std::string& config_file_path, const 
 };
 
 void SimLoggingManager::create_file() {
-    hdf5_file = log_utils.create_file(hdf5_file_path);
+    hdf5_file_ptr = log_utils.create_file(hdf5_file_path);
 };
 
 void SimLoggingManager::close_file() {

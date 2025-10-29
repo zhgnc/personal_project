@@ -4,6 +4,7 @@
 #include "../../src/sim_data_logger/dataset_base.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 #include "../../src/math_utilities/math.hpp"
+#include "../../src/sim_data_logger/cpp_to_hdf5_type_mapping.hpp"
 
 #include <memory>
 #include <type_traits>
@@ -49,12 +50,11 @@ public:
                          int buffer_length);
 
     void create_dataset();
-    void log_if_needed() override;
+    void log_if_needed(const uint32_t& current_sim_time_use) override;
     void flush_buffer() override;
 
 private:
     std::shared_ptr<T> data_ptr;
-    std::shared_ptr<H5::H5File> hdf5_file_ptr;
 };
 
 #include "../../src/sim_data_logger/dataset_overrides.tpp"  // Template implementations

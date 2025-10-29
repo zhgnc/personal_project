@@ -18,12 +18,17 @@ public:
 
     int buffer_size;
     int logging_rate;
+    uint32_t logging_dt_usec;
+    double sec2usec = 1e6;
+
+    std::shared_ptr<H5::H5File> hdf5_file_ptr;
 
     H5::Group group;                       
     H5::DataSet dataset;                   
     H5::DataSpace dataspace;               
     H5::DataType datatype;                 
     H5::DSetCreatPropList property_list;
+    H5::DataType hdf5_data_type;
 };
 
 #endif
