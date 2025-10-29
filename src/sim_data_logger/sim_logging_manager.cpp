@@ -7,10 +7,11 @@ SimLoggingManager::SimLoggingManager(const std::string& config_file_path, const 
     config_file    = config_file_path;
     hdf5_file_path = full_file_path;
     buffer_size    = config_file["buffer_length"].as<int>();
+    hdf5_file_name = config_file["base_file_name"].as<std::string>();
 };
 
 void SimLoggingManager::create_file() {
-    log_utils.create_file(hdf5_file_path);
+    hdf5_file = log_utils.create_file(hdf5_file_path);
 };
 
 void SimLoggingManager::close_file() {
@@ -35,7 +36,8 @@ void SimLoggingManager::add_dataset(const std::string& dataset_name,
                                     std::shared_ptr<T> data_pointer, 
                                     int record_rate_hz) 
 {
-    
-
-
+    log_utils.verify_file_path(full_group_path);
+    dataset = DatasetOverrides(dataset_name, full_group_path, data_pointer, hdf5_file_ptr, record_rate_hz, buffer_size); 
+    // Create dataset object which creates the dataset if it does not exist
+    // Add dataset object to dataset list in class
 }

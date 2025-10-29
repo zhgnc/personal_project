@@ -2,6 +2,7 @@
 #define SIM_LOGGING_MANAGER_HPP
 
 #include "../../src/sim_data_logger/logging_utilities.hpp"
+#include "../../src/sim_data_logger/dataset_overrides.hpp"
 #include "yaml-cpp/yaml.h"
 
 #include <string>
@@ -28,6 +29,9 @@ private:
     LoggingUtilities log_utils;
     std::string config_file; 
     std::string hdf5_file_path;
+    std::string hdf5_file_name;
+
+    std::shared_ptr<H5::H5File> hdf5_file_ptr;
     
     std::vector<std::unique_ptr<double>> datasets;
     int buffer_size;

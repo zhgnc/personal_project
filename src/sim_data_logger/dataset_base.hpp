@@ -5,13 +5,13 @@
 
 #include <string>
 
-class DataLoggingBase {
+class DatasetBase {
 public:
     virtual void create_dataset() = 0;
     virtual void log_if_needed() = 0;
     virtual void flush_buffer()  = 0;
     
-    virtual ~DataLoggingBase() = default;
+    virtual ~DatasetBase() = default;
 
     std::string dataset_name;
     std::string group_path;

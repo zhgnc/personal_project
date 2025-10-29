@@ -43,7 +43,7 @@ public:
         // std::cout << "Data bus output in logging sim app:\n";
         // data_bus->gyro_outputs.measured_delta_angles.print(); 
 
-        logger.append_data<double>("gyro/delta_thetas", {1,3}, temp_array);
+        logger.append_data<double>("gyro/delta_thetas", {1,3}, temp_array); 
 
         // std::unique_ptr<double[]> data_buffer_out(new double[3]);
         // logger.read_data<double>("gyro/delta_thetas", data_buffer_out.get(), {data_step,0}, {1,3});

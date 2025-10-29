@@ -1,12 +1,14 @@
 #include "../../src/sim_data_logger/logging_utilities.hpp"
 #include "yaml-cpp/yaml.h"
 
-void LoggingUtilities::create_file(const std::string& full_file_path) {
+std::shared_ptr<H5::H5File> LoggingUtilities::create_file(const std::string& full_file_path) {
     // H5File() creates a file if one does not exist or opens the existing file
     // If the file exists, all data is cleared and H5F_ACC_TRUNC gives read and write permissions 
-    hdf5_file    = std::make_unique<H5::H5File>(full_file_path, H5F_ACC_TRUNC); 
-    file_path    = full_file_path; 
-    file_is_open = true;
+    hdf5_file_ptr = std::make_unique<H5::H5File>(full_file_path, H5F_ACC_TRUNC); 
+    file_path     = full_file_path; 
+    file_is_open  = true;
+
+    return hdf5_file_ptr;
 };
 
 void LoggingUtilities::close_file() {
@@ -149,3 +151,13 @@ std::string LoggingUtilities::getCppType(const H5::DataType& hdf5_type) {
 
     return "unknown";
 }
+
+void LoggingUtilities::verify_file_path(const std::string& directory_path) const {
+    if (std::filesystem::exists(directory_path) == false) {
+        throw std::runtime_error("[hdf5_logger.cpp] Path to directory does not exist: " + directory_path);
+    }
+
+    if (std::filesystem::is_directory(directory_path) == false) {
+        throw std::runtime_error("[hdf5_logger.cpp] File path does not lead to a directory: " + directory_path);
+    }
+};
