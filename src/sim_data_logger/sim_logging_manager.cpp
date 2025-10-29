@@ -2,8 +2,11 @@
 
 
 SimLoggingManager::SimLoggingManager(const std::string& config_file_path, const std::string& full_file_path) {
+    YAML::Node config_file  = YAML::LoadFile(config_file_path);
+    
     config_file    = config_file_path;
-    hdf5_file_path = full_file_path; 
+    hdf5_file_path = full_file_path;
+    buffer_size    = config_file["buffer_length"].as<int>();
 };
 
 void SimLoggingManager::create_file() {
@@ -25,3 +28,14 @@ void SimLoggingManager::print_file_tree() {
 void SimLoggingManager::log_data() {
 
 };
+
+template<typename T>
+void SimLoggingManager::add_dataset(const std::string& dataset_name, 
+                                    const std::string& full_group_path, 
+                                    std::shared_ptr<T> data_pointer, 
+                                    int record_rate_hz) 
+{
+    
+
+
+}

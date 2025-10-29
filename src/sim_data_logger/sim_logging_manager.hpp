@@ -2,6 +2,7 @@
 #define SIM_LOGGING_MANAGER_HPP
 
 #include "../../src/sim_data_logger/logging_utilities.hpp"
+#include "yaml-cpp/yaml.h"
 
 #include <string>
 #include <vector>
@@ -17,10 +18,19 @@ public:
     void print_file_tree();
     void log_data();
 
+    template<typename T>
+    void add_dataset(const std::string& dataset_name, 
+                     const std::string& full_group_path, 
+                     std::shared_ptr<T> data_pointer, 
+                     int record_rate_hz);
+
 private:
     LoggingUtilities log_utils;
     std::string config_file; 
     std::string hdf5_file_path;
+    
+    std::vector<std::unique_ptr<double>> datasets;
+    int buffer_size;
 };
 
 #endif

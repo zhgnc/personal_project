@@ -53,6 +53,18 @@ int main() {
   logger.add_group("group_2");
   logger.print_file_tree();
 
+  
+  double test_double    = 10.0;
+  matrix<double,2,2> M1 = {1.0, 2.0, 3.0, 4.0};
+  vector<float,3> V1    = {1.0, 2.0, 3.0};
+  
+  int record_freq_hz     = 1;
+
+  logger.add_dataset<double>("Test_Data_Point_1", "group_1", std::make_shared<double>(test_double), record_freq_hz);
+  logger.add_dataset<matrix<double,2,2>>("Test_Data_Point_2", "group_1/group_3", std::make_shared<matrix<double,2,2>>(M1), record_freq_hz);
+  logger.add_dataset<vector<float,3>>("Test_Data_Point_3", "group_1/group_4", std::make_shared<vector<float,3>>(V1), record_freq_hz);
+
+  logger.log();
 
 
 
