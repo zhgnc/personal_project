@@ -11,9 +11,8 @@
 #include <array>
 #include <string>
 
-// DataTraits is a compile time struc that defines some parameters required for hdf5 logging.
-// Used to deduce number of dimensions, dimension sizes, and data pointer for HDF5 writes for
-// the follow c++ types which includes my custom math library
+// DataTraits is a compile-time struct used to deduce number of dimensions, size of dimesnions, and data pointers
+// for HDF5 dataset writes. Specializations handle built-in types, as well as custom math types in "math_utilities/"
 template<typename T>
 struct DataTraits {
     static constexpr int num_dimensions = 0;
@@ -25,14 +24,14 @@ template<typename T, size_t N>
 struct DataTraits<vector<T, N>> {
     static constexpr int num_dimensions = 1;
     static std::array<hsize_t, 1> dimension_sizes();
-    static const void* data_ptr(const vector<T, N>* vector);
+    static const void* data_ptr(const vector<T, N>* vec);
 };
 
 template<typename T, size_t R, size_t C>
 struct DataTraits<matrix<T, R, C>> {
     static constexpr int num_dimensions = 2;
     static std::array<hsize_t, 2> dimension_sizes();
-    static const void* data_ptr(const matrix<T, R, C>* matrix);
+    static const void* data_ptr(const matrix<T, R, C>* mat);
 };
 
 

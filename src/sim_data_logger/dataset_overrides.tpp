@@ -20,14 +20,14 @@ template<typename T, size_t N>
 std::array<hsize_t, 1> DataTraits<vector<T, N>>::dimension_sizes() { return {N}; }
 
 template<typename T, size_t N>
-const void* DataTraits<vector<T, N>>::data_ptr(const vector<T, N>* v) { return vector->data(); }
+const void* DataTraits<vector<T, N>>::data_ptr(const vector<T, N>* vec) { return vec->data(); }
 
 
 template<typename T, size_t R, size_t C>
 std::array<hsize_t, 2> DataTraits<matrix<T, R, C>>::dimension_sizes() { return {R, C}; }
 
 template<typename T, size_t R, size_t C>
-const void* DataTraits<matrix<T, R, C>>::data_ptr(const matrix<T, R, C>* m) { return matrix->data(); }
+const void* DataTraits<matrix<T, R, C>>::data_ptr(const matrix<T, R, C>* mat) { return mat->data(); }
 
 
 
@@ -44,9 +44,9 @@ DatasetOverrides<T>::DatasetOverrides(const std::string& name,
     dataset_name    = name;
     group_path      = full_group_path;
     logging_rate    = record_rate_hz;
-    logging_dt_usec = (1/logging_rate) * sec2usec;
-    buffer_size     = buffer_size;
-    hdf5_file_ptr   = file;
+    logging_dt_usec = static_cast<uint32_t>((1 / logging_rate) * sec2usec);
+    buffer_size     = buffer_length;
+    hdf5_file_ptr   = &file;
     hdf5_data_type  = getHDF5Type<T>();
     data_ptr        = data_pointer;
     group           = hdf5_file_ptr->openGroup(group_path);
@@ -70,7 +70,7 @@ void DatasetOverrides<T>::log_if_needed(const uint32_t& current_sim_time_usec) {
         return;
     }        
 
-    dataset.write(data_ptr, datatype, dataspace);
+    dataset.write(data_ptr.get(), datatype, dataspace);
 }
 
 template<typename T>

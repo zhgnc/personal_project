@@ -38,6 +38,7 @@ void SimLoggingManager::add_dataset(const std::string& dataset_name,
 {
     log_utils.verify_file_path(full_group_path);
     dataset = DatasetOverrides(dataset_name, full_group_path, data_pointer, hdf5_file_ptr, record_rate_hz, buffer_size); 
+    dataset.create_dataset();
     // Create dataset object which creates the dataset if it does not exist
     // Add dataset object to dataset list in class
 }
