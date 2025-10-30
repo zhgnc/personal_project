@@ -69,7 +69,6 @@ void Simulation::run() {
   initialize_apps();
 
   for (std::size_t run_num = 0; run_num < num_mc_runs; run_num++) {
-    computer_start_time = std::chrono::high_resolution_clock::now();
     // std::cout << "[Simulation] Run #" << run_num << " started\n";
 
     data_logger->create_new_file(run_num);
@@ -77,6 +76,8 @@ void Simulation::run() {
     current_sim_time_sec  = current_sim_time_usec / sec2usec;
 
     // std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec << "     " << current_sim_time_usec << "\n";
+
+    computer_start_time = std::chrono::high_resolution_clock::now();
 
     while (current_sim_time_usec <= stop_time_usec) {
 
@@ -91,10 +92,11 @@ void Simulation::run() {
 
       // std::cout << "[Simulation] Time (sec, usec): " << current_sim_time_sec << "     " << current_sim_time_usec << "\n";
     }
+
+    computer_stop_time = std::chrono::high_resolution_clock::now();
     
     data_logger->logger.close_file();
 
-    computer_stop_time = std::chrono::high_resolution_clock::now();
     Simulation::display_run_status_time(run_num);
   }
 }

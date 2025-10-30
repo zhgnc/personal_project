@@ -38,15 +38,14 @@ struct DataTraits<matrix<T, R, C>> {
 
 
 
-template<typename T>
+template<typename T, std::size_t buffer_length>
 class DatasetOverrides : public DatasetBase {
 public:
     DatasetOverrides(const std::string& name,
-                         const std::string& full_group_path,
-                         std::shared_ptr<T> data_pointer,
-                         H5::H5File& file,
-                         int record_rate_hz,
-                         int buffer_length);
+                     const std::string& full_group_path,
+                     std::shared_ptr<T> data_pointer,
+                     std::shared_ptr<H5::H5File> file,
+                     int record_rate_hz);
 
     void create_dataset();
     void log_if_needed(const uint32_t& current_sim_time_use) override;
@@ -54,6 +53,11 @@ public:
 
 private:
     std::shared_ptr<T> data_ptr;
+    std::array<T, buffer_length> data_buffer;
+
+    std::array<hsize_t, DataTraits<T>::num_dimensions + 1> old_dataset_size;
+    std::array<hsize_t, DataTraits<T>::num_dimensions + 1> new_dataset_size;
+    std::array<hsize_t, DataTraits<T>::num_dimensions + 1> new_data_shape;
 };
 
 #include "../../src/sim_data_logger/dataset_overrides.tpp"  // Template implementations

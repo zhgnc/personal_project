@@ -15,7 +15,7 @@ void LoggingUtilities::close_file() {
     LoggingUtilities::verify_file_exists();
   
     if (LoggingUtilities::is_file_open() == true) {  
-        hdf5_file->close();
+        hdf5_file_ptr->close();
         file_is_open = false;      
     }   
 };
@@ -27,8 +27,8 @@ void LoggingUtilities::open_file() {
         return;
     }
 
-    hdf5_file    = std::make_unique<H5::H5File>(file_path, H5F_ACC_RDWR);
-    file_is_open = true;
+    hdf5_file_ptr = std::make_unique<H5::H5File>(file_path, H5F_ACC_RDWR);
+    file_is_open  = true;
 };
 
 bool LoggingUtilities::is_file_open() const { return file_is_open; };
@@ -45,7 +45,7 @@ void LoggingUtilities::create_group(const std::string& path_to_group) {
     }
 
     std::stringstream remaining_path(path_to_group);
-    H5::Group current_group = hdf5_file->openGroup("/");
+    H5::Group current_group = hdf5_file_ptr->openGroup("/");
     std::string path_segment;
 
     while (std::getline(remaining_path, path_segment, '/')) {
@@ -64,7 +64,7 @@ void LoggingUtilities::print_file_tree() {
         LoggingUtilities::open_file();
     }
 
-    H5::Group root_group       = hdf5_file->openGroup("/");
+    H5::Group root_group       = hdf5_file_ptr->openGroup("/");
     std::size_t level_to_print = 0;
 
     LoggingUtilities::print_file_tree_helper(root_group, level_to_print);
@@ -154,10 +154,16 @@ std::string LoggingUtilities::getCppType(const H5::DataType& hdf5_type) {
 
 void LoggingUtilities::verify_file_path(const std::string& directory_path) const {
     if (std::filesystem::exists(directory_path) == false) {
-        throw std::runtime_error("[hdf5_logger.cpp] Path to directory does not exist: " + directory_path);
+        throw std::runtime_error("[>logging_utilities.cpp] Path to directory does not exist: " + directory_path);
     }
 
     if (std::filesystem::is_directory(directory_path) == false) {
-        throw std::runtime_error("[hdf5_logger.cpp] File path does not lead to a directory: " + directory_path);
+        throw std::runtime_error("[logging_utilities.cpp] File path does not lead to a directory: " + directory_path);
     }
 };
+
+void LoggingUtilities::verify_group_exists(const std::string& full_group_path) const {
+    if (hdf5_file_ptr->exists(full_group_path) == false) {
+        throw std::runtime_error("[logging_utilities.cpp] Cannot add data set to a group that does exist. Group path: " + full_group_path);
+    }
+}

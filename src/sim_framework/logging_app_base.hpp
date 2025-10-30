@@ -1,8 +1,8 @@
 #ifndef LOGGING_APP_BASE_HPP
 #define LOGGING_APP_BASE_HPP
 
-#include "../../../src/data_logger/hdf5_logger.hpp"
 #include "../../../src/sim_framework/data_bus.hpp"
+#include "../../../src/sim_data_logger/sim_logging_manager.hpp"
 
 #include <cstdint>
 #include <string>
@@ -19,7 +19,7 @@ public:
     virtual void configure_hdf5_file() = 0;
     virtual void data_to_log() = 0;
 
-    HDF5Logger logger;
+    SimLoggingManager logger;
     DataBus* data_bus;
 private:
     std::string data_output_directory;
@@ -28,6 +28,7 @@ private:
     double log_dt_sec;
     uint32_t log_dt_usec;
     bool time_to_step;
+    std::string config_file_path;
     
     double sec2usec = 1e6;
 };

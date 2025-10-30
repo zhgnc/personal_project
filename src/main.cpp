@@ -20,51 +20,36 @@
 #include "../examples/attitude_filter/apps/logging_sim_app.hpp"
 
 int main() {
-  // const std::string &sim_config_path      = "examples/attitude_filter/config_files/simulation_config.yaml";
-  // const std::string &logger_config_path   = "examples/attitude_filter/config_files/logging_config.yaml";
-  // const std::string &priority_config_path = "examples/attitude_filter/config_files/app_priorities.yaml";
-  // const std::string &gyro_config_path     = "examples/attitude_filter/config_files/gyro_config.yaml";
+  const std::string &sim_config_path      = "examples/attitude_filter/config_files/simulation_config.yaml";
+  const std::string &logger_config_path   = "examples/attitude_filter/config_files/logging_config.yaml";
+  const std::string &priority_config_path = "examples/attitude_filter/config_files/app_priorities.yaml";
+  const std::string &gyro_config_path     = "examples/attitude_filter/config_files/gyro_config.yaml";
 
-  // YAML::Node app_priority_data  = YAML::LoadFile(priority_config_path);
-  // YAML::Node sim_config_data    = YAML::LoadFile(sim_config_path);
-  // YAML::Node logger_config_data = YAML::LoadFile(logger_config_path);
-  // YAML::Node gyro_config_data   = YAML::LoadFile(gyro_config_path);
+  YAML::Node app_priority_data  = YAML::LoadFile(priority_config_path);
+  YAML::Node sim_config_data    = YAML::LoadFile(sim_config_path);
+  YAML::Node logger_config_data = YAML::LoadFile(logger_config_path);
+  YAML::Node gyro_config_data   = YAML::LoadFile(gyro_config_path);
 
-  // DataBus data_bus;
-  // Simulation sim(sim_config_path, data_bus);
+  DataBus data_bus;
+  Simulation sim(sim_config_path, data_bus);
 
-  // double gyro_rate  = gyro_config_data["rate_hz"].as<double>();
-  // int gyro_priority = app_priority_data["gyro_priority"].as<int>();
-  // std::shared_ptr<SimAppBase> gyro_app = std::make_shared<GyroSimApp>(gyro_rate, gyro_priority, gyro_config_path);
-  // sim.add_app(gyro_app);
+  double gyro_rate  = gyro_config_data["rate_hz"].as<double>();
+  int gyro_priority = app_priority_data["gyro_priority"].as<int>();
+  std::shared_ptr<SimAppBase> gyro_app = std::make_shared<GyroSimApp>(gyro_rate, gyro_priority, gyro_config_path);
+  sim.add_app(gyro_app);
 
-  // std::shared_ptr<LoggingSimApp> logging_app = std::make_shared<LoggingSimApp>(logger_config_path);
-  // sim.add_logger(logging_app);
+  std::shared_ptr<LoggingSimApp> logging_app = std::make_shared<LoggingSimApp>(logger_config_path);
+  sim.add_logger(logging_app);
 
-  // sim.run();
-
-  const std::string& logger_config_path = "examples/attitude_filter/config_files/logging_config.yaml";
-  const std::string& test_file_path     = "C:/git/personal_project/src/test_zach_2.hdf5";
-  SimLoggingManager logger(logger_config_path, test_file_path);
-
-  logger.create_file();
-  logger.add_group("group_1/group_3");
-  logger.add_group("group_1/group_4");
-  logger.add_group("group_2");
-  logger.print_file_tree();
-
+  sim.run();
+ 
+  // double test_double    = 10.0;
+  // matrix<double,2,2> M1 = {1.0, 2.0, 3.0, 4.0};
+  // vector<float,3> V1    = {1.0, 2.0, 3.0};
   
-  double test_double    = 10.0;
-  matrix<double,2,2> M1 = {1.0, 2.0, 3.0, 4.0};
-  vector<float,3> V1    = {1.0, 2.0, 3.0};
-  
-  int record_freq_hz     = 1;
+  // 
 
-  logger.add_dataset<double>("Test_Data_Point_1", "group_1", std::make_shared<double>(test_double), record_freq_hz);
-  logger.add_dataset<matrix<double,2,2>>("Test_Data_Point_2", "group_1/group_3", std::make_shared<matrix<double,2,2>>(M1), record_freq_hz);
-  logger.add_dataset<vector<float,3>>("Test_Data_Point_3", "group_1/group_4", std::make_shared<vector<float,3>>(V1), record_freq_hz);
-
-  logger.log();
+  // logger.log();
 
 
 

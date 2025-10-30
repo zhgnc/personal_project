@@ -21,6 +21,7 @@ public:
   void print_file_tree();
   void verify_file_path(const std::string& directory_path) const;
   void verify_file_exists() const;
+  void verify_group_exists(const std::string& full_group_path) const;
 
 private:  
   void print_file_tree_helper(const H5::Group& group, std::size_t level_to_print);
