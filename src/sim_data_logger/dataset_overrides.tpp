@@ -49,8 +49,6 @@ DatasetOverrides<T, buffer_length>::DatasetOverrides(const std::string& name,
     hdf5_data_type  = HDF5Type<T>::get();
     data_ptr        = data_pointer;
     group           = hdf5_file_ptr->openGroup(group_path);
-
-    create_dataset();
 }
 
 template<typename T, std::size_t buffer_length>

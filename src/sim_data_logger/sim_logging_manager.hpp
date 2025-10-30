@@ -28,9 +28,12 @@ public:
                      int record_rate_hz) 
     {
         log_utils.verify_group_exists(full_group_path);
+        // std::cout << "Here 1!\n";
         static constexpr std::size_t buffer_length_config = 1;
         std::unique_ptr<DatasetBase> dataset = std::make_unique<DatasetOverrides<T, buffer_length_config>>(dataset_name, full_group_path, data_pointer, hdf5_file_ptr, record_rate_hz); 
+        // std::cout << "Here 2!\n";
         dataset->create_dataset();
+        // std::cout << "Here 3!\n";
         datasets.push_back(std::move(dataset));
     }
 
