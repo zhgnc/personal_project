@@ -5,6 +5,10 @@ void SimLoggingManager::create_file(const std::string& full_file_path) {
 };
 
 void SimLoggingManager::close_file() {
+    for (const std::unique_ptr<DatasetBase>& dataset : datasets) {
+        dataset->flush_buffer();
+    }
+
     log_utils.close_file();
 };
 

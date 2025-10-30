@@ -17,7 +17,6 @@ public:
     void log_data(const uint32_t &sim_time_usec);
     void create_new_file(const int& monte_carlo_run_number);
     virtual void configure_hdf5_file() = 0;
-    virtual void data_to_log() = 0;
 
     SimLoggingManager logger;
     DataBus* data_bus;
