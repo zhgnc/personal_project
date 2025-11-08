@@ -43,7 +43,7 @@ class DatasetOverrides : public DatasetBase {
 public:
     DatasetOverrides(const std::string& name,
                      const std::string& full_group_path,
-                     std::shared_ptr<T> data_pointer,
+                     std::shared_ptr<const T> data_pointer,
                      std::shared_ptr<H5::H5File> file,
                      int record_rate_hz);
 
@@ -52,7 +52,7 @@ public:
     void flush_buffer() override;
 
 private:
-    std::shared_ptr<T> data_ptr;
+    std::shared_ptr<const T> data_ptr;
     std::array<T, buffer_length> data_buffer;
 
     std::array<hsize_t, DataTraits<T>::num_dimensions + 1> old_dataset_size;

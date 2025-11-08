@@ -36,7 +36,7 @@ const void* DataTraits<matrix<T, R, C>>::data_ptr(const matrix<T, R, C>* mat) { 
 template<typename T, std::size_t buffer_length>
 DatasetOverrides<T, buffer_length>::DatasetOverrides(const std::string& name,
                                                      const std::string& full_group_path,
-                                                     std::shared_ptr<T> data_pointer,
+                                                     std::shared_ptr<const T> data_pointer,
                                                      std::shared_ptr<H5::H5File> file,
                                                      int record_rate_hz)
 {
