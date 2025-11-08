@@ -25,7 +25,7 @@ public:
     void add_dataset(const std::string& dataset_name, 
                      const std::string& full_group_path, 
                      const T& data_reference, 
-                     const int record_rate_hz) 
+                     const double record_rate_hz) 
     {
         log_utils.verify_group_exists(full_group_path);
 

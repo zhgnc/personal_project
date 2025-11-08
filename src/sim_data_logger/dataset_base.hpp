@@ -16,7 +16,7 @@ public:
     std::string dataset_name;
     std::string group_path;
 
-    int logging_rate;
+    double logging_rate;
     uint32_t logging_dt_usec;
     double sec2usec = 1e6;
 

@@ -45,7 +45,7 @@ public:
                      const std::string& full_group_path,
                      std::shared_ptr<const T> data_pointer,
                      std::shared_ptr<H5::H5File> file,
-                     int record_rate_hz);
+                     const double record_rate_hz);
 
     void create_dataset();
     void log_if_needed(const uint32_t& current_sim_time_use) override;

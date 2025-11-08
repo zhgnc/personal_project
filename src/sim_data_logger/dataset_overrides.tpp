@@ -38,7 +38,7 @@ DatasetOverrides<T, buffer_length>::DatasetOverrides(const std::string& name,
                                                      const std::string& full_group_path,
                                                      std::shared_ptr<const T> data_pointer,
                                                      std::shared_ptr<H5::H5File> file,
-                                                     int record_rate_hz)
+                                                     const double record_rate_hz)
 {
     dataset_name    = name;
     group_path      = full_group_path;
