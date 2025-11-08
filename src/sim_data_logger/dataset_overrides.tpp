@@ -43,7 +43,7 @@ DatasetOverrides<T, buffer_length>::DatasetOverrides(const std::string& name,
     dataset_name    = name;
     group_path      = full_group_path;
     logging_rate    = record_rate_hz;
-    logging_dt_usec = static_cast<uint32_t>((1 / logging_rate) * sec2usec);
+    logging_dt_usec = static_cast<uint32_t>(sec2usec / logging_rate);
     buffer_index    = 0;
     hdf5_file_ptr   = file;
     hdf5_data_type  = HDF5Type<T>::get();
