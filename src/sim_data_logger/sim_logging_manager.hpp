@@ -43,7 +43,7 @@ private:
     std::string config_file;
     std::shared_ptr<H5::H5File> hdf5_file_ptr;
     std::vector<std::unique_ptr<DatasetBase>> datasets;
-    static constexpr std::size_t buffer_length_config = 1;
+    static constexpr std::size_t buffer_length_config = 100;
 };
 
 #endif

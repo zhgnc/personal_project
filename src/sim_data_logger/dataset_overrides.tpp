@@ -90,6 +90,8 @@ void DatasetOverrides<T, buffer_length>::log_if_needed(const uint32_t& current_s
         return;
     }
     
+    // std::cout << "Buffer Index: " << buffer_index <<std::endl;
+    
     data_buffer[buffer_index] = *data_ptr;
     buffer_index += 1;
     
@@ -103,6 +105,8 @@ void DatasetOverrides<T, buffer_length>::log_if_needed(const uint32_t& current_s
 
 template<typename T, std::size_t buffer_length>
 void DatasetOverrides<T, buffer_length>::flush_buffer() {
+    
+    // std::cout << "Flushing Buffer!\n";
     
     if (buffer_index == 0) {
         return;
