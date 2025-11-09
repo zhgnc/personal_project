@@ -14,10 +14,12 @@ std::shared_ptr<H5::H5File> LoggingUtilities::create_file(const std::string& ful
 void LoggingUtilities::close_file() {
     LoggingUtilities::verify_file_exists();
   
-    if (LoggingUtilities::is_file_open() == true) {  
-        hdf5_file_ptr->close();
-        file_is_open = false;      
-    }   
+    if (LoggingUtilities::is_file_open() == false) {  
+        return;          
+    }
+
+    hdf5_file_ptr->close();
+    file_is_open = false;   
 };
 
 void LoggingUtilities::open_file() {
@@ -33,20 +35,18 @@ void LoggingUtilities::open_file() {
 
 bool LoggingUtilities::is_file_open() const { return file_is_open; };
 
-void LoggingUtilities::verify_file_exists() const {
-    if (std::filesystem::exists(file_path) == false) {
-        throw std::runtime_error("[logging_utilities.cpp] File does not exist here: " + file_path);
-    }
-};
-
 void LoggingUtilities::create_group(const std::string& path_to_group) {
     if (LoggingUtilities::is_file_open() == false) {
         LoggingUtilities::open_file();
+        file_is_open = false; 
     }
 
     std::stringstream remaining_path(path_to_group);
     H5::Group current_group = hdf5_file_ptr->openGroup("/");
     std::string path_segment;
+
+    static constexpr int max_indent   = 100;
+    int indent_count = 0;
 
     while (std::getline(remaining_path, path_segment, '/')) {
         if (path_segment.empty()) { continue; } // Protects against leading '/' and '//' between path segements
@@ -56,12 +56,20 @@ void LoggingUtilities::create_group(const std::string& path_to_group) {
         } else {
             current_group = current_group.createGroup(path_segment);
         }
+
+        if (indent_count >= max_indent) {
+            throw std::runtime_error("[logging_utilities.cpp] Exceeded maximum group nesting depth of " + 
+                                      std::to_string(max_indent) + " for this group: " + path_to_group);
+        }
+
+        indent_count += 1;
     }
 }
 
 void LoggingUtilities::print_file_tree() {
     if (LoggingUtilities::is_file_open() == false) {
         LoggingUtilities::open_file();
+        file_is_open = true; 
     }
 
     H5::Group root_group       = hdf5_file_ptr->openGroup("/");
@@ -122,35 +130,56 @@ void LoggingUtilities::print_file_tree_helper(const H5::Group& group, std::size_
     }
 }
 
-std::string LoggingUtilities::getCppType(const H5::DataType& hdf5_type) {
-    if (hdf5_type == H5::PredType::NATIVE_INT8)    return "int8_t";
-    if (hdf5_type == H5::PredType::NATIVE_UINT8)   return "uint8_t";
-    if (hdf5_type == H5::PredType::NATIVE_INT16)   return "int16_t";
-    if (hdf5_type == H5::PredType::NATIVE_UINT16)  return "uint16_t";
-    if (hdf5_type == H5::PredType::NATIVE_INT32)   return "int32_t";
-    if (hdf5_type == H5::PredType::NATIVE_UINT32)  return "uint32_t";
-    if (hdf5_type == H5::PredType::NATIVE_INT64)   return "int64_t";
-    if (hdf5_type == H5::PredType::NATIVE_UINT64)  return "uint64_t";
+std::string LoggingUtilities::getCppType(const H5::DataType& hdf5_type) {    
+    struct TypeMapEntry { H5::PredType key; const char* value; };
 
-    if (hdf5_type == H5::PredType::NATIVE_FLOAT)   return "float";
-    if (hdf5_type == H5::PredType::NATIVE_DOUBLE)  return "double";
-    if (hdf5_type == H5::PredType::NATIVE_LDOUBLE) return "long double";
- 
-    if (hdf5_type == H5::PredType::NATIVE_HBOOL)   return "bool";
-    if (hdf5_type == H5::PredType::NATIVE_CHAR)    return "char";
+    static const TypeMapEntry type_map[] = {
+        { H5::PredType::NATIVE_INT8,    "int8_t" },
+        { H5::PredType::NATIVE_UINT8,   "uint8_t" },
+        { H5::PredType::NATIVE_INT16,   "int16_t" },
+        { H5::PredType::NATIVE_UINT16,  "uint16_t" },
+        { H5::PredType::NATIVE_INT32,   "int32_t" },
+        { H5::PredType::NATIVE_UINT32,  "uint32_t" },
+        { H5::PredType::NATIVE_INT64,   "int64_t" },
+        { H5::PredType::NATIVE_UINT64,  "uint64_t" },
+        { H5::PredType::NATIVE_FLOAT,   "float" },
+        { H5::PredType::NATIVE_DOUBLE,  "double" },
+        { H5::PredType::NATIVE_LDOUBLE, "long double" },
+        { H5::PredType::NATIVE_HBOOL,   "bool" },
+        { H5::PredType::NATIVE_CHAR,    "char" }
+    };
 
-    if (hdf5_type.getClass() == H5T_STRING) {
-        const H5::StrType& strType = static_cast<const H5::StrType&>(hdf5_type);
-        
-        if (strType.isVariableStr()) {
-            return "std::string"; // Variable length string 
-        } else {
-            return "char[256]"; // Fixed length string 
+    for (const TypeMapEntry& entry : type_map) {
+        if (hdf5_type == entry.key) return entry.value;
+    }
+
+    switch (hdf5_type.getClass()) {
+        case H5T_STRING: {
+            const H5::StrType* string_type = &static_cast<const H5::StrType&>(hdf5_type);
+            
+            if (string_type != nullptr) {
+                if (string_type->isVariableStr()) {
+                    return "std::string";
+                } else {
+                    return "char[256]";
+                }
+            }
+
+            break;
         }
+        case H5T_COMPOUND: return "struct";
+        case H5T_ARRAY:    return "array";
+        default:           break;
     }
 
     return "unknown";
 }
+
+void LoggingUtilities::verify_file_exists() const {
+    if (std::filesystem::exists(file_path) == false) {
+        throw std::runtime_error("[logging_utilities.cpp] File does not exist here: " + file_path);
+    }
+};
 
 void LoggingUtilities::verify_file_path(const std::string& directory_path) const {
     if (std::filesystem::exists(directory_path) == false) {
@@ -166,4 +195,4 @@ void LoggingUtilities::verify_group_exists(const std::string& full_group_path) c
     if (hdf5_file_ptr->exists(full_group_path) == false) {
         throw std::runtime_error("[logging_utilities.cpp] Cannot add data set to a group that does exist. Group path: " + full_group_path);
     }
-}
+};

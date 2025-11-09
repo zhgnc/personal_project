@@ -29,10 +29,11 @@ public:
     {
         log_utils.verify_group_exists(full_group_path);
 
-        std::shared_ptr<const T> data_pointer = std::shared_ptr<const T>(&data_reference, [](const T*) {}); // [](const T*) {} ensures shared_ptr does not delete the referenced object
+        // [](const T*) {} ensures shared_ptr does not delete the referenced object
+        std::shared_ptr<const T> data_pointer = std::shared_ptr<const T>(&data_reference, [](const T*) {}); 
+
         std::unique_ptr<DatasetBase> dataset  = std::make_unique<DatasetOverrides<T, buffer_length_config>>(
-            dataset_name, full_group_path, data_pointer, hdf5_file_ptr, record_rate_hz
-        ); 
+            dataset_name, full_group_path, data_pointer, hdf5_file_ptr, record_rate_hz); 
         
         dataset->create_dataset();
         datasets.push_back(std::move(dataset));
@@ -40,7 +41,6 @@ public:
 
 private:
     LoggingUtilities log_utils;
-    std::string config_file;
     std::shared_ptr<H5::H5File> hdf5_file_ptr;
     std::vector<std::unique_ptr<DatasetBase>> datasets;
     static constexpr std::size_t buffer_length_config = 100;

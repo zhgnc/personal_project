@@ -7,10 +7,10 @@
 
 #include "../../../src/sim_framework/sim_app_base.hpp"
 #include "../../../src/sensor_models/gyro/gyro_model.hpp"
-#include "../../../src/sim_framework/data_bus.hpp"
+#include "../../../examples/attitude_filter/apps/data_bus.hpp"
 
 
-class GyroSimApp : public SimAppBase {
+class GyroSimApp : public SimAppBase<DataBus> {
 public:
     using SimAppBase::SimAppBase;
 
@@ -29,9 +29,9 @@ public:
         data_bus->gyro_outputs.measurement_valid     = gyro.outputs.gyro_measurement_valid;
 
         
-        std::cout << increment_test << "    ";
+        // std::cout << increment_test << "    ";
         data_bus->gyro_outputs.test_increment = increment_test;
-        std::cout << data_bus->gyro_outputs.test_increment << "\n";
+        // std::cout << data_bus->gyro_outputs.test_increment << "\n";
         increment_test += 1;
     };
 

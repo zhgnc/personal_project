@@ -19,7 +19,7 @@ public:
   bool is_file_open() const;
   void create_group(const std::string& path_to_group);
   void print_file_tree();
-  void verify_file_path(const std::string& directory_path) const;
+  void verify_file_path(const std::string& directory_path) const; // I think this is unused
   void verify_file_exists() const;
   void verify_group_exists(const std::string& full_group_path) const;
 
