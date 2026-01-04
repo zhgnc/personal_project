@@ -65,6 +65,12 @@ void Logger::add_group(const std::string& path_to_group) {
     }
 };
 
+void Logger::log_data(const uint32_t &sim_time_usec) {
+    for (const std::unique_ptr<DatasetBase>& dataset : datasets) {
+        dataset->log_if_needed(sim_time_usec);
+    }
+};
+
 void Logger::print_file_tree() {
     if (file_is_open == false) {
         open_file();
@@ -128,12 +134,6 @@ void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to
         }
     }
 }
-
-void Logger::log_data(const uint32_t &sim_time_usec) {
-    for (const std::unique_ptr<DatasetBase>& dataset : datasets) {
-        dataset->log_if_needed(sim_time_usec);
-    }
-};
 
 void Logger::verify_file_exists() const {
     if (std::filesystem::exists(file_path) == false) {
