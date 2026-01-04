@@ -34,18 +34,16 @@ public:
 
 private:
     // Private functions are only called by the public functions in the class 
-    bool is_file_open() const;
     void open_file(); 
     void print_file_tree_helper(const H5::Group& group, std::size_t level_to_print);
     void verify_file_exists() const;
     void verify_group_exists(const std::string& full_group_path) const;
     void verify_file_path(const std::string& directory_path) const; // This is unused by maybe useful at some point
 
-    bool file_is_open; 
-    std::string file_path;
-
     std::shared_ptr<H5::H5File> hdf5_file_ptr;
     std::vector<std::unique_ptr<DatasetBase>> datasets;
+    bool file_is_open; 
+    std::string file_path;
     static constexpr std::size_t buffer_length_config = 1000;
 };
 

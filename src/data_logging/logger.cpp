@@ -11,7 +11,7 @@ void Logger::create_file(const std::string& full_file_path) {
 void Logger::open_file() {
     verify_file_exists();
 
-    if (is_file_open() == true) { 
+    if (file_is_open == true) { 
         return;
     }
 
@@ -26,7 +26,7 @@ void Logger::close_file() {
 
     verify_file_exists();
   
-    if (is_file_open() == false) {  
+    if (file_is_open == false) {  
         return;          
     }
 
@@ -35,7 +35,7 @@ void Logger::close_file() {
 };
 
 void Logger::add_group(const std::string& path_to_group) {
-    if (is_file_open() == false) {
+    if (file_is_open == false) {
         open_file();
         file_is_open = false; 
     }
@@ -66,7 +66,7 @@ void Logger::add_group(const std::string& path_to_group) {
 };
 
 void Logger::print_file_tree() {
-    if (is_file_open() == false) {
+    if (file_is_open == false) {
         open_file();
         file_is_open = true; 
     }
@@ -156,5 +156,3 @@ void Logger::verify_group_exists(const std::string& full_group_path) const {
         throw std::runtime_error("[logging_utilities.cpp] Cannot add data set to a group that does exist. Group path: " + full_group_path);
     }
 };
-
-bool Logger::is_file_open() const { return file_is_open; }; // TODO: Get rid of the use of this function
