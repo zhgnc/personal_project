@@ -6,7 +6,7 @@ void Logger::add_dataset(const std::string& dataset_name,
                          const T& data_reference, 
                          const double record_rate_hz) 
 {
-    log_utils.verify_group_exists(full_group_path);
+    verify_group_exists(full_group_path);
 
     // [](const T*) {} ensures shared_ptr does not delete the referenced object
     std::shared_ptr<const T> data_pointer = std::shared_ptr<const T>(&data_reference, [](const T*) {}); 

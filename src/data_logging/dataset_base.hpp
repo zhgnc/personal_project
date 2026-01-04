@@ -3,6 +3,7 @@
 
 #include "../../external/hdf5/include/H5Cpp.h"
 
+#include <memory>
 #include <string>
 
 class DatasetBase {
