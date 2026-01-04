@@ -20,24 +20,11 @@ public:
     void print_file_tree();
     void log_data(const uint32_t &sim_time_usec);
 
-    // Since this function is a template function it needs to be implemented entirely in the header
     template<typename T>
     void add_dataset(const std::string& dataset_name, 
                      const std::string& full_group_path, 
                      const T& data_reference, 
-                     const double record_rate_hz) 
-    {
-        log_utils.verify_group_exists(full_group_path);
-
-        // [](const T*) {} ensures shared_ptr does not delete the referenced object
-        std::shared_ptr<const T> data_pointer = std::shared_ptr<const T>(&data_reference, [](const T*) {}); 
-
-        std::unique_ptr<DatasetBase> dataset  = std::make_unique<DatasetOverrides<T, buffer_length_config>>(
-            dataset_name, full_group_path, data_pointer, hdf5_file_ptr, record_rate_hz); 
-        
-        dataset->create_dataset();
-        datasets.push_back(std::move(dataset));
-    }
+                     const double record_rate_hz);
 
 private:
     LoggingUtilities log_utils;
@@ -45,5 +32,8 @@ private:
     std::vector<std::unique_ptr<DatasetBase>> datasets;
     static constexpr std::size_t buffer_length_config = 100; // TODO: Make this configurable
 };
+
+#include "logger.tpp"  // Template implementations
+ 
 
 #endif
