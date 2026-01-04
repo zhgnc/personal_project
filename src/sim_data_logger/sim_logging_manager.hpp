@@ -43,7 +43,7 @@ private:
     LoggingUtilities log_utils;
     std::shared_ptr<H5::H5File> hdf5_file_ptr;
     std::vector<std::unique_ptr<DatasetBase>> datasets;
-    static constexpr std::size_t buffer_length_config = 100;
+    static constexpr std::size_t buffer_length_config = 100; // TODO: Make this configurable
 };
 
 #endif

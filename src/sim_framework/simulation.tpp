@@ -70,7 +70,7 @@ void Simulation<DataBusType>::display_sorted_app_info() {
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run() {
-  std::cout << "[Simulation] Starting Simulation Configuration\n";
+  std::cout << "[Simulation] Configuring Simulation\n";
 
   sort_apps_by_priority();
   // display_sorted_app_info();

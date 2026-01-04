@@ -130,6 +130,7 @@ void LoggingUtilities::print_file_tree_helper(const H5::Group& group, std::size_
     }
 }
 
+// TODO: Make getCppType it's own file like cpp_to_hdf5_type_mapping
 std::string LoggingUtilities::getCppType(const H5::DataType& hdf5_type) {    
     struct TypeMapEntry { H5::PredType key; const char* value; };
 
