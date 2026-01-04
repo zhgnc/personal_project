@@ -11,7 +11,7 @@
 
 #include "sim_framework/sim_app_base.hpp"
 #include "sim_framework/simulation.hpp"
-#include "sim_data_logger/sim_logging_manager.hpp"
+#include "data_logging/logger.hpp"
 
 #include "../external/hdf5/include/H5Cpp.h"
 

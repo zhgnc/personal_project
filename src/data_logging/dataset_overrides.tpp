@@ -1,7 +1,7 @@
 #ifndef DATASET_OVERRIDES_TPP
 #define DATASET_OVERRIDES_TPP
 
-#include "../../src/sim_data_logger/dataset_overrides.hpp"
+#include "../../src/data_logging/dataset_overrides.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 #include "../../src/math_utilities/math.hpp"
 

@@ -1,18 +1,18 @@
-#ifndef SIM_LOGGING_MANAGER_HPP
-#define SIM_LOGGING_MANAGER_HPP
+#ifndef logger_HPP
+#define logger_HPP
 
-#include "../../src/sim_data_logger/logging_utilities.hpp"
-#include "../../src/sim_data_logger/dataset_overrides.hpp"
-#include "../../src/sim_data_logger/dataset_base.hpp"
+#include "../../src/data_logging/logging_utilities.hpp"
+#include "../../src/data_logging/dataset_overrides.hpp"
+#include "../../src/data_logging/dataset_base.hpp"
 
 #include "yaml-cpp/yaml.h"
 
 #include <string>
 #include <vector>
 
-class SimLoggingManager {
+class Logger {
 public:
-    SimLoggingManager() = default;
+    Logger() = default;
 
     void create_file(const std::string& full_file_path);
     void close_file();

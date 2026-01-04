@@ -1,10 +1,10 @@
 #ifndef DATASET_OVERRIDES_HPP
 #define DATASET_OVERRIDES_HPP
 
-#include "../../src/sim_data_logger/dataset_base.hpp"
+#include "../../src/data_logging/dataset_base.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 #include "../../src/math_utilities/math.hpp"
-#include "../../src/sim_data_logger/cpp_to_hdf5_type_mapping.hpp"
+#include "../../src/data_logging/cpp_to_hdf5_type_mapping.hpp"
 
 #include <memory>
 #include <type_traits>
@@ -60,6 +60,6 @@ private:
     std::array<hsize_t, DataTraits<T>::num_dimensions + 1> new_data_shape;
 };
 
-#include "../../src/sim_data_logger/dataset_overrides.tpp"  // Template implementations
+#include "../../src/data_logging/dataset_overrides.tpp"  // Template implementations
 
 #endif

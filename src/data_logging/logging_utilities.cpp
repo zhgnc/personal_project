@@ -1,4 +1,4 @@
-#include "../../src/sim_data_logger/logging_utilities.hpp"
+#include "../../src/data_logging/logging_utilities.hpp"
 #include "yaml-cpp/yaml.h"
 
 std::shared_ptr<H5::H5File> LoggingUtilities::create_file(const std::string& full_file_path) {
