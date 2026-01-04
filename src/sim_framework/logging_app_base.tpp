@@ -21,18 +21,18 @@ void LoggingAppBase<DataBusType>::create_new_file(const int& monte_carlo_run_num
   
   std::string full_path = data_output_directory + "/" + new_file_name;
 
-  logging_manager = SimLoggingManager();
-  logging_manager.create_file(full_path);
+  logger = Logger();
+  logger.create_file(full_path);
 
   this->configure_hdf5_file();
 }
 
 template<typename DataBusType>
 void LoggingAppBase<DataBusType>::log_data(const uint32_t &sim_time_usec) {
-  logging_manager.log_data(sim_time_usec);
+  logger.log_data(sim_time_usec);
 };
 
 template<typename DataBusType>
 void LoggingAppBase<DataBusType>::close_file() {
-  logging_manager.close_file();
+  logger.close_file();
 }

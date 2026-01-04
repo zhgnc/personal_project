@@ -12,25 +12,20 @@ with h5py.File(hdf5_path, "r") as f:
     delta_theta_data = f["/gyro/Delta_Angles"][:]
     test_data        = f["/gyro/Test_Increment"][:]
 
-print(test_data)
-print(delta_theta_data)
-# print("\nDelta Thetas data shape:", delta_theta_data.shape)
-# print("Data:\n", delta_theta_data[:5])
-
 #############
 # Plot Data #
 #############
 
-# fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
 
-# axis_labels = ['X', 'Y', 'Z']
-# for i in range(3):
-#     axs[i].plot(delta_theta_data[:, i], label=f"Delta Theta {axis_labels[i]}", color=f"C{i}")
-#     axs[i].set_ylabel("Delta Theta")
-#     axs[i].legend()
-#     axs[i].grid(True)
+axis_labels = ['X', 'Y', 'Z']
+for i in range(3):
+    axs[i].plot(delta_theta_data[1:, i], label=f"Delta Theta {axis_labels[i]}", color=f"C{i}")
+    axs[i].set_ylabel("Delta Theta")
+    axs[i].legend()
+    axs[i].grid(True)
 
-# axs[2].set_xlabel("Sample Index")
-# fig.suptitle("Gyro Delta Thetas Over Samples", fontsize=14)
-# plt.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
-# plt.show()
+axs[2].set_xlabel("Sample Index")
+fig.suptitle("Gyro Delta Thetas Over Samples", fontsize=14)
+plt.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
+plt.show()

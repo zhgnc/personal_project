@@ -1,7 +1,7 @@
 #ifndef LOGGING_APP_BASE_HPP
 #define LOGGING_APP_BASE_HPP
 
-#include "../../../src/sim_data_logger/sim_logging_manager.hpp"
+#include "../../src/data_logging/logger.hpp"
 
 #include <cstdint>
 #include <string>
@@ -17,7 +17,7 @@ public:
     void close_file();
     virtual void configure_hdf5_file() = 0;
 
-    SimLoggingManager logging_manager;
+    Logger logger;
     DataBusType* data_bus;
 private:
     std::string data_output_directory;

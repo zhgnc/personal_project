@@ -1,7 +1,7 @@
 #ifndef DATASET_OVERRIDES_TPP
 #define DATASET_OVERRIDES_TPP
 
-#include "../../src/sim_data_logger/dataset_overrides.hpp"
+#include "../../src/data_logging/dataset_overrides.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 #include "../../src/math_utilities/math.hpp"
 
@@ -32,7 +32,7 @@ const void* DataTraits<matrix<T, R, C>>::data_ptr(const matrix<T, R, C>* mat) { 
 
 
 
-
+// Implementation of DatasetOverrides class methods
 template<typename T, std::size_t buffer_length>
 DatasetOverrides<T, buffer_length>::DatasetOverrides(const std::string& name,
                                                      const std::string& full_group_path,
@@ -89,9 +89,7 @@ void DatasetOverrides<T, buffer_length>::log_if_needed(const uint32_t& current_s
     if (current_sim_time_usec % logging_dt_usec != 0) {
         return;
     }
-    
-    // std::cout << "Buffer Index: " << buffer_index <<std::endl;
-    
+        
     data_buffer[buffer_index] = *data_ptr;
     buffer_index += 1;
     
@@ -105,9 +103,7 @@ void DatasetOverrides<T, buffer_length>::log_if_needed(const uint32_t& current_s
 
 template<typename T, std::size_t buffer_length>
 void DatasetOverrides<T, buffer_length>::flush_buffer() {
-    
-    // std::cout << "Flushing Buffer!\n";
-    
+        
     if (buffer_index == 0) {
         return;
     }
