@@ -8,7 +8,6 @@
 
 #include "../../../src/sim_framework/logging_app_base.hpp"
 #include "../../../examples/attitude_filter/apps/data_bus.hpp"
-#include "../../../examples/attitude_filter/apps/data_bus.hpp"
 
 class LoggingSimApp : public LoggingAppBase<DataBus> {
 public:
