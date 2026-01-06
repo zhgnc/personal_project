@@ -14,6 +14,7 @@ link_directories(${PROJECT_SOURCE_DIR}/external/yaml-cpp/lib)
 include_directories(${PROJECT_SOURCE_DIR}/external/hdf5/include)
 link_directories(${PROJECT_SOURCE_DIR}/external/hdf5/lib)
 
+add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 # Build main executable only if tests are not enabled
 if(NOT ENABLE_TESTING)

@@ -14,7 +14,7 @@ public:
     using LoggingAppBase<TestDataBus>::LoggingAppBase;
 
     void configure_hdf5_file() override {
-        double record_freq_hz = 1.0;
+        double record_freq_hz = 10.0;
 
         logger.add_group("test_group");
         logger.add_dataset<int>("counter", "test_group", data_bus->app_1_data.counter, record_freq_hz);
