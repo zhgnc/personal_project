@@ -7,7 +7,7 @@
 #include <format>
 
 #include "../../../src/sim_framework/logging_app_base.hpp"
-#include "../../../tests/simulation_framework/test_data_bus.hpp"
+#include "../../../tests/integrated_sim_and_logging/test_data_bus.hpp"
 
 class TestLogger : public LoggingAppBase<TestDataBus> {
 public:

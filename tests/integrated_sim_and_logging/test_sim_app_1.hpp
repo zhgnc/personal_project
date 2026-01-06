@@ -6,7 +6,7 @@
 #include <string>
 
 #include "../../../src/sim_framework/sim_app_base.hpp"
-#include "../../../tests/simulation_framework/test_data_bus.hpp"
+#include "../../../tests/integrated_sim_and_logging/test_data_bus.hpp"
 
 
 class TestSimApp1 : public SimAppBase<TestDataBus> {

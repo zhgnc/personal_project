@@ -13,8 +13,8 @@ TEST(simTests, BasicTest) {
     int sim_length  = 15;
     int sim_rate_hz = 10;
 
-    const std::string &sim_config_path     = "../../tests/simulation_framework/test_sim_config.yaml";
-    const std::string &logging_config_path = "../../tests/simulation_framework/test_logging_config.yaml";
+    const std::string &sim_config_path     = "../../tests/integrated_sim_and_logging/test_sim_config.yaml";
+    const std::string &logging_config_path = "../../tests/integrated_sim_and_logging/test_logging_config.yaml";
 
     TestDataBus data_bus;
     Simulation sim(sim_config_path, data_bus);
@@ -32,7 +32,7 @@ TEST(simTests, BasicTest) {
 
 
 
-    std::string hdf5_file = get_absolute_path("tests/simulation_framework/test_RUN_00000.hdf5");
+    std::string hdf5_file         = get_absolute_path("tests/integrated_sim_and_logging/test_RUN_00000.hdf5");
     std::vector<int> counter_data = read_hdf5_dataset<int>(hdf5_file, "/test_group/counter");
 
     EXPECT_EQ(test_app_1->app_dt_sec, 1/app_rate_hz);
