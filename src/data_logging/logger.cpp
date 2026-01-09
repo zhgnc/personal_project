@@ -37,7 +37,7 @@ void Logger::close_file() {
 void Logger::add_group(const std::string& path_to_group) {
     if (file_is_open == false) {
         open_file();
-        file_is_open = false; 
+        file_is_open = true; 
     }
 
     std::stringstream remaining_path(path_to_group);
@@ -87,7 +87,7 @@ void Logger::print_file_tree() {
 void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to_print) {
     std::size_t num_objs = group.getNumObjs();
     std::string obj_name;
-    H5G_obj_t obj_type;
+    H5G_obj_t   obj_type;
 
     for (std::size_t i = 0; i < num_objs; i++) {
         obj_name = group.getObjnameByIdx(i);

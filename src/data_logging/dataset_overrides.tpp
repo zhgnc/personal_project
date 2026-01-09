@@ -3,7 +3,7 @@
 
 #include "../../src/data_logging/dataset_overrides.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
-#include "../../src/math_utilities/math.hpp"
+#include "../../src/math/math.hpp"
 
 #include <iostream>
 #include <stdexcept>

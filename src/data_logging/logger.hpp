@@ -4,7 +4,7 @@
 #include "../../src/data_logging/dataset_overrides.hpp"
 #include "../../src/data_logging/dataset_base.hpp"
 #include "../../src/data_logging/hdf5_to_cpp_type_mapping.hpp"
-#include "../../src/math_utilities/math.hpp"
+#include "../../src/math/math.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 
 #include "yaml-cpp/yaml.h"
@@ -31,6 +31,11 @@ public:
                      const std::string& full_group_path, 
                      const T& data_reference, 
                      const double record_rate_hz);
+    
+    template<typename T>
+    void write_attribute(const std::string& group_path,
+                         const std::string& attribute_name,
+                         const T& value);
 
 private: 
     void open_file(); 

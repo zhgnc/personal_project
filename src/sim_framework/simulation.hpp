@@ -3,6 +3,7 @@
 
 #include "sim_app_base.hpp"
 #include "logging_app_base.hpp"
+#include "sim_data_logger.hpp"
 
 #include <vector>
 #include <memory>
@@ -24,17 +25,18 @@ private:
     void sort_apps_by_priority();
     static bool compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>>& app_A, 
                                     const std::shared_ptr<SimAppBase<DataBusType>>& app_B);
-    void display_run_success_and_stats(const int& run_number);
+    void run_teardown();
     void display_sorted_app_info();
 
     double start_time_sec;
     double stop_time_sec;
     double sim_rate_hz;
-    double logging_rate_hz;
     std::size_t num_mc_runs;
+    std::size_t current_mc_run;
 
     std::vector<std::shared_ptr<SimAppBase<DataBusType>>> app_list;
-    std::shared_ptr<LoggingAppBase<DataBusType>> data_logger;
+    std::shared_ptr<LoggingAppBase<DataBusType>> logging_app;
+    std::unique_ptr<SimDataLogger> sim_data_logger;
 
     double current_sim_time_sec;
     uint32_t current_sim_time_usec;
@@ -46,7 +48,7 @@ private:
     std::chrono::high_resolution_clock::time_point computer_start_time;
     std::chrono::high_resolution_clock::time_point computer_stop_time;
     std::chrono::duration<double> computer_elapsed_seconds; 
-    double sim_to_real_time;
+    double sim_to_real_time_ratio;
 
     DataBusType& data_bus;
 };

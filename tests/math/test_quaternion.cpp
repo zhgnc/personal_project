@@ -2,7 +2,7 @@
 #include <Eigen/Geometry>
 #include <random>
 #include <cmath>
-#include "../src/math_utilities/quaternion/quat.hpp"
+#include "../src/math/quaternion/quat.hpp"
 
 TEST(quatTest, QuatConstructor) {
     quat<int> q1;

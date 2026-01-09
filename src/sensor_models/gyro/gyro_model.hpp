@@ -1,7 +1,7 @@
 #ifndef GYRO_MODEL_HPP
 #define GYRO_MODEL_HPP
 
-#include "../../math_utilities/math.hpp"
+#include "../../math/math.hpp"
 #include "struct_defs.hpp"
 #include <random>
 

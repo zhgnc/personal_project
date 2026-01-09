@@ -1,7 +1,7 @@
 #ifndef DATABUS_HPP
 #define DATABUS_HPP
 
-#include "math_utilities/math.hpp"
+#include "math/math.hpp"
 #include <array>
 
 struct DataBus {

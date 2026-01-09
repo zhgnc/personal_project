@@ -2,10 +2,10 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <random>
-#include "../src/math_utilities/transforms/transforms.hpp"
-#include "../src/math_utilities/matrix/matrix.hpp"
-#include "../src/math_utilities/rotation_vector/rot_vec.hpp"
-#include "../src/math_utilities/quaternion/quat.hpp"
+#include "../src/math/transforms/transforms.hpp"
+#include "../src/math/matrix/matrix.hpp"
+#include "../src/math/rotation_vector/rot_vec.hpp"
+#include "../src/math/quaternion/quat.hpp"
 
 TEST(transformsTest, SimpleRotationTest) {
   matrix<double,3,3> dcm_1_to_2 = {0,1,0, -1,0,0, 0,0,1};

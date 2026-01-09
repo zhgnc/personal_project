@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-#include "math_utilities/math.hpp"
+#include "math/math.hpp"
 #include "yaml-cpp/yaml.h"
 
 #include "sim_framework/sim_app_base.hpp"

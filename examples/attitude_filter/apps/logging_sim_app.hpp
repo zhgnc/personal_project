@@ -19,13 +19,13 @@ public:
         logger.add_group("group_2");
         logger.add_group("gyro");
 
-        double record_freq_hz = 10.0;
+        double record_freq_hz = 5.0;
 
         logger.add_dataset<bool>("Gyro_Meas_Valid", "gyro", data_bus->gyro_outputs.measurement_valid, record_freq_hz);
         // logger.add_dataset<matrix<double,2,2>>("Test_Data_Point_2", "group_1/group_3", std::make_shared<matrix<double,2,2>>(M1), record_freq_hz);
         logger.add_dataset<vector<double,3>>("Delta_Angles", "gyro", data_bus->gyro_outputs.measured_delta_angles, record_freq_hz);
         logger.add_dataset<int>("Test_Increment", "gyro", data_bus->gyro_outputs.test_increment, record_freq_hz);
-        logger.print_file_tree();
+        //logger.print_file_tree();
     };
 };
 
