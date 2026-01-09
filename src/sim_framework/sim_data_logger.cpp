@@ -5,6 +5,8 @@ SimDataLogger::SimDataLogger(Logger& shared_sim_logger)
 {};
 
 void SimDataLogger::log_sim_meta_data(const SimMetaData& meta_data) const {
+    logger.add_group("/sim");
+    
     logger.write_attribute("/sim", "start_time_sec",         meta_data.start_time_sec);
     logger.write_attribute("/sim", "stop_time_sec",          meta_data.stop_time_sec);
     logger.write_attribute("/sim", "sim_rate_hz",            meta_data.sim_rate_hz);

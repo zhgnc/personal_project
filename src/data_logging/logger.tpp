@@ -29,7 +29,7 @@ void Logger::write_attribute(const std::string& group_path,
         file_is_open = true; 
     }
 
-    add_group(group_path);
+    verify_group_exists(group_path);
     H5::Group group = hdf5_file_ptr->openGroup(group_path);
 
     // If the attribute already exists, HDF5 will throw an exception
