@@ -19,7 +19,7 @@ class Logger {
 public:
     Logger() = default;
 
-    // Public functions are used by logging_app_base.hpp
+    // Public functions are only used by logging_app_base.hpp
     void create_file(const std::string& full_file_path);
     void close_file();
     void add_group(const std::string& path_to_group);
@@ -32,8 +32,7 @@ public:
                      const T& data_reference, 
                      const double record_rate_hz);
 
-private:
-    // Private functions are only called by the public functions in the class 
+private: 
     void open_file(); 
     void print_file_tree_helper(const H5::Group& group, std::size_t level_to_print);
     void verify_file_exists() const;
