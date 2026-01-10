@@ -48,7 +48,7 @@ public:
                      const double record_rate_hz);
 
     void create_dataset();
-    void log_if_needed(const uint32_t& current_sim_time_use) override;
+    void log_if_needed(const uint64_t& current_sim_time_use) override;
     void flush_buffer() override;
 
 private:

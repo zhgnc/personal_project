@@ -12,7 +12,7 @@ public:
     LoggingAppBase(const std::string& config_file);
 
     void set_data_source(DataBusType& bus);
-    void log_data(const uint32_t &sim_time_usec);
+    void log_data(const uint64_t &sim_time_usec);
     void create_new_file(const int& monte_carlo_run_number);
     void close_file();
     virtual void configure_hdf5_file() = 0;

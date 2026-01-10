@@ -28,7 +28,7 @@ void LoggingAppBase<DataBusType>::create_new_file(const int& monte_carlo_run_num
 }
 
 template<typename DataBusType>
-void LoggingAppBase<DataBusType>::log_data(const uint32_t &sim_time_usec) {
+void LoggingAppBase<DataBusType>::log_data(const uint64_t &sim_time_usec) {
   logger.log_data(sim_time_usec);
 };
 

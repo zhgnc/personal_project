@@ -41,9 +41,9 @@ private:
     std::unique_ptr<SimDataLogger> sim_data_logger;
 
     double current_sim_time_sec;
-    uint32_t current_sim_time_usec;
-    uint32_t stop_time_usec;
-    uint32_t sim_dt_usec;
+    uint64_t current_sim_time_usec;
+    uint64_t stop_time_usec;
+    uint64_t sim_dt_usec;
 
     double sec2usec = 1e6;
 

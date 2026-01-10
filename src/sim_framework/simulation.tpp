@@ -15,10 +15,10 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
   sim_rate_hz    = config_data["simulation_rate_hz"].as<double>();
   num_mc_runs    = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
 
-  sim_dt_usec           = static_cast<uint32_t>(sec2usec * (1.0 / sim_rate_hz));
-  current_sim_time_usec = static_cast<uint32_t>(sec2usec * start_time_sec);
+  sim_dt_usec           = static_cast<uint64_t>(sec2usec * (1.0 / sim_rate_hz));
+  current_sim_time_usec = static_cast<uint64_t>(sec2usec * start_time_sec);
   current_sim_time_sec  = start_time_sec;
-  stop_time_usec        = static_cast<uint32_t>(sec2usec * stop_time_sec);
+  stop_time_usec        = static_cast<uint64_t>(sec2usec * stop_time_sec);
 };
 
 template<typename DataBusType>
@@ -49,7 +49,7 @@ void Simulation<DataBusType>::run() {
     run_teardown();
   }
   
-  std::cout << "\n[Simulation] All Runs Complete!!!\n";
+  std::cout << "\n[Simulation] All Runs Completed!!!\n";
   std::cout << "[Simulation] HDF5 output files will have the following data\n";
   logging_app->logger.print_file_tree();
 }
@@ -98,7 +98,7 @@ void Simulation<DataBusType>::run_setup(std::size_t run_num) {
   current_mc_run = run_num;
 
   logging_app->create_new_file(run_num);
-  sim_data_logger->configure_file_with_sim_data(current_sim_time_sec, sim_rate_hz);
+  sim_data_logger->configure_file_with_sim_data(current_sim_time_sec, current_sim_time_usec, sim_rate_hz);
 
   current_sim_time_sec  = start_time_sec;
   current_sim_time_usec = current_sim_time_sec * sec2usec;

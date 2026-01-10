@@ -65,7 +65,7 @@ void Logger::add_group(const std::string& path_to_group) {
     }
 };
 
-void Logger::log_data(const uint32_t &sim_time_usec) {
+void Logger::log_data(const uint64_t &sim_time_usec) {
     for (const std::unique_ptr<DatasetBase>& dataset : datasets) {
         dataset->log_if_needed(sim_time_usec);
     }

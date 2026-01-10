@@ -5,10 +5,13 @@ SimDataLogger::SimDataLogger(Logger& shared_sim_logger)
 {};
 
 // This function must be called after the output hdf5 file is created
-void SimDataLogger::configure_file_with_sim_data(const double& current_sim_time_sec, const double& sim_rate_hz) {
+void SimDataLogger::configure_file_with_sim_data(const double& current_sim_time_sec, 
+                                                 const uint64_t& current_sim_time_usec, 
+                                                 const double& sim_rate_hz) 
+{
     logger.add_group("/sim");
-    std::cout << current_sim_time_sec << sim_rate_hz << std::endl;
     logger.add_dataset<double>("current_sim_time_sec", "/sim", current_sim_time_sec, sim_rate_hz);
+    logger.add_dataset<uint64_t>("current_sim_time_usec", "/sim", current_sim_time_usec, sim_rate_hz);
 }
 
 void SimDataLogger::log_sim_meta_data(const SimMetaData& meta_data) const {

@@ -24,7 +24,7 @@ public:
     void close_file();
     void add_group(const std::string& path_to_group);
     void print_file_tree();
-    void log_data(const uint32_t &sim_time_usec);
+    void log_data(const uint64_t &sim_time_usec);
 
     template<typename T>
     void add_dataset(const std::string& dataset_name, 
