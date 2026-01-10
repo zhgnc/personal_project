@@ -27,12 +27,6 @@ public:
         
         data_bus->gyro_outputs.measured_delta_angles = gyro.outputs.measured_delta_angles;
         data_bus->gyro_outputs.measurement_valid     = gyro.outputs.gyro_measurement_valid;
-
-        
-        // std::cout << increment_test << "    ";
-        data_bus->gyro_outputs.test_increment = increment_test;
-        // std::cout << data_bus->gyro_outputs.test_increment << "\n";
-        increment_test += 1;
     };
 
 
@@ -40,7 +34,6 @@ private:
     // Need member variables so they persists across step() calls
     GyroModel gyro; 
     DataBus* data_bus;
-    int increment_test = 0;
 };
 
 #endif

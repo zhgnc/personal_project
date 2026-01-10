@@ -12,7 +12,6 @@ struct DataBus {
     struct GyroData {
         vector<double, 3> measured_delta_angles;
         bool measurement_valid;
-        int test_increment;
     };
 
 
