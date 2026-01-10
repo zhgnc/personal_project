@@ -44,6 +44,9 @@ private:
     void verify_file_exists() const;
     void verify_group_exists(const std::string& full_group_path) const;
     void verify_file_path(const std::string& directory_path) const; // This is unused by maybe useful at some point
+    
+    template<typename H5ObjType, typename T>
+    void write_attribute_to_generic_object(H5ObjType& obj, const std::string& attribute_name, const T& value);
 
     std::shared_ptr<H5::H5File> hdf5_file_ptr;
     std::vector<std::unique_ptr<DatasetBase>> datasets;
