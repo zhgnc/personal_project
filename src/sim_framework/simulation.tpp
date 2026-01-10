@@ -10,10 +10,12 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
 {
   YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
 
-  start_time_sec = config_data["sim_start_time_sec"].as<double>();
-  stop_time_sec  = config_data["sim_stop_time_sec"].as<double>();
-  sim_rate_hz    = config_data["simulation_rate_hz"].as<double>();
-  num_mc_runs    = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
+  start_time_sec        = config_data["sim_start_time_sec"].as<double>();
+  stop_time_sec         = config_data["sim_stop_time_sec"].as<double>();
+  sim_rate_hz           = config_data["simulation_rate_hz"].as<double>();
+  num_mc_runs           = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
+  print_hdf5_file_tree  = config_data["print_hdf5_file_format"].as<bool>();
+  print_file_attributes =  config_data["print_hdf5_attributes_in_file_format"].as<bool>();
 
   sim_dt_usec           = static_cast<uint64_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint64_t>(sec2usec * start_time_sec);
@@ -38,20 +40,18 @@ void Simulation<DataBusType>::run() {
   display_sorted_app_info();
   initialize_apps();
 
-  // run_num starts at 1 so that when num_mc_runs = 1 the current_mc_run != 0 and = 1 in the meta data
+  // run_num starts at 1 so that when num_mc_runs = 1 the current_mc_run != 0 and = 1 in the metadata
   for (std::size_t run_num = 1; run_num < num_mc_runs+1; run_num++) {
     run_setup(run_num);
 
     while (current_sim_time_usec <= stop_time_usec) {
       run_step();
     }
-    
+
     run_teardown();
   }
-  
-  std::cout << "\n[Simulation] All Runs Completed!!!\n";
-  std::cout << "[Simulation] HDF5 output files will have the following data\n";
-  logging_app->logger.print_file_tree();
+
+  sim_teardown();
 }
 
 template<typename DataBusType>
@@ -144,4 +144,14 @@ void Simulation<DataBusType>::run_teardown() {
     logging_app->close_file();
 
     std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
-};
+}
+
+template<typename DataBusType>
+void Simulation<DataBusType>::sim_teardown() {  
+  std::cout << "\n[Simulation] ALL RUNS FINISHED!!!\n\n";
+  
+  if (print_hdf5_file_tree == true) {
+    std::cout << "[Simulation] HDF5 output files will have the following data\n";
+    logging_app->logger.print_file_tree(print_file_attributes);
+  }
+}

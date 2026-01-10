@@ -29,17 +29,20 @@ private:
     void run_setup(std::size_t run_num);
     void run_step();
     void run_teardown();
+    void sim_teardown();
 
     double start_time_sec;
     double stop_time_sec;
     double sim_rate_hz;
     std::size_t num_mc_runs;
-    std::size_t current_mc_run;
+    bool print_hdf5_file_tree;
+    bool print_file_attributes;
 
     std::vector<std::shared_ptr<SimAppBase<DataBusType>>> app_list;
     std::shared_ptr<LoggingAppBase<DataBusType>> logging_app;
     std::unique_ptr<SimDataLogger> sim_data_logger;
-
+    
+    std::size_t current_mc_run;
     double current_sim_time_sec;
     uint64_t current_sim_time_usec;
     uint64_t stop_time_usec;

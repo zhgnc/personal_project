@@ -71,7 +71,7 @@ void Logger::log_data(const uint64_t &sim_time_usec) {
     }
 };
 
-void Logger::print_file_tree() {
+void Logger::print_file_tree(const bool& print_file_attributes) {
     if (file_is_open == false) {
         open_file();
         file_is_open = true; 
@@ -80,11 +80,14 @@ void Logger::print_file_tree() {
     H5::Group root_group       = hdf5_file_ptr->openGroup("/");
     std::size_t level_to_print = 0;
 
-    print_file_tree_helper(root_group, level_to_print);
+    print_file_tree_helper(root_group, level_to_print, print_file_attributes);
     std::cout << "\n";
 };
 
-void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to_print) {
+void Logger::print_file_tree_helper(const H5::Group& group, 
+                                    std::size_t level_to_print, 
+                                    const bool& print_file_attributes) 
+{
     std::size_t num_objs = group.getNumObjs();
     std::string obj_name;
     H5G_obj_t   obj_type;
@@ -102,8 +105,11 @@ void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to
 
             H5::Group subgroup = group.openGroup(obj_name);
 
-            print_attributes(subgroup, level_to_print + 1);
-            print_file_tree_helper(subgroup, level_to_print + 1);
+            if (print_file_attributes == true) {
+                print_attributes(subgroup, level_to_print + 1);
+            }
+
+            print_file_tree_helper(subgroup, level_to_print + 1, print_file_attributes);
 
         } else if (obj_type == H5G_DATASET) {
             std::cout << "\033[32m" << "|- " << obj_name << " (Dataset) " << "\033[0m"; // Green
@@ -130,7 +136,10 @@ void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to
             }
 
             std::cout << "]}\n";
-            print_attributes(dataset, level_to_print + 1);
+
+            if (print_file_attributes == true) {
+                print_attributes(dataset, level_to_print + 1);
+            }
 
         } else {
             std::cout << " (Other)\n";

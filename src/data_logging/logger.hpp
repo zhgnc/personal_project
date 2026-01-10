@@ -23,7 +23,7 @@ public:
     void create_file(const std::string& full_file_path);
     void close_file();
     void add_group(const std::string& path_to_group);
-    void print_file_tree();
+    void print_file_tree(const bool& print_file_attributes);
     void log_data(const uint64_t &sim_time_usec);
 
     template<typename T>
@@ -39,7 +39,7 @@ public:
 
 private: 
     void open_file(); 
-    void print_file_tree_helper(const H5::Group& group, std::size_t level_to_print);
+    void print_file_tree_helper(const H5::Group& group, std::size_t level_to_print, const bool& print_file_attributes);
     void print_attributes(const H5::H5Object& object, std::size_t level_to_print);
     void verify_file_exists() const;
     void verify_group_exists(const std::string& full_group_path) const;
