@@ -23,8 +23,8 @@ class SimDataLogger {
 public:
     SimDataLogger(Logger& shared_sim_logger);
 
+    void configure_file_with_sim_data(const double& current_sim_time_sec, const double& sim_rate_hz);
     void log_sim_meta_data(const SimMetaData& meta_data) const; 
-    void log_current_sim_time(const double& current_sim_time_sec); 
 
 private:
     Logger& logger;

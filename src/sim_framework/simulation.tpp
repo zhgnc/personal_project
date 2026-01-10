@@ -33,7 +33,30 @@ void Simulation<DataBusType>::add_logger(std::shared_ptr<LoggingAppBase<DataBusT
 }
 
 template<typename DataBusType>
+void Simulation<DataBusType>::run() {
+  sort_apps_by_priority();
+  display_sorted_app_info();
+  initialize_apps();
+
+  // run_num starts at 1 so that when num_mc_runs = 1 the current_mc_run != 0 and = 1 in the meta data
+  for (std::size_t run_num = 1; run_num < num_mc_runs+1; run_num++) {
+    run_setup(run_num);
+
+    while (current_sim_time_usec <= stop_time_usec) {
+      run_step();
+    }
+    
+    run_teardown();
+  }
+  
+  std::cout << "\n[Simulation] All Runs Complete!!!\n";
+  std::cout << "[Simulation] HDF5 output files will have the following data\n";
+  logging_app->logger.print_file_tree();
+}
+
+template<typename DataBusType>
 void Simulation<DataBusType>::sort_apps_by_priority() {
+  std::cout << "[Simulation] Configuring Simulation\n";
   std::sort(app_list.begin(), app_list.end(), Simulation::compare_by_priority);
 };
 
@@ -43,16 +66,6 @@ bool Simulation<DataBusType>::compare_by_priority(const std::shared_ptr<SimAppBa
   // ">" gives lower numbers a higher priority
   return app_A->priority < app_B->priority;
 };
-
-template<typename DataBusType>
-void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
-  for (std::shared_ptr<SimAppBase<DataBusType>> &app : app_list) {
-    app->initialize(data_bus);
-  }
-
-  logging_app->set_data_source(data_bus);
-  std::cout << "[Simulation] Apps Initialized\n\n";
-}
 
 template<typename DataBusType>
 void Simulation<DataBusType>::display_sorted_app_info() {
@@ -70,39 +83,39 @@ void Simulation<DataBusType>::display_sorted_app_info() {
 }
 
 template<typename DataBusType>
-void Simulation<DataBusType>::run() {
-  std::cout << "[Simulation] Configuring Simulation\n";
-
-  sort_apps_by_priority();
-  // display_sorted_app_info();
-  initialize_apps();
-
-  // run_num starts at 1 so that when num_mc_runs = 1 the current_mc_run != 0 and = 1 in the meta data
-  for (std::size_t run_num = 1; run_num < num_mc_runs+1; run_num++) {
-    std::cout << "[Simulation] Starting Simulation Run #" << run_num << std::endl;
-    current_mc_run = run_num;
-
-    logging_app->create_new_file(run_num);
-
-    current_sim_time_sec  = start_time_sec;
-    current_sim_time_usec = current_sim_time_sec * sec2usec;
-
-    computer_start_time   = std::chrono::high_resolution_clock::now();
-
-    while (current_sim_time_usec <= stop_time_usec) {
-
-      for (std::shared_ptr<SimAppBase<DataBusType>> &app : app_list) {
-        app->check_step(current_sim_time_usec);
-      }
-
-      logging_app->log_data(current_sim_time_usec);
-
-      current_sim_time_usec += sim_dt_usec;
-      current_sim_time_sec   = current_sim_time_usec / sec2usec;
-    }
-    
-    Simulation::run_teardown();
+void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
+  for (std::shared_ptr<SimAppBase<DataBusType>> &app : app_list) {
+    app->initialize(data_bus);
   }
+
+  logging_app->set_data_source(data_bus);
+  std::cout << "[Simulation] Apps Initialized\n\n";
+}
+
+template<typename DataBusType>
+void Simulation<DataBusType>::run_setup(std::size_t run_num) {
+  std::cout << "[Simulation] Starting Simulation Run #" << run_num << std::endl;
+  current_mc_run = run_num;
+
+  logging_app->create_new_file(run_num);
+  sim_data_logger->configure_file_with_sim_data(current_sim_time_sec, sim_rate_hz);
+
+  current_sim_time_sec  = start_time_sec;
+  current_sim_time_usec = current_sim_time_sec * sec2usec;
+
+  computer_start_time   = std::chrono::high_resolution_clock::now();
+}
+
+template<typename DataBusType>
+void Simulation<DataBusType>::run_step() {
+  for (std::shared_ptr<SimAppBase<DataBusType>> &app : app_list) {
+    app->check_step(current_sim_time_usec);
+  }
+
+  logging_app->log_data(current_sim_time_usec);
+
+  current_sim_time_usec += sim_dt_usec;
+  current_sim_time_sec   = current_sim_time_usec / sec2usec;
 }
 
 template<typename DataBusType>
@@ -124,8 +137,6 @@ void Simulation<DataBusType>::run_teardown() {
     };
 
     sim_data_logger->log_sim_meta_data(meta_data);
-    std::cout << "\n[Simulation] Output HDF5 file will have the following structure" << std::endl;
-    logging_app->logger.print_file_tree();
     logging_app->close_file();
 
     std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";

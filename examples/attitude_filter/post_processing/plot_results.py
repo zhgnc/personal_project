@@ -7,45 +7,47 @@ hdf5_path = "C:/git/personal_project/examples/attitude_filter/results/zach_test_
 #############
 # Read Data #
 #############
+# # Print all attributes and values 
+# def print_attributes(name, obj):
+#     """Callback to print all attributes of a group or dataset"""
+#     if obj.attrs:
+#         print(f"\nAttributes for {name}:")
+#         for key, val in obj.attrs.items():
+#             print(f"  {key}: {val}")
 
-expected_attrs = [
-    "start_time_sec",
-    "stop_time_sec",
-    "sim_rate_hz",
-    "num_mc_runs",
-    "current_mc_run",
-    "computer_start_time",
-    "computer_stop_time",
-    "computer_elapsed_time_sec",
-    "sim_to_real_time_ratio"
-]
+# with h5py.File(hdf5_path, "r") as f:
+#     print("=== All HDF5 Attributes ===")
+#     f.visititems(print_attributes)
 
-with h5py.File(hdf5_path, "r") as f:
-    print("=== SimMetaData Attributes ===")
-    for attr in expected_attrs:
-        if attr in f["/sim"].attrs:
-            print(f"{attr}: {f['/sim'].attrs[attr]}")
-        else:
-            print(f"{attr}: MISSING!")
-
+# Get data
 with h5py.File(hdf5_path, "r") as f:
     delta_theta_data = f["/gyro/Delta_Angles"][:]
-    test_data        = f["/gyro/Test_Increment"][:]
+    sim_time_sec     = f["/sim/current_sim_time_sec"][:]
+
+
+print("delta_theta_data shape:", delta_theta_data.shape)
+print("sim_time_sec shape:", sim_time_sec.shape)
+
+print("First 10 sim_time_sec values:", sim_time_sec[:10])
+print("Last 10 sim_time_sec values:", sim_time_sec[-10:])
 
 #############
 # Plot Data #
 #############
+plt.style.use('dark_background')
 
 fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
 
 axis_labels = ['X', 'Y', 'Z']
 for i in range(3):
-    axs[i].plot(delta_theta_data[1:, i], label=f"Delta Theta {axis_labels[i]}", color=f"C{i}")
-    axs[i].set_ylabel("Delta Theta")
+    axs[i].plot(sim_time_sec[1:], delta_theta_data[1:, i],
+                label=f"Delta Theta {axis_labels[i]}", color=f"C{i}", linewidth=0.25)
+    axs[i].set_ylabel("Delta Theta (rad)")
     axs[i].legend()
     axs[i].grid(True)
 
-axs[2].set_xlabel("Sample Index")
-fig.suptitle("Gyro Delta Thetas Over Samples", fontsize=14)
-plt.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
+axs[2].set_xlabel("Simulation Time (sec)")
+fig.suptitle("Gyro Delta Thetas Over Simulation Time", fontsize=14)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
 plt.show()
+

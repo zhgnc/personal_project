@@ -23,10 +23,12 @@ public:
 private:
     void initialize_apps();
     void sort_apps_by_priority();
+    void display_sorted_app_info();
     static bool compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>>& app_A, 
                                     const std::shared_ptr<SimAppBase<DataBusType>>& app_B);
+    void run_setup(std::size_t run_num);
+    void run_step();
     void run_teardown();
-    void display_sorted_app_info();
 
     double start_time_sec;
     double stop_time_sec;
