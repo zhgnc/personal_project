@@ -124,8 +124,8 @@ void Simulation<DataBusType>::run_teardown() {
     };
 
     sim_data_logger->log_sim_meta_data(meta_data);
-    // std::cout << "\n[Simulation] Output HDF5 file will have the following structure" << std::endl;
-    // logging_app->logger.print_file_tree();
+    std::cout << "\n[Simulation] Output HDF5 file will have the following structure" << std::endl;
+    logging_app->logger.print_file_tree();
     logging_app->close_file();
 
     std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";

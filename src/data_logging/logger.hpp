@@ -40,6 +40,7 @@ public:
 private: 
     void open_file(); 
     void print_file_tree_helper(const H5::Group& group, std::size_t level_to_print);
+    void print_attributes(const H5::H5Object& object, std::size_t level_to_print);
     void verify_file_exists() const;
     void verify_group_exists(const std::string& full_group_path) const;
     void verify_file_path(const std::string& directory_path) const; // This is unused by maybe useful at some point

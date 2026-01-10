@@ -98,13 +98,15 @@ void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to
         }
 
         if (obj_type == H5G_GROUP) {
-            std::cout << "|- " << "\033[34m" << obj_name << " (Group)\n" << "\033[0m";
+            std::cout << "|- " << "\033[1;36m" << obj_name << " (Group)\n" << "\033[0m"; // Blue
 
             H5::Group subgroup = group.openGroup(obj_name);
+
+            print_attributes(subgroup, level_to_print + 1);
             print_file_tree_helper(subgroup, level_to_print + 1);
 
         } else if (obj_type == H5G_DATASET) {
-            std::cout << "\033[32m" << "|- " << obj_name << " (Dataset) " << "\033[0m";
+            std::cout << "\033[32m" << "|- " << obj_name << " (Dataset) " << "\033[0m"; // Green
             
             H5::DataSet dataset        = group.openDataSet(obj_name);
             H5::DataType hdf5_datatype = dataset.getDataType();
@@ -128,10 +130,31 @@ void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to
             }
 
             std::cout << "]}\n";
+            print_attributes(dataset, level_to_print + 1);
 
         } else {
             std::cout << " (Other)\n";
         }
+    }
+}
+
+void Logger::print_attributes(const H5::H5Object& object, std::size_t level_to_print) {
+    const int num_attrs = object.getNumAttrs();
+
+    for (int i = 0; i < num_attrs; i++) {
+        H5::Attribute attr = object.openAttribute(i);
+
+        std::string attr_name = attr.getName();
+        H5::DataType type     = attr.getDataType();
+        H5::DataSpace space   = attr.getSpace();
+
+        std::string cpp_type = hdf5_to_cpp_type_mapping(type);
+
+        for (std::size_t j = 0; j < level_to_print; j++) {
+            std::cout << "    ";
+        }
+
+        std::cout << "\033[34m|- " << attr_name << " (Attribute)\033[0m {Type: " << cpp_type << "}\n";
     }
 }
 
