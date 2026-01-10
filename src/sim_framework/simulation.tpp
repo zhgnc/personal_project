@@ -10,10 +10,10 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
 {
   YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
 
-  start_time_sec   = config_data["sim_start_time_sec"].as<double>();
-  stop_time_sec    = config_data["sim_stop_time_sec"].as<double>();
-  sim_rate_hz      = config_data["simulation_rate_hz"].as<double>();
-  num_mc_runs      = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
+  start_time_sec = config_data["sim_start_time_sec"].as<double>();
+  stop_time_sec  = config_data["sim_stop_time_sec"].as<double>();
+  sim_rate_hz    = config_data["simulation_rate_hz"].as<double>();
+  num_mc_runs    = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
 
   sim_dt_usec           = static_cast<uint32_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint32_t>(sec2usec * start_time_sec);
@@ -30,12 +30,6 @@ template<typename DataBusType>
 void Simulation<DataBusType>::add_logger(std::shared_ptr<LoggingAppBase<DataBusType>> logger) {
   logging_app     = logger;
   sim_data_logger = std::make_unique<SimDataLogger>(logging_app->logger);
-
-  // Without creating a file print_file_tree cannot output the file tree. Using 
-  // file number 1 because it will be overwritten during first simulation run
-  std::cout << "\n[Simulation] Output HDF5 file will have the following structure" << std::endl;
-  logging_app->create_new_file(1);
-  logging_app->logger.print_file_tree();
 }
 
 template<typename DataBusType>
@@ -130,8 +124,8 @@ void Simulation<DataBusType>::run_teardown() {
     };
 
     sim_data_logger->log_sim_meta_data(meta_data);
-    std::cout << "\n[Simulation] Output HDF5 file will have the following structure" << std::endl;
-    logging_app->logger.print_file_tree();
+    // std::cout << "\n[Simulation] Output HDF5 file will have the following structure" << std::endl;
+    // logging_app->logger.print_file_tree();
     logging_app->close_file();
 
     std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
