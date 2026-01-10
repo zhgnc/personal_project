@@ -112,6 +112,10 @@ void Simulation<DataBusType>::run_step() {
     app->check_step(current_sim_time_usec);
   }
 
+  // The logging_app logs user data (via the logging_app_base) and simulation data (via 
+  // the sim_data_logger) because the logging_app & sim_data_logger class members share 
+  // the same logger. The sim_data_logger object is constructed with the same logger in 
+  // the `add_logger` function above.  
   logging_app->log_data(current_sim_time_usec);
 
   current_sim_time_usec += sim_dt_usec;
