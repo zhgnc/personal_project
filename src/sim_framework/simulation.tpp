@@ -27,14 +27,36 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
   actual_stop_time_sec  = config_stop_time_sec; 
 };
 
-template<typename DataBusType>
-void Simulation<DataBusType>::add_app(std::shared_ptr<SimAppBase<DataBusType>> new_app) {
-  app_list.push_back(new_app);
-};
 
+
+// This function accepts an object derived from `SimAppBase<DataBusType>` and 
+// adds it to the `app_list`. A template AppType is used to preserve the virtual 
+// functions that the `new_app` overwrote because if the input type was 
+// `SimAppBase<DataBusType>` then the `new_app` specific behavior would be lost.
 template<typename DataBusType>
-void Simulation<DataBusType>::add_logger(std::shared_ptr<LoggingAppBase<DataBusType>> logger) {
-  logging_app     = logger;
+template<typename AppType>
+void Simulation<DataBusType>::add_app(AppType&& new_app) {
+  static_assert(std::is_base_of_v<SimAppBase<DataBusType>, std::decay_t<AppType>>,
+                "AppType must derive from SimAppBase<DataBusType>");
+    
+  // The `push_back` function uses `std::decay_t<AppType>` to ensure that the 
+  // shared_ptr stores the actual derived app rather than base type. Then 
+  // `std::forward<AppType>(app)` is used to allow flexibility of passing 
+  // `new_app` as an lvalue or rvalue. Simply `new_app` is added to the `app_list`
+  app_list.push_back(std::make_shared<std::decay_t<AppType>>(std::forward<AppType>(new_app)));
+}
+
+
+// See comments for `add_app()` to understand why templates, `decay_t`, and `forward`
+template<typename DataBusType>
+template<typename LoggerType>
+void Simulation<DataBusType>::add_logger(LoggerType&& logger) {
+  static_assert(std::is_base_of_v<LoggingAppBase<DataBusType>, std::decay_t<LoggerType>>,
+                "Logger must derive from LoggingAppBase");
+
+  logging_app = std::make_shared<std::decay_t<LoggerType>>(std::forward<LoggerType>(logger));
+
+  // Constructing with the logger in `logging_app` so one logger logs both sim and user data
   sim_data_logger = std::make_unique<SimDataLogger>(logging_app->logger);
 }
 

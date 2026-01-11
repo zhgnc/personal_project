@@ -17,8 +17,12 @@ class Simulation : SimulationControl {
 public:
     Simulation(const std::string& path_to_sim_config, DataBusType& bus);
 
-    void add_app(std::shared_ptr<SimAppBase<DataBusType>> new_app);
-    void add_logger(std::shared_ptr<LoggingAppBase<DataBusType>> logger);
+    template<typename AppType>
+    void add_app(AppType&& new_app);
+    
+    template<typename LoggerType>
+    void add_logger(LoggerType&& logger);
+
     void run();
     void stop_sim(StopReason reason = StopReason::Unknown, const std::string& message = "None") override;
 

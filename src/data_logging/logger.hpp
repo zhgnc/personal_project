@@ -49,7 +49,7 @@ private:
     void write_attribute_to_generic_object(H5ObjType& obj, const std::string& attribute_name, const T& value);
 
     std::shared_ptr<H5::H5File> hdf5_file_ptr;
-    std::vector<std::unique_ptr<DatasetBase>> datasets;
+    std::vector<std::shared_ptr<DatasetBase>> datasets;
     bool file_is_open; 
     std::string file_path;
     static constexpr std::size_t buffer_length_config = 1000;

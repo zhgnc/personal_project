@@ -1,0 +1,8 @@
+sim_start_time_sec: 0.0
+sim_stop_time_sec: 3600.0
+simulation_rate_hz: 5.0
+number_of_monte_carlo_runs: 5
+print_hdf5_file_format: true
+print_hdf5_attributes_in_file_format: false
+logging_filename_prefix: "zach_test"
+logging_file_save_directory: "C:/git/personal_project/examples/attitude_filter/results"

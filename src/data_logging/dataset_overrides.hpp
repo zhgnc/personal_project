@@ -34,10 +34,6 @@ struct DataTraits<matrix<T, R, C>> {
     static const void* data_ptr(const matrix<T, R, C>* mat);
 };
 
-
-
-
-
 template<typename T, std::size_t buffer_length>
 class DatasetOverrides : public DatasetBase {
 public:

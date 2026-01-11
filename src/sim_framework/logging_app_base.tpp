@@ -6,8 +6,8 @@ template<typename DataBusType>
 LoggingAppBase<DataBusType>::LoggingAppBase(const std::string& config_file) {
     YAML::Node config_data = YAML::LoadFile(config_file);
 
-    data_output_directory  = config_data["save_data_directory"].as<std::string>();
-    base_file_name         = config_data["base_file_name"].as<std::string>();
+    data_output_directory  = config_data["logging_file_save_directory"].as<std::string>();
+    base_file_name         = config_data["logging_filename_prefix"].as<std::string>();
 };
 
 template<typename DataBusType>
