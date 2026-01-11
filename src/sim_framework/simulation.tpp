@@ -39,7 +39,7 @@ void Simulation<DataBusType>::add_logger(std::shared_ptr<LoggingAppBase<DataBusT
 }
 
 template<typename DataBusType>
-void Simulation<DataBusType>::stop_sim(StopReason reason = StopReason::Unknown, const std::string& message = "None") {
+void Simulation<DataBusType>::stop_sim(StopReason reason, const std::string& message) {
   // Conditional only saves the reason and message from the first request 
   if (end_sim == false) {
       end_sim              = true;
