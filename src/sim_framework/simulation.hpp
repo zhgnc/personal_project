@@ -5,12 +5,14 @@
 #include "sim_app_base.hpp"
 #include "logging_app_base.hpp"
 #include "sim_data_logger.hpp"
+#include "../utilities/yaml_utilities.hpp"
 
 #include <vector>
 #include <memory>
 #include <cstdint>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 
 template<typename DataBusType>
 class Simulation : SimulationControl {

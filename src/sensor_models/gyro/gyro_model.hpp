@@ -3,6 +3,8 @@
 
 #include "../../math/math.hpp"
 #include "struct_defs.hpp"
+#include "../src/utilities/yaml_utilities.hpp"
+
 #include <random>
 
 class GyroModel 

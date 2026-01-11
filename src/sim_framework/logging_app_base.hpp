@@ -2,7 +2,9 @@
 #define LOGGING_APP_BASE_HPP
 
 #include "../../src/data_logging/logger.hpp"
+#include "../../src/utilities/yaml_utilities.hpp"
 
+#include <format>
 #include <cstdint>
 #include <string>
 

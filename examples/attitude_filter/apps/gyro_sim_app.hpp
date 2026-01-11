@@ -19,6 +19,8 @@ public:
     }
 
     void step(DataBus& bus, SimulationControl& sim_ctrl) override {
+        (void)sim_ctrl;  // Tells the compiler I know this varible is unused
+
         gyro.inputs.q_j2000_to_body_true = bus.fake_dynamics_outputs.q_fake;
 
         gyro.run();
@@ -26,12 +28,12 @@ public:
         bus.gyro_outputs.measured_delta_angles = gyro.outputs.measured_delta_angles;
         bus.gyro_outputs.measurement_valid     = gyro.outputs.gyro_measurement_valid;
 
-        count++;
+        // count++;
 
-        if (count > 10) {
-            sim_ctrl.stop_sim(StopReason::ReachedEndObjective, "Testing");
-            count = 0;
-        }
+        // if (count > 10) {
+        //     sim_ctrl.stop_sim(StopReason::ReachedEndObjective, "Testing");
+        //     count = 0;
+        // }
     }
 
 private:

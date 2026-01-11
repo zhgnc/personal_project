@@ -1,13 +1,11 @@
 #include "../../src/sim_framework/logging_app_base.hpp" 
-#include "yaml-cpp/yaml.h"
-#include <format>
 
 template<typename DataBusType>
 LoggingAppBase<DataBusType>::LoggingAppBase(const std::string& config_file) {
-    YAML::Node config_data = YAML::LoadFile(config_file);
+    YAML::Node config_data = load_yaml_file(config_file);
 
-    data_output_directory  = config_data["logging_file_save_directory"].as<std::string>();
-    base_file_name         = config_data["logging_filename_prefix"].as<std::string>();
+    data_output_directory  = get_yaml_key<std::string>(config_data, "logging_file_save_directory");
+    base_file_name         = get_yaml_key<std::string>(config_data, "logging_filename_prefix");
 };
 
 template<typename DataBusType>

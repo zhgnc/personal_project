@@ -1,21 +1,17 @@
 #include "simulation.hpp"
 
-#include "yaml-cpp/yaml.h"
-#include <chrono>
-#include <iostream>
-
 template<typename DataBusType>
 Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataBusType& bus) 
   : data_bus(bus)
 {
-  YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
+  YAML::Node config_data = load_yaml_file(path_to_sim_config);
 
-  start_time_sec        = config_data["sim_start_time_sec"].as<double>();
-  config_stop_time_sec  = config_data["sim_stop_time_sec"].as<double>();
-  sim_rate_hz           = config_data["simulation_rate_hz"].as<double>();
-  num_mc_runs           = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
-  print_hdf5_file_tree  = config_data["print_hdf5_file_format"].as<bool>();
-  print_file_attributes = config_data["print_hdf5_attributes_in_file_format"].as<bool>();
+  start_time_sec        = get_yaml_key<double>(config_data, "sim_start_time_sec");
+  config_stop_time_sec  = get_yaml_key<double>(config_data, "sim_stop_time_sec");
+  sim_rate_hz           = get_yaml_key<double>(config_data, "simulation_rate_hz");
+  num_mc_runs           = get_yaml_key<std::size_t>(config_data, "number_of_monte_carlo_runs");
+  print_hdf5_file_tree  = get_yaml_key<bool>(config_data, "print_hdf5_file_format");
+  print_file_attributes = get_yaml_key<bool>(config_data, "print_hdf5_attributes_in_file_format");
 
   sim_dt_usec           = static_cast<uint64_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint64_t>(sec2usec * start_time_sec);
