@@ -12,17 +12,17 @@ SimAppBase<DataBusType>::SimAppBase(double execution_rate_hz, int schedule_prior
 };
 
 template<typename DataBusType>
-void SimAppBase<DataBusType>::initialize(DataBusType& data_bus) { 
-  this->configure_model(config_path, data_bus); 
+void SimAppBase<DataBusType>::initialize() { 
+  this->configure_model(config_path); 
 };
 
 template<typename DataBusType>
-void SimAppBase<DataBusType>::check_step(const uint64_t &sim_time_usec) {
+void SimAppBase<DataBusType>::check_step(const uint64_t &sim_time_usec, DataBusType& bus, SimulationControl& sim_ctrl) {
   time_to_step = sim_time_usec % app_dt_usec == 0;
 
   if (time_to_step == false) {
     return;
   }
 
-  this->step();
+  this->step(bus, sim_ctrl);
 };

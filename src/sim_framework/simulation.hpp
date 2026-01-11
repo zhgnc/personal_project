@@ -1,6 +1,7 @@
 #ifndef SIMULATION_HPP
 #define SIMULATION_HPP
 
+#include "sim_control.hpp"
 #include "sim_app_base.hpp"
 #include "logging_app_base.hpp"
 #include "sim_data_logger.hpp"
@@ -12,13 +13,14 @@
 #include <chrono>
 
 template<typename DataBusType>
-class Simulation {
+class Simulation : SimulationControl {
 public:
     Simulation(const std::string& path_to_sim_config, DataBusType& bus);
 
     void add_app(std::shared_ptr<SimAppBase<DataBusType>> new_app);
     void add_logger(std::shared_ptr<LoggingAppBase<DataBusType>> logger);
     void run();
+    void stop_sim(StopReason reason = StopReason::Unknown, const std::string& message = "None") override;
 
 private:
     void initialize_apps();
@@ -32,11 +34,16 @@ private:
     void sim_teardown();
 
     double start_time_sec;
-    double stop_time_sec;
+    double config_stop_time_sec;
     double sim_rate_hz;
     std::size_t num_mc_runs;
     bool print_hdf5_file_tree;
     bool print_file_attributes;
+    
+    bool end_sim;                
+    StopReason stop_reason;  
+    std::string stop_message;
+    double actual_stop_time_sec;
 
     std::vector<std::shared_ptr<SimAppBase<DataBusType>>> app_list;
     std::shared_ptr<LoggingAppBase<DataBusType>> logging_app;
@@ -45,7 +52,7 @@ private:
     std::size_t current_mc_run;
     double current_sim_time_sec;
     uint64_t current_sim_time_usec;
-    uint64_t stop_time_usec;
+    uint64_t config_stop_time_usec;
     uint64_t sim_dt_usec;
 
     double sec2usec = 1e6;

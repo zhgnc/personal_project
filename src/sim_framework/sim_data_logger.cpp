@@ -16,7 +16,13 @@ void SimDataLogger::configure_file_with_sim_data(const double& current_sim_time_
 
 void SimDataLogger::log_sim_meta_data(const SimMetaData& meta_data) const {
     logger.write_attribute("/sim", "start_time_sec",         meta_data.start_time_sec);
-    logger.write_attribute("/sim", "stop_time_sec",          meta_data.stop_time_sec);
+    logger.write_attribute("/sim", "config_stop_time_sec",   meta_data.config_stop_time_sec);
+    
+    std::string stop_reason = SimulationControl::stop_reason_to_string(meta_data.stop_reason);
+
+    logger.write_attribute("/sim", "stop_reason",            stop_reason);
+    logger.write_attribute("/sim", "stop_message",           meta_data.stop_message);
+    logger.write_attribute("/sim", "actual_stop_time_sec",   meta_data.actual_stop_time_sec);
     logger.write_attribute("/sim", "sim_rate_hz",            meta_data.sim_rate_hz);
     logger.write_attribute("/sim", "num_mc_runs",            meta_data.num_mc_runs);
     logger.write_attribute("/sim", "current_mc_run",         meta_data.current_mc_run);

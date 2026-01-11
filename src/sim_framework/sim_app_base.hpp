@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <string>
 
+#include "../../src/sim_framework/sim_control.hpp"
+
 template<typename DataBusType>
 class SimAppBase {
 public: 
@@ -12,11 +14,11 @@ public:
                int schedule_priority, 
                const std::string& path_to_config);
 
-    virtual void configure_model(const std::string& config_path, DataBusType& data_bus) = 0;
-    virtual void step() = 0;
+    virtual void configure_model(const std::string& path_to_config) = 0;
+    virtual void step(DataBusType& bus, SimulationControl& sim_ctrl) = 0;
     
-    void initialize(DataBusType& data_bus);
-    void check_step(const uint64_t& sim_time_usec);
+    void initialize();
+    void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimulationControl& sim_ctrl);
 
     int priority;
     double app_dt_sec;

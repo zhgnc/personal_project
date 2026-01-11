@@ -5,10 +5,14 @@
 #include <chrono>
 
 #include "../../src/data_logging/logger.hpp"
+#include "../../src/sim_framework/sim_control.hpp"
 
 struct SimMetaData {
     double start_time_sec; 
-    double stop_time_sec; 
+    double config_stop_time_sec;
+    double actual_stop_time_sec; 
+    StopReason stop_reason;
+    std::string stop_message;
     double sim_rate_hz; 
     std::size_t num_mc_runs; 
     std::size_t current_mc_run; 

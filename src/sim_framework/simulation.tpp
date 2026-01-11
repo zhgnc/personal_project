@@ -11,16 +11,20 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
   YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
 
   start_time_sec        = config_data["sim_start_time_sec"].as<double>();
-  stop_time_sec         = config_data["sim_stop_time_sec"].as<double>();
+  config_stop_time_sec  = config_data["sim_stop_time_sec"].as<double>();
   sim_rate_hz           = config_data["simulation_rate_hz"].as<double>();
   num_mc_runs           = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
   print_hdf5_file_tree  = config_data["print_hdf5_file_format"].as<bool>();
-  print_file_attributes =  config_data["print_hdf5_attributes_in_file_format"].as<bool>();
+  print_file_attributes = config_data["print_hdf5_attributes_in_file_format"].as<bool>();
 
   sim_dt_usec           = static_cast<uint64_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint64_t>(sec2usec * start_time_sec);
   current_sim_time_sec  = start_time_sec;
-  stop_time_usec        = static_cast<uint64_t>(sec2usec * stop_time_sec);
+  config_stop_time_usec = static_cast<uint64_t>(sec2usec * config_stop_time_sec);
+
+  end_sim               = false;
+  stop_reason           = StopReason::ReachedConfiguredStopTime;
+  actual_stop_time_sec  = config_stop_time_sec; 
 };
 
 template<typename DataBusType>
@@ -35,6 +39,21 @@ void Simulation<DataBusType>::add_logger(std::shared_ptr<LoggingAppBase<DataBusT
 }
 
 template<typename DataBusType>
+void Simulation<DataBusType>::stop_sim(StopReason reason = StopReason::Unknown, const std::string& message = "None") {
+  // Conditional only saves the reason and message from the first request 
+  if (end_sim == false) {
+      end_sim              = true;
+      stop_reason          = reason;
+      stop_message         = message;
+      actual_stop_time_sec = current_sim_time_sec;
+
+      std::cout << "[             | - Sim stop commanded\n"; 
+      std::cout << "                   |- Reason (enum): " << stop_reason_to_string(reason) << " || " << static_cast<int>(reason) << std::endl;
+      std::cout << "                   |- Message: " << message << std::endl;
+  }
+}
+
+template<typename DataBusType>
 void Simulation<DataBusType>::run() {
   sort_apps_by_priority();
   display_sorted_app_info();
@@ -44,7 +63,7 @@ void Simulation<DataBusType>::run() {
   for (std::size_t run_num = 1; run_num < num_mc_runs+1; run_num++) {
     run_setup(run_num);
 
-    while (current_sim_time_usec <= stop_time_usec) {
+    while (current_sim_time_usec <= config_stop_time_usec && end_sim == false) {
       run_step();
     }
 
@@ -85,7 +104,7 @@ void Simulation<DataBusType>::display_sorted_app_info() {
 template<typename DataBusType>
 void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
   for (std::shared_ptr<SimAppBase<DataBusType>> &app : app_list) {
-    app->initialize(data_bus);
+    app->initialize();
   }
 
   logging_app->set_data_source(data_bus);
@@ -108,8 +127,10 @@ void Simulation<DataBusType>::run_setup(std::size_t run_num) {
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run_step() {
+  SimulationControl& sim_ctrl = *this;
+  
   for (std::shared_ptr<SimAppBase<DataBusType>> &app : app_list) {
-    app->check_step(current_sim_time_usec);
+    app->check_step(current_sim_time_usec, data_bus, sim_ctrl);
   }
 
   // The logging_app logs user data (via the logging_app_base) and simulation data (via 
@@ -117,6 +138,10 @@ void Simulation<DataBusType>::run_step() {
   // the same logger. The sim_data_logger object is constructed with the same logger in 
   // the `add_logger` function above.  
   logging_app->log_data(current_sim_time_usec);
+
+  if (end_sim == true) {
+    return;
+  }
 
   current_sim_time_usec += sim_dt_usec;
   current_sim_time_sec   = current_sim_time_usec / sec2usec;
@@ -126,11 +151,14 @@ template<typename DataBusType>
 void Simulation<DataBusType>::run_teardown() {  
     computer_stop_time       = std::chrono::high_resolution_clock::now();
     computer_elapsed_seconds = computer_stop_time - computer_start_time;
-    sim_to_real_time_ratio   = stop_time_sec / computer_elapsed_seconds.count();
+    sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();
     
     SimMetaData meta_data{
       start_time_sec,
-      stop_time_sec,
+      config_stop_time_sec,
+      actual_stop_time_sec,
+      stop_reason,
+      stop_message,
       sim_rate_hz,
       num_mc_runs,
       current_mc_run,
@@ -142,6 +170,8 @@ void Simulation<DataBusType>::run_teardown() {
 
     sim_data_logger->log_sim_meta_data(meta_data);
     logging_app->close_file();
+
+    end_sim = false;
 
     std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 }
