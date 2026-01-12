@@ -6,6 +6,7 @@
 #include "logging_app_base.hpp"
 #include "sim_data_logger.hpp"
 #include "../utilities/yaml_utilities.hpp"
+#include "../data_logging/logger.hpp"
 
 #include <vector>
 #include <memory>
@@ -22,8 +23,8 @@ public:
     template<typename AppType>
     void add_app(AppType&& new_app);
     
-    template<typename LoggerType>
-    void add_logger(LoggerType&& logger);
+    template<typename LoggingAppType>
+    void add_logging_app(LoggingAppType&& new_logging_app);
 
     void run();
     void stop_sim(StopReason reason = StopReason::Unknown, const std::string& message = "None") override;
@@ -52,8 +53,13 @@ private:
     double actual_stop_time_sec;
 
     std::vector<std::shared_ptr<SimAppBase<DataBusType>>> app_list;
-    std::shared_ptr<LoggingAppBase<DataBusType>> logging_app;
+    std::vector<std::shared_ptr<LoggingAppBase<DataBusType>>> logging_apps;
     std::unique_ptr<SimDataLogger> sim_data_logger;
+    
+    Logger logger;
+    AppLoggingRates logging_rates;
+    std::string base_file_name;
+    std::string data_output_directory;
     
     std::size_t current_mc_run;
     double current_sim_time_sec;

@@ -13,6 +13,14 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
   print_hdf5_file_tree  = get_yaml_key<bool>(config_data, "print_hdf5_file_format");
   print_file_attributes = get_yaml_key<bool>(config_data, "print_hdf5_attributes_in_file_format");
 
+  data_output_directory   = get_yaml_key<std::string>(config_data, "logging_file_save_directory");
+  base_file_name          = get_yaml_key<std::string>(config_data, "logging_filename_prefix");
+  logging_rates.rate_A_hz = get_yaml_key<double>(config_data, "logging_rate_A_hz");
+  logging_rates.rate_B_hz = get_yaml_key<double>(config_data, "logging_rate_B_hz");
+  logging_rates.rate_C_hz = get_yaml_key<double>(config_data, "logging_rate_C_hz");
+  logging_rates.rate_D_hz = get_yaml_key<double>(config_data, "logging_rate_D_hz");
+  logging_rates.rate_E_hz = get_yaml_key<double>(config_data, "logging_rate_E_hz");
+
   sim_dt_usec           = static_cast<uint64_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint64_t>(sec2usec * start_time_sec);
   current_sim_time_sec  = start_time_sec;
@@ -42,23 +50,19 @@ void Simulation<DataBusType>::add_app(AppType&& new_app) {
   app_list.push_back(std::make_shared<std::decay_t<AppType>>(std::forward<AppType>(new_app)));
 }
 
-
 // See comments for `add_app()` to understand why templates, `decay_t`, and `forward`
 template<typename DataBusType>
-template<typename LoggerType>
-void Simulation<DataBusType>::add_logger(LoggerType&& logger) {
-  static_assert(std::is_base_of_v<LoggingAppBase<DataBusType>, std::decay_t<LoggerType>>,
-                "Logger must derive from LoggingAppBase");
+template<typename LoggingAppType>
+void Simulation<DataBusType>::add_logging_app(LoggingAppType&& new_logging_app) {
+    static_assert(std::is_base_of_v<LoggingAppBase<DataBusType>, std::decay_t<LoggingAppType>>,
+                  "LoggingAppType must derive from LoggingAppBase<DataBusType>");
 
-  logging_app = std::make_shared<std::decay_t<LoggerType>>(std::forward<LoggerType>(logger));
-
-  // Constructing with the logger in `logging_app` so one logger logs both sim and user data
-  sim_data_logger = std::make_unique<SimDataLogger>(logging_app->logger);
+    logging_apps.push_back(std::make_shared<std::decay_t<LoggingAppType>>(std::forward<LoggingAppType>(new_logging_app)));
 }
 
 template<typename DataBusType>
 void Simulation<DataBusType>::stop_sim(StopReason reason, const std::string& message) {
-  // Conditional only saves the reason and message from the first request 
+  // The conditional is used to only save the reason and message from the first request 
   if (end_sim == false) {
       end_sim              = true;
       stop_reason          = reason;
@@ -100,7 +104,7 @@ void Simulation<DataBusType>::sort_apps_by_priority() {
 template<typename DataBusType>
 bool Simulation<DataBusType>::compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>> &app_A,
                                      const std::shared_ptr<SimAppBase<DataBusType>> &app_B) {
-  // ">" gives lower numbers a higher priority
+  // `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
   return app_A->priority < app_B->priority;
 };
 
@@ -125,7 +129,7 @@ void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Init
     app->initialize();
   }
 
-  logging_app->set_data_source(data_bus);
+  sim_data_logger = std::make_unique<SimDataLogger>(logger);
   std::cout << "[Simulation] Apps Initialized\n\n";
 }
 
@@ -134,12 +138,18 @@ void Simulation<DataBusType>::run_setup(std::size_t run_num) {
   std::cout << "[Simulation] Starting Simulation Run #" << run_num << std::endl;
   current_mc_run = run_num;
 
-  logging_app->create_new_file(run_num);
+  std::string new_file_name = std::format("{}_RUN_{:05}.hdf5", base_file_name, current_mc_run);
+  std::string full_path     = data_output_directory + "/" + new_file_name;
+  logger.create_file(full_path);
+
+  for (std::shared_ptr<LoggingAppBase<DataBusType>>& app : logging_apps) {
+    app->config_hdf5_with_app_data(logger, data_bus, logging_rates);
+  }
+
   sim_data_logger->configure_file_with_sim_data(current_sim_time_sec, current_sim_time_usec, sim_rate_hz);
 
   current_sim_time_sec  = start_time_sec;
   current_sim_time_usec = current_sim_time_sec * sec2usec;
-
   computer_start_time   = std::chrono::high_resolution_clock::now();
 }
 
@@ -151,11 +161,7 @@ void Simulation<DataBusType>::run_step() {
     app->check_step(current_sim_time_usec, data_bus, sim_ctrl);
   }
 
-  // The logging_app logs user data (via the logging_app_base) and simulation data (via 
-  // the sim_data_logger) because the logging_app & sim_data_logger class members share 
-  // the same logger. The sim_data_logger object is constructed with the same logger in 
-  // the `add_logger` function above.  
-  logging_app->log_data(current_sim_time_usec);
+  logger.log_data(current_sim_time_usec);
 
   if (end_sim == true) {
     return;
@@ -167,31 +173,31 @@ void Simulation<DataBusType>::run_step() {
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run_teardown() {  
-    computer_stop_time       = std::chrono::high_resolution_clock::now();
-    computer_elapsed_seconds = computer_stop_time - computer_start_time;
-    sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();
-    
-    SimMetaData meta_data{
-      start_time_sec,
-      config_stop_time_sec,
-      actual_stop_time_sec,
-      stop_reason,
-      stop_message,
-      sim_rate_hz,
-      num_mc_runs,
-      current_mc_run,
-      computer_start_time,
-      computer_stop_time,
-      computer_elapsed_seconds,
-      sim_to_real_time_ratio
-    };
+  computer_stop_time       = std::chrono::high_resolution_clock::now();
+  computer_elapsed_seconds = computer_stop_time - computer_start_time;
+  sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();
+  
+  SimMetaData meta_data{
+    start_time_sec,
+    config_stop_time_sec,
+    actual_stop_time_sec,
+    stop_reason,
+    stop_message,
+    sim_rate_hz,
+    num_mc_runs,
+    current_mc_run,
+    computer_start_time,
+    computer_stop_time,
+    computer_elapsed_seconds,
+    sim_to_real_time_ratio
+  };
 
-    sim_data_logger->log_sim_meta_data(meta_data);
-    logging_app->close_file();
+  sim_data_logger->log_sim_meta_data(meta_data);
+  logger.close_file();
 
-    end_sim = false;
+  end_sim = false;
 
-    std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
+  std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 }
 
 template<typename DataBusType>
@@ -200,6 +206,6 @@ void Simulation<DataBusType>::sim_teardown() {
   
   if (print_hdf5_file_tree == true) {
     std::cout << "[Simulation] HDF5 output files will have the following data\n";
-    logging_app->logger.print_file_tree(print_file_attributes);
+    logger.print_file_tree(print_file_attributes);
   }
 }

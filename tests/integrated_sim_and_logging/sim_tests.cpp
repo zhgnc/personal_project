@@ -24,8 +24,8 @@ TEST(simTests, BasicTest) {
     TestSimApp1 test_app_1(app_rate_hz, app_priority, config_path);
     sim.add_app(test_app_1);
 
-    TestLogger logging_app(sim_and_logger_config_path);
-    sim.add_logger(logging_app);
+    TestLogger logger;
+    sim.add_logging_app(logger);
     
     sim.run();
 

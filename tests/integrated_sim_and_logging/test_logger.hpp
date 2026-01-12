@@ -13,12 +13,9 @@ class TestLogger : public LoggingAppBase<TestDataBus> {
 public:
     using LoggingAppBase<TestDataBus>::LoggingAppBase;
 
-    void configure_hdf5_file() override {
-        double record_freq_hz = 10.0;
-
+    void config_hdf5_with_app_data(Logger& logger, TestDataBus& data_bus, AppLoggingRates& rates) override {
         logger.add_group("test_group");
-        logger.add_dataset<int>("counter", "test_group", data_bus->app_1_data.counter, record_freq_hz);
-        // logger.print_file_tree();
+        logger.add_dataset<int>("counter", "test_group", data_bus.app_1_data.counter, rates.rate_A_hz);
     };
 };
 

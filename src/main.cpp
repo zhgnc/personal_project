@@ -37,8 +37,8 @@ int main() {
   GyroSimApp gyro_app(gyro_rate, gyro_priority, gyro_config_path);
   sim.add_app(gyro_app);
 
-  LoggingSimApp logging_app(sim_and_logger_config_path);
-  sim.add_logger(logging_app);
+  LoggingSimApp logger;
+  sim.add_logging_app(logger);
 
   sim.run();
 
