@@ -35,7 +35,7 @@ if(NOT ENABLE_TESTING)
       -Wshadow                # Warn about variable shadowing
       -Wformat=2              # More thorough printf/scanf format checks
       -fno-omit-frame-pointer # Better debug info and profiling
-      -O0                     # Optimization level 0
+      -O1                     # Optimization level 1
       -g                      # Debug symbols
   )
 endif()
