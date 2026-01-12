@@ -10,10 +10,20 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
 {
   YAML::Node config_data = YAML::LoadFile(path_to_sim_config);
 
+<<<<<<< Updated upstream
   start_time_sec   = config_data["sim_start_time_sec"].as<double>();
   stop_time_sec    = config_data["sim_stop_time_sec"].as<double>();
   sim_rate_hz      = config_data["simulation_rate_hz"].as<double>();
   num_mc_runs      = config_data["number_of_monte_carlo_runs"].as<std::size_t>();
+=======
+  start_time_sec          = get_yaml_key<double>(config_data, "sim_start_time_sec");
+  config_stop_time_sec    = get_yaml_key<double>(config_data, "sim_stop_time_sec");
+  sim_rate_hz             = get_yaml_key<double>(config_data, "simulation_rate_hz");
+  num_mc_runs             = get_yaml_key<std::size_t>(config_data, "number_of_monte_carlo_runs");
+  num_parallel_processors = get_yaml_key<int>(config_data,  "number_of_parallel_processors");
+  print_hdf5_file_tree    = get_yaml_key<bool>(config_data, "print_hdf5_file_format");
+  print_file_attributes   = get_yaml_key<bool>(config_data, "print_hdf5_attributes_in_file_format");
+>>>>>>> Stashed changes
 
   sim_dt_usec           = static_cast<uint32_t>(sec2usec * (1.0 / sim_rate_hz));
   current_sim_time_usec = static_cast<uint32_t>(sec2usec * start_time_sec);

@@ -32,6 +32,17 @@ private:
     double sim_rate_hz;
     double logging_rate_hz;
     std::size_t num_mc_runs;
+<<<<<<< Updated upstream
+=======
+    int num_parallel_processors;
+    bool print_hdf5_file_tree;
+    bool print_file_attributes;
+    
+    bool end_sim;                
+    StopReason stop_reason;  
+    std::string stop_message;
+    double actual_stop_time_sec;
+>>>>>>> Stashed changes
 
     std::vector<std::shared_ptr<SimAppBase<DataBusType>>> app_list;
     std::shared_ptr<LoggingAppBase<DataBusType>> data_logger;
