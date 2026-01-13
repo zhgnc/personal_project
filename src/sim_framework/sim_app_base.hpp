@@ -14,10 +14,10 @@ public:
                int schedule_priority, 
                const std::string& path_to_config);
 
-    virtual void configure_model(const std::string& path_to_config) = 0;
+    virtual void configure_model(const std::string& path_to_config, SimulationControl& sim_ctrl) = 0;
     virtual void step(DataBusType& bus, SimulationControl& sim_ctrl) = 0;
     
-    void initialize();
+    void initialize(SimulationControl& sim_ctrl);
     void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimulationControl& sim_ctrl);
 
     int priority;

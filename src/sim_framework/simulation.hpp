@@ -27,7 +27,6 @@ public:
     void add_logging_app(LoggingAppType&& new_logging_app);
 
     void run();
-    void stop_sim(StopReason reason = StopReason::Unknown, const std::string& message = "None") override;
 
 private:
     void initialize_apps();
@@ -39,15 +38,29 @@ private:
     void run_step();
     void run_teardown();
     void sim_teardown();
+    void assign_meta_data();
+
+    void end_sim_after_cycle(const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None") override;
+    void end_sim_after_app(const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None") override;
+    bool stop_requested() const override;
+    void print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message);
+    uint64_t get_next_seed() override;
+    const AccessibleSimData& public_sim_data() const;
+    void update_accessible_sim_data();
+
 
     double start_time_sec;
     double config_stop_time_sec;
     double sim_rate_hz;
     std::size_t num_mc_runs;
+    uint64_t init_seed;
+    uint64_t current_seed;
     bool print_hdf5_file_tree;
     bool print_file_attributes;
     
-    bool end_sim;                
+    bool stop_sim_now;
+    bool stop_sim_after_cycle;      
+    StopType stop_type;          
     StopReason stop_reason;  
     std::string stop_message;
     double actual_stop_time_sec;
@@ -66,6 +79,8 @@ private:
     uint64_t current_sim_time_usec;
     uint64_t config_stop_time_usec;
     uint64_t sim_dt_usec;
+    double sim_dt_sec;
+    uint64_t sim_step_count;
 
     double sec2usec = 1e6;
 
@@ -75,6 +90,8 @@ private:
     double sim_to_real_time_ratio;
 
     DataBusType& data_bus;
+    SimMetaData meta_data;
+    AccessibleSimData accessible_sim_data;
 };
 
 #include "simulation.tpp"

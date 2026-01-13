@@ -13,13 +13,15 @@ class GyroSimApp : public SimAppBase<DataBus> {
 public:
     using SimAppBase::SimAppBase;
 
-    void configure_model(const std::string& path_to_config) override {
+    void configure_model(const std::string& path_to_config, SimulationControl& sim_ctrl) override {
+        (void)sim_ctrl;  // Tells the compiler I know this varible is unused
+        
         gyro = GyroModel(path_to_config);
         gyro.initialize();
     }
 
     void step(DataBus& bus, SimulationControl& sim_ctrl) override {
-        (void)sim_ctrl;  // Tells the compiler I know this varible is unused
+        (void)sim_ctrl;
 
         gyro.inputs.q_j2000_to_body_true = bus.fake_dynamics_outputs.q_fake;
 
@@ -31,7 +33,8 @@ public:
         // count++;
 
         // if (count > 10) {
-        //     sim_ctrl.stop_sim(StopReason::ReachedEndObjective, "Testing");
+        //     // sim_ctrl.end_sim_after_app(StopReason::AlgorithmFailure, "Testing End Sim Now Function");
+        //     sim_ctrl.end_sim_after_cycle(StopReason::ReachedEndObjective, "Testing End Sim After Cycle Function");
         //     count = 0;
         // }
     }

@@ -2,7 +2,8 @@
 
 void Logger::create_file(const std::string& full_file_path) {
     // H5File() creates a file if one does not exist or opens the existing file
-    // If the file exists, all data is cleared and H5F_ACC_TRUNC gives read and write permissions 
+    // If the file exists, all data is cleared and H5F_ACC_TRUNC gives read and write permissions
+    datasets.clear();  // Need to clear data sets each run to prevent acumulation
     hdf5_file_ptr = std::make_unique<H5::H5File>(full_file_path, H5F_ACC_TRUNC); 
     file_path     = full_file_path; 
     file_is_open  = true;

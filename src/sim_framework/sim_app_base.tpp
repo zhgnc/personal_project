@@ -12,8 +12,8 @@ SimAppBase<DataBusType>::SimAppBase(double execution_rate_hz, int schedule_prior
 };
 
 template<typename DataBusType>
-void SimAppBase<DataBusType>::initialize() { 
-  this->configure_model(config_path); 
+void SimAppBase<DataBusType>::initialize(SimulationControl& sim_ctrl) { 
+  this->configure_model(config_path, sim_ctrl); 
 };
 
 template<typename DataBusType>
