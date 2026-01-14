@@ -186,28 +186,39 @@ void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Init
     app->initialize(sim_ctrl);
   }
 
-  sim_data_logger = std::make_unique<SimDataLogger>(logger);
   std::cout << "[Simulation] Apps Initialized\n\n";
 }
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run_setup(std::size_t run_num) {
-  // std::cout << "[Simulation] Starting Simulation Run #" << run_num << std::endl;
+  std::cout << "[Simulation] Starting Simulation Run #" << run_num << std::endl;
   current_mc_run = run_num;
+
+  sim_step_count        = 0;
+  stop_sim_now          = false;
+  stop_sim_after_cycle  = false;
+  stop_type             = StopType::NoStop;
+  stop_reason           = StopReason::ReachedConfiguredStopTime;
+  stop_message          = "None Provided";
+  current_sim_time_sec  = start_time_sec;
+  current_sim_time_usec = current_sim_time_sec * sec2usec; 
+
+  // `logger` must be reset per-run to avoid accumulation of data in hdf5 
+  // class or simulation execution may slow down during very long MC tests
+  logger = std::make_unique<Logger>();
 
   std::string new_file_name = std::format("{}_RUN_{:05}.hdf5", base_file_name, current_mc_run);
   std::string full_path     = data_output_directory + "/" + new_file_name;
-  logger.create_file(full_path);
+  logger->create_file(full_path);
 
   for (std::shared_ptr<LoggingAppBase<DataBusType>>& app : logging_apps) {
-    app->config_hdf5_with_app_data(logger, data_bus, logging_rates);
+    app->config_hdf5_with_app_data(*logger, data_bus, logging_rates);
   }
 
+  sim_data_logger = std::make_unique<SimDataLogger>(*logger);
   sim_data_logger->configure_file_with_sim_data(current_sim_time_sec, current_sim_time_usec, sim_rate_hz, sim_step_count);
 
-  current_sim_time_sec  = start_time_sec;
-  current_sim_time_usec = current_sim_time_sec * sec2usec;
-  computer_start_time   = std::chrono::high_resolution_clock::now();
+  computer_start_time = std::chrono::high_resolution_clock::now();
 
   update_accessible_sim_data();
 }
@@ -224,7 +235,7 @@ void Simulation<DataBusType>::run_step() {
     }
   }
 
-  logger.log_data(current_sim_time_usec);
+  logger->log_data(current_sim_time_usec);
 
   if (stop_sim_after_cycle == true) {
     return;
@@ -245,11 +256,13 @@ void Simulation<DataBusType>::run_teardown() {
   
   assign_meta_data();
   sim_data_logger->log_sim_meta_data(meta_data);
-  logger.close_file();
+  logger->close_file();
 
-  sim_step_count       = 0;
-  stop_sim_now         = false;
-  stop_sim_after_cycle = false;
+  // If this is the last run I want to preserve logger to print the file tree in `sim_teardown`
+  if (current_mc_run < num_mc_runs) {
+    sim_data_logger.reset();  
+    logger.reset();
+  }
 
   std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 }
@@ -278,6 +291,6 @@ void Simulation<DataBusType>::sim_teardown() {
   
   if (print_hdf5_file_tree == true) {
     std::cout << "[Simulation] HDF5 output files will have the following data\n";
-    logger.print_file_tree(print_file_attributes);
+    logger->print_file_tree(print_file_attributes);
   }
 }

@@ -68,8 +68,8 @@ private:
     std::vector<std::shared_ptr<SimAppBase<DataBusType>>> app_list;
     std::vector<std::shared_ptr<LoggingAppBase<DataBusType>>> logging_apps;
     std::unique_ptr<SimDataLogger> sim_data_logger;
-    
-    Logger logger;
+    std::unique_ptr<Logger> logger;
+
     AppLoggingRates logging_rates;
     std::string base_file_name;
     std::string data_output_directory;

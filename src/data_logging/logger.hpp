@@ -52,7 +52,8 @@ private:
     std::vector<std::shared_ptr<DatasetBase>> datasets;
     bool file_is_open; 
     std::string file_path;
-    static constexpr std::size_t buffer_length_config = 1000;
+
+    static constexpr std::size_t buffer_length_config = 1000; 
 };
 
 #include "logger.tpp"  // Template implementations
