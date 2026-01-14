@@ -249,7 +249,13 @@ void Simulation<DataBusType>::run_step() {
 }
 
 template<typename DataBusType>
-void Simulation<DataBusType>::run_teardown() {  
+void Simulation<DataBusType>::run_teardown() {
+  SimulationControl& sim_ctrl = *this;
+
+  for (std::shared_ptr<SimAppBase<DataBusType>> &app : app_list) {
+    app->teardown(data_bus, sim_ctrl);
+  }; 
+
   computer_stop_time       = std::chrono::high_resolution_clock::now();
   computer_elapsed_seconds = computer_stop_time - computer_start_time;
   sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();

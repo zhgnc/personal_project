@@ -16,6 +16,7 @@ public:
 
     virtual void configure_model(const std::string& path_to_config, SimulationControl& sim_ctrl) = 0;
     virtual void step(DataBusType& bus, SimulationControl& sim_ctrl) = 0;
+    virtual void teardown(DataBusType& bus, SimulationControl& sim_ctrl) = 0;
     
     void initialize(SimulationControl& sim_ctrl);
     void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimulationControl& sim_ctrl);

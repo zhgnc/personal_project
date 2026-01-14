@@ -38,6 +38,11 @@ public:
         //     count = 0;
         // }
     }
+    
+    void teardown(DataBus& bus, SimulationControl& sim_ctrl) override {
+        (void)bus;
+        (void)sim_ctrl;
+    }
 
 private:
     GyroModel gyro; 
