@@ -11,6 +11,7 @@
 
 template<typename T>
 std::vector<T> read_hdf5_dataset(const std::string& hdf5_file_path, const std::string& full_dataset_path) {
+    // This function is intended for unit tests only so returning std::vector is lower risk
     
     // Verify file exists (copied from logger.cpp)
     if (std::filesystem::exists(hdf5_file_path) == false) {

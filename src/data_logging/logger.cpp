@@ -1,5 +1,14 @@
 #include "../../src/data_logging/logger.hpp" 
 
+Logger::Logger(const std::string& path_to_file) {
+    file_path = path_to_file;
+    create_file(file_path);
+}
+
+Logger::~Logger() {
+    close_file();
+}
+
 void Logger::create_file(const std::string& full_file_path) {
     // H5File() creates a file if one does not exist or opens the existing file
     // If the file exists, all data is cleared and H5F_ACC_TRUNC gives read and write permissions
@@ -20,8 +29,8 @@ void Logger::open_file() {
 };
 
 void Logger::close_file() {
-    for (const std::shared_ptr<DatasetBase>& dataset : datasets) {
-        dataset->flush_buffer();
+    for (std::size_t i = 0; i < dataset_count; ++i) {
+        datasets[i]->flush_buffer();
     }
 
     verify_file_exists();
@@ -66,8 +75,8 @@ void Logger::add_group(const std::string& path_to_group) {
 };
 
 void Logger::log_data(const uint64_t &sim_time_usec) {
-    for (const std::shared_ptr<DatasetBase>& dataset : datasets) {
-        dataset->log_if_needed(sim_time_usec);
+    for (std::size_t i = 0; i < dataset_count; i++) {
+        datasets[i]->log_if_needed(sim_time_usec);
     }
 };
 

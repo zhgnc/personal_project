@@ -205,11 +205,9 @@ void Simulation<DataBusType>::run_setup(std::size_t run_num) {
 
   // `logger` must be reset per-run to avoid accumulation of data in hdf5 
   // class or simulation execution may slow down during very long MC tests
-  logger = std::make_unique<Logger>();
-
   std::string new_file_name = std::format("{}_RUN_{:05}.hdf5", base_file_name, current_mc_run);
   std::string full_path     = data_output_directory + "/" + new_file_name;
-  logger->create_file(full_path);
+  logger                    = std::make_unique<Logger>(full_path);
 
   for (std::shared_ptr<LoggingAppBase<DataBusType>>& app : logging_apps) {
     app->config_hdf5_with_app_data(*logger, data_bus, logging_rates);

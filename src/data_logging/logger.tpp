@@ -9,6 +9,13 @@ void Logger::add_dataset(const std::string& dataset_name,
 {
     verify_group_exists(full_group_path);
 
+    if (dataset_count >= LoggerConfig::max_dataset_number) {
+        throw std::runtime_error(
+            "[Logger.tpp] The number of datasets exceeded the value of `max_dataset_number` in logger_config.hpp which is " 
+            + std::to_string(LoggerConfig::max_dataset_number) + " datasets"
+        );
+    }
+
     // [](const T*) {} ensures shared_ptr does not delete the referenced object
     std::shared_ptr<const T> data_pointer = std::shared_ptr<const T>(&data_reference, [](const T*) {}); 
 
@@ -16,7 +23,8 @@ void Logger::add_dataset(const std::string& dataset_name,
             dataset_name, full_group_path, data_pointer, hdf5_file_ptr, record_rate_hz); 
     
     dataset->create_dataset();
-    datasets.push_back(std::move(dataset));
+    datasets[dataset_count] = std::move(dataset);
+    dataset_count = dataset_count + 1;
     
     std::string full_path_to_dataset = full_group_path + "/" + dataset_name;
     write_attribute(full_path_to_dataset, "Logging Rate Hz", record_rate_hz);

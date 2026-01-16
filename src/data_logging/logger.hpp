@@ -1,9 +1,10 @@
-#ifndef logger_HPP
-#define logger_HPP
+#ifndef LOGGER_HPP
+#define LOGGER_HPP
 
 #include "../../src/data_logging/dataset_overrides.hpp"
 #include "../../src/data_logging/dataset_base.hpp"
 #include "../../src/data_logging/hdf5_to_cpp_type_mapping.hpp"
+#include "../../src/data_logging/logger_config.hpp"
 #include "../../src/math/math.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 
@@ -13,14 +14,13 @@
 #include <array>
 #include <memory>
 #include <filesystem>
-#include <vector>
 
 class Logger {
 public:
-    Logger() = default;
+    explicit Logger(const std::string& file_path);
+    ~Logger();
 
     // Public functions are only used by logging_app_base.hpp
-    void create_file(const std::string& full_file_path);
     void close_file();
     void add_group(const std::string& path_to_group);
     void print_file_tree(const bool& print_file_attributes);
@@ -38,6 +38,7 @@ public:
                          const T& value);
 
 private: 
+    void create_file(const std::string& full_file_path);
     void open_file(); 
     void print_file_tree_helper(const H5::Group& group, std::size_t level_to_print, const bool& print_file_attributes);
     void print_attributes(const H5::H5Object& object, std::size_t level_to_print);
@@ -48,12 +49,20 @@ private:
     template<typename H5ObjType, typename T>
     void write_attribute_to_generic_object(H5ObjType& obj, const std::string& attribute_name, const T& value);
 
-    std::shared_ptr<H5::H5File> hdf5_file_ptr;
-    std::vector<std::shared_ptr<DatasetBase>> datasets;
+    std::array<std::shared_ptr<DatasetBase>, LoggerConfig::max_dataset_number> datasets;
+    std::size_t dataset_count = 0;
+
     bool file_is_open; 
     std::string file_path;
+    std::shared_ptr<H5::H5File> hdf5_file_ptr;
 
-    static constexpr std::size_t buffer_length_config = 1000; 
+    static constexpr std::size_t buffer_length_config = LoggerConfig::dataset_buffer_length; 
+
+    // Safety gaurds to prevent copying logger instance to another logging class by accident except using std::move
+    Logger(const Logger&) = delete;            // Prevents: Logger a("file.h5"); Logger b = a;
+    Logger& operator=(const Logger&) = delete; // Prevents: Logger a("a.h5"); Logger b("b.h5"); b = a;
+    Logger(Logger&&) = default;                // Allows: Logger a("file.h5"); Logger b = std::move(a);
+    Logger& operator=(Logger&&) = default;     // Allows: Logger a("a.h5"); Logger b("b.h5"); b = std::move(a);
 };
 
 #include "logger.tpp"  // Template implementations
