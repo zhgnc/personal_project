@@ -39,4 +39,6 @@ void SimDataLogger::log_sim_meta_data(const SimMetaData& meta_data) const {
     logger.write_attribute("/sim", "computer_stop_time",        std::ctime(&stop_sec_since_epoch));
     logger.write_attribute("/sim", "computer_elapsed_time_sec", meta_data.computer_elapsed_seconds.count());
     logger.write_attribute("/sim", "sim_to_real_time_ratio",    meta_data.sim_to_real_time_ratio);
+    logger.write_attribute("/sim", "app_count",                 meta_data.app_count);
+    logger.write_attribute("/sim", "logging_app_count",         meta_data.logging_app_count);
 }

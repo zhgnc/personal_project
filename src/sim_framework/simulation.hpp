@@ -5,10 +5,11 @@
 #include "sim_app_base.hpp"
 #include "logging_app_base.hpp"
 #include "sim_data_logger.hpp"
+#include "sim_config.hpp"
 #include "../utilities/yaml_utilities.hpp"
 #include "../data_logging/logger.hpp"
 
-#include <vector>
+#include <array>
 #include <memory>
 #include <cstdint>
 #include <algorithm>
@@ -65,10 +66,14 @@ private:
     std::string stop_message;
     double actual_stop_time_sec;
 
-    std::vector<std::shared_ptr<SimAppBase<DataBusType>>> app_list;
-    std::vector<std::shared_ptr<LoggingAppBase<DataBusType>>> logging_apps;
+    std::array<std::shared_ptr<SimAppBase<DataBusType>>, SimConfig::max_app_number> app_list;
+    std::array<std::shared_ptr<LoggingAppBase<DataBusType>>, SimConfig::max_logging_app_number> logging_apps;
     std::unique_ptr<SimDataLogger> sim_data_logger;
     std::unique_ptr<Logger> logger;
+
+    std::size_t app_count         = 0;
+    std::size_t logging_app_count = 0;
+
 
     AppLoggingRates logging_rates;
     std::string base_file_name;

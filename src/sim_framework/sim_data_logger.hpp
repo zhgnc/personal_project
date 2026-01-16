@@ -22,6 +22,8 @@ struct SimMetaData {
     std::chrono::high_resolution_clock::time_point computer_stop_time; 
     std::chrono::duration<double> computer_elapsed_seconds; 
     double sim_to_real_time_ratio;
+    std::size_t app_count;
+    std::size_t logging_app_count;  
 };
 
 
