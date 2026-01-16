@@ -66,7 +66,7 @@ void Logger::add_group(const std::string& path_to_group) {
         }
 
         if (indent_count >= max_indent) {
-            throw std::runtime_error("[logging_utilities.cpp] Exceeded maximum group nesting depth of " + 
+            throw std::runtime_error("[logger.cpp] Exceeded maximum group nesting depth of " + 
                                       std::to_string(max_indent) + " for this group: " + path_to_group);
         }
 
@@ -178,22 +178,22 @@ void Logger::print_attributes(const H5::H5Object& object, std::size_t level_to_p
 
 void Logger::verify_file_exists() const {
     if (std::filesystem::exists(file_path) == false) {
-        throw std::runtime_error("[logging_utilities.cpp] File does not exist here: " + file_path);
+        throw std::runtime_error("[logger.cpp] File does not exist here: " + file_path);
     }
 };
 
 void Logger::verify_file_path(const std::string& directory_path) const {
     if (std::filesystem::exists(directory_path) == false) {
-        throw std::runtime_error("[>logging_utilities.cpp] Path to directory does not exist: " + directory_path);
+        throw std::runtime_error("[>logger.cpp] Path to directory does not exist: " + directory_path);
     }
 
     if (std::filesystem::is_directory(directory_path) == false) {
-        throw std::runtime_error("[logging_utilities.cpp] File path does not lead to a directory: " + directory_path);
+        throw std::runtime_error("[logger.cpp] File path does not lead to a directory: " + directory_path);
     }
 };
 
 void Logger::verify_group_exists(const std::string& full_group_path) const {
     if (hdf5_file_ptr->exists(full_group_path) == false) {
-        throw std::runtime_error("[logging_utilities.cpp] Cannot add data set to a group that does exist. Group path: " + full_group_path);
+        throw std::runtime_error("[logger.cpp] Cannot add data set to a group that does exist. Group path: " + full_group_path);
     }
 };

@@ -13,11 +13,19 @@ class TestSimApp1 : public SimAppBase<TestDataBus> {
 public:
     using SimAppBase::SimAppBase;
 
-    void configure_model(const std::string& /*not_used_config_path*/) override {}
+    void configure_model(const std::string& path_to_config, SimulationControl& sim_ctrl) override {
+        (void)path_to_config; // Tells the compiler I know this varible is unused
+        (void)sim_ctrl; 
+    };
 
     void step(TestDataBus& bus, SimulationControl& sim_ctrl) override {
         count = count + 1;
         bus.app_1_data.counter = count;
+    };
+
+    void teardown(TestDataBus& bus, SimulationControl& sim_ctrl) override {
+        (void)bus;
+        (void)sim_ctrl;
     };
 
 

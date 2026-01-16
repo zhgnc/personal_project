@@ -30,7 +30,6 @@ TEST(simTests, BasicTest) {
     sim.run();
 
 
-
     std::string hdf5_file         = get_absolute_path("tests/integrated_sim_and_logging/test_RUN_00001.hdf5");
     std::vector<int> counter_data = read_hdf5_dataset<int>(hdf5_file, "/test_group/counter");
 
@@ -43,5 +42,8 @@ TEST(simTests, BasicTest) {
         EXPECT_EQ(counter_data[i], i);
     }
 
+    uint64_t app_count = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "app_count");
+    EXPECT_EQ(app_count, 1);
+    
     std::filesystem::remove(hdf5_file); // Delete test file so it isn't commited to repo
 }

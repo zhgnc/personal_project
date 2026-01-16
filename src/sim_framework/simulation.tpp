@@ -277,11 +277,14 @@ void Simulation<DataBusType>::run_teardown() {
   sim_data_logger->log_sim_meta_data(meta_data);
   logger->close_file();
 
-  // If this is the last run I want to preserve logger to print the file tree in `sim_teardown`
-  if (current_mc_run < num_mc_runs) {
-    sim_data_logger.reset();  
-    logger.reset();
+  // If this is the last run I want to print the file tree for reference if enabled
+  if (current_mc_run >= num_mc_runs && print_hdf5_file_tree == true) {
+    std::cout << "[Simulation] HDF5 output files will have the following data\n";
+    logger->print_file_tree(print_file_attributes);
   }
+  
+  sim_data_logger.reset();  
+  logger.reset();
 
   std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 }
@@ -309,9 +312,4 @@ void Simulation<DataBusType>::assign_meta_data() {
 template<typename DataBusType>
 void Simulation<DataBusType>::sim_teardown() {  
   std::cout << "\n[Simulation] ALL RUNS FINISHED!!!\n\n";
-  
-  if (print_hdf5_file_tree == true) {
-    std::cout << "[Simulation] HDF5 output files will have the following data\n";
-    logger->print_file_tree(print_file_attributes);
-  }
 }

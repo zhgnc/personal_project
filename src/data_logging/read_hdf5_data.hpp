@@ -59,4 +59,65 @@ std::vector<T> read_hdf5_dataset(const std::string& hdf5_file_path, const std::s
     return data;
 }
 
+// Generic function to read an attribute from any HDF5 object (dataset or group)
+template<typename H5ObjType, typename T>
+T read_attribute_from_generic_object(H5ObjType& obj, const std::string& attribute_name) {
+    if (obj.attrExists(attribute_name) == false) {
+        throw std::runtime_error("[read_hdf5_data.hpp] Attribute does not exist: " + attribute_name);
+    }
+
+    H5::Attribute attr = obj.openAttribute(attribute_name);
+    H5::DataType datatype = HDF5Type<T>::get();
+
+    // Verify type matches
+    if (H5Tequal(attr.getDataType().getId(), datatype.getId()) == 0) {
+        throw std::runtime_error("[read_hdf5_data.hpp] Attribute type mismatch: " + attribute_name);
+    }
+
+    T value{};
+    if constexpr (std::is_same_v<T,std::string>) {
+        attr.read(datatype, value);
+    } else {
+        attr.read(datatype, &value);
+    }
+
+    return value;
+}
+
+template<typename T>
+T read_hdf5_attribute(const std::string& hdf5_file_path, const std::string& object_path, const std::string& attribute_name) {
+    if (std::filesystem::exists(hdf5_file_path) == false) {
+        throw std::runtime_error("[read_hdf5_data.hpp] File does not exist here: " + hdf5_file_path);
+    }
+
+    H5::H5File file(hdf5_file_path, H5F_ACC_RDONLY);
+    
+    if (file.nameExists(object_path) == false) {
+        throw std::runtime_error("[read_hdf5_data.hpp] HDF5 object does not exist: " + object_path);
+    }
+
+    // Get object info
+    H5O_info2_t object_info{};
+    unsigned fields = H5O_INFO_BASIC;
+    H5Oget_info_by_name3(file.getId(), object_path.c_str(), &object_info, fields, H5P_DEFAULT);
+
+    // Read attribute depending on object type
+    T attribute{};
+    if (object_info.type == H5O_TYPE_GROUP) {
+        H5::Group group = file.openGroup(object_path);
+        attribute = read_attribute_from_generic_object<H5::Group, T>(group, attribute_name);
+
+    } else if (object_info.type == H5O_TYPE_DATASET) {
+        H5::DataSet dataset = file.openDataSet(object_path);
+        attribute = read_attribute_from_generic_object<H5::DataSet, T>(dataset, attribute_name);
+
+    } else {
+        throw std::runtime_error("[read_hdf5_data.hpp] Unsupported HDF5 object type: " + object_path);
+    }
+
+    file.close();
+
+    return attribute;
+}
+
 #endif
