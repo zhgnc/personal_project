@@ -9,7 +9,7 @@
 class DatasetBase {
 public:
     virtual void create_dataset() = 0;
-    virtual void log_if_needed(const uint32_t &sim_time_usec) = 0;
+    virtual void log_if_needed(const uint64_t &sim_time_usec) = 0;
     virtual void flush_buffer()  = 0;
     
     virtual ~DatasetBase() = default;
@@ -18,7 +18,7 @@ public:
     std::string group_path;
 
     double logging_rate;
-    uint32_t logging_dt_usec;
+    uint64_t logging_dt_usec;
     double sec2usec = 1e6;
 
     std::shared_ptr<H5::H5File> hdf5_file_ptr;

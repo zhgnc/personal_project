@@ -3,7 +3,7 @@
 
 #include "../../src/data_logging/dataset_overrides.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
-#include "../../src/math_utilities/math.hpp"
+#include "../../src/math/math.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -43,7 +43,7 @@ DatasetOverrides<T, buffer_length>::DatasetOverrides(const std::string& name,
     dataset_name    = name;
     group_path      = full_group_path;
     logging_rate    = record_rate_hz;
-    logging_dt_usec = static_cast<uint32_t>(sec2usec / logging_rate);
+    logging_dt_usec = static_cast<uint64_t>(sec2usec / logging_rate);
     buffer_index    = 0;
     hdf5_file_ptr   = file;
     hdf5_data_type  = HDF5Type<T>::get();
@@ -85,7 +85,7 @@ void DatasetOverrides<T, buffer_length>::create_dataset() {
 }
 
 template<typename T, std::size_t buffer_length>
-void DatasetOverrides<T, buffer_length>::log_if_needed(const uint32_t& current_sim_time_usec) {
+void DatasetOverrides<T, buffer_length>::log_if_needed(const uint64_t& current_sim_time_usec) {
     if (current_sim_time_usec % logging_dt_usec != 0) {
         return;
     }

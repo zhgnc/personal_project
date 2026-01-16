@@ -2,7 +2,7 @@
 #define CPP_TO_HDF5_TYPE_MAPPING_HPP
 
 #include "../../external/hdf5/include/H5Cpp.h"
-#include "../../src/math_utilities/math.hpp"
+#include "../../src/math/math.hpp"
 
 #include <cstdint>
 
@@ -36,6 +36,7 @@ template<> struct HDF5Type<long double> { static H5::DataType get() { return H5:
 
 template<> struct HDF5Type<bool> { static H5::DataType get() { return H5::PredType::NATIVE_HBOOL; } };
 template<> struct HDF5Type<char> { static H5::DataType get() { return H5::PredType::NATIVE_CHAR;  } };
+
 template<> struct HDF5Type<std::string> {
     // H5::StrType is a HDF5 C++ RAII wrapper class to represent string datatypes
     
@@ -48,18 +49,22 @@ template<> struct HDF5Type<std::string> {
     }
 };
 
+template<> struct HDF5Type<char*>       { static H5::DataType get() { return HDF5Type<std::string>::get(); }};
+template<> struct HDF5Type<const char*> { static H5::DataType get() { return HDF5Type<std::string>::get(); }};
+
 ///////////////////
 // Custom Types //
 /////////////////
 
 // C++ does not allows partial template specialization for functions so a class must be used to return 
-// the hdf5 type for the math types in math_utilities/ with more than 1 template parameter
+// the hdf5 type for the math types in 'math/' with more than 1 template parameter
 
-// Generic template for all types
 template<typename T>
 struct HDF5Type {
     static H5::DataType get() {
-        return HDF5Type<T>::get();
+        // This will fail and force the compiler to display the type T
+        static_assert(sizeof(T) == 0, "HDF5Type not defined for this C++ type");
+        return H5::DataType{};
     }
 };
 

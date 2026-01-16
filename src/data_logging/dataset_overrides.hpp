@@ -3,7 +3,7 @@
 
 #include "../../src/data_logging/dataset_base.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
-#include "../../src/math_utilities/math.hpp"
+#include "../../src/math/math.hpp"
 #include "../../src/data_logging/cpp_to_hdf5_type_mapping.hpp"
 
 #include <memory>
@@ -12,7 +12,7 @@
 #include <string>
 
 // DataTraits is a compile-time struct used to deduce number of dimensions, size of dimesnions, and data pointers
-// for HDF5 dataset writes. Specializations handle built-in types, as well as custom math types in "math_utilities/"
+// for HDF5 dataset writes. Specializations handle built-in types, as well as custom math types in "math/"
 template<typename T>
 struct DataTraits {
     static constexpr int num_dimensions = 0;
@@ -34,10 +34,6 @@ struct DataTraits<matrix<T, R, C>> {
     static const void* data_ptr(const matrix<T, R, C>* mat);
 };
 
-
-
-
-
 template<typename T, std::size_t buffer_length>
 class DatasetOverrides : public DatasetBase {
 public:
@@ -48,7 +44,7 @@ public:
                      const double record_rate_hz);
 
     void create_dataset();
-    void log_if_needed(const uint32_t& current_sim_time_use) override;
+    void log_if_needed(const uint64_t& current_sim_time_use) override;
     void flush_buffer() override;
 
 private:

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/math_utilities/vector/vector.hpp"
+#include "../src/math/vector/vector.hpp"
 
 TEST(vectorTest, ConstructorAndAccessTest) {
     vector<int, 3> v1 = {1, 2, 3};

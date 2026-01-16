@@ -1,3 +1,0 @@
-logging_rate_hz: 5
-base_file_name: "zach_test"
-save_data_directory: "C:/git/personal_project/examples/attitude_filter/results"

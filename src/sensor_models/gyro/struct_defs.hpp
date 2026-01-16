@@ -1,7 +1,7 @@
 #ifndef GYRO_STRUCT_DEFS_HPP
 #define GYRO_STRUCT_DEFS_HPP
 
-#include "../../math_utilities/math.hpp"
+#include "../../math/math.hpp"
 
 struct gyro_default_config {
     double turn_on_bias_1_sigma      = 0.0;

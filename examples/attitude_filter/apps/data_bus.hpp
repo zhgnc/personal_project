@@ -1,7 +1,7 @@
 #ifndef DATABUS_HPP
 #define DATABUS_HPP
 
-#include "math_utilities/math.hpp"
+#include "math/math.hpp"
 #include <array>
 
 struct DataBus {
@@ -12,7 +12,6 @@ struct DataBus {
     struct GyroData {
         vector<double, 3> measured_delta_angles;
         bool measurement_valid;
-        int test_increment;
     };
 
 

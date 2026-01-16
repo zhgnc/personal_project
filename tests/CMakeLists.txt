@@ -8,7 +8,7 @@ add_compile_definitions(_POSIX_C_SOURCE=200809L)
 # src/main.cpp which will conflict with main() in test_main.cpp 
 file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"          
-    "${PROJECT_SOURCE_DIR}/src/logger/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/data_logging/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/sensor_models/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/sim_framework/*.cpp"            
 )

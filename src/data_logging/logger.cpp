@@ -1,8 +1,17 @@
 #include "../../src/data_logging/logger.hpp" 
 
+Logger::Logger(const std::string& path_to_file) {
+    file_path = path_to_file;
+    create_file(file_path);
+}
+
+Logger::~Logger() {
+    close_file();
+}
+
 void Logger::create_file(const std::string& full_file_path) {
     // H5File() creates a file if one does not exist or opens the existing file
-    // If the file exists, all data is cleared and H5F_ACC_TRUNC gives read and write permissions 
+    // If the file exists, all data is cleared and H5F_ACC_TRUNC gives read and write permissions
     hdf5_file_ptr = std::make_unique<H5::H5File>(full_file_path, H5F_ACC_TRUNC); 
     file_path     = full_file_path; 
     file_is_open  = true;
@@ -20,8 +29,8 @@ void Logger::open_file() {
 };
 
 void Logger::close_file() {
-    for (const std::unique_ptr<DatasetBase>& dataset : datasets) {
-        dataset->flush_buffer();
+    for (std::size_t i = 0; i < dataset_count; ++i) {
+        datasets[i]->flush_buffer();
     }
 
     verify_file_exists();
@@ -37,7 +46,7 @@ void Logger::close_file() {
 void Logger::add_group(const std::string& path_to_group) {
     if (file_is_open == false) {
         open_file();
-        file_is_open = false; 
+        file_is_open = true; 
     }
 
     std::stringstream remaining_path(path_to_group);
@@ -57,7 +66,7 @@ void Logger::add_group(const std::string& path_to_group) {
         }
 
         if (indent_count >= max_indent) {
-            throw std::runtime_error("[logging_utilities.cpp] Exceeded maximum group nesting depth of " + 
+            throw std::runtime_error("[logger.cpp] Exceeded maximum group nesting depth of " + 
                                       std::to_string(max_indent) + " for this group: " + path_to_group);
         }
 
@@ -65,13 +74,13 @@ void Logger::add_group(const std::string& path_to_group) {
     }
 };
 
-void Logger::log_data(const uint32_t &sim_time_usec) {
-    for (const std::unique_ptr<DatasetBase>& dataset : datasets) {
-        dataset->log_if_needed(sim_time_usec);
+void Logger::log_data(const uint64_t &sim_time_usec) {
+    for (std::size_t i = 0; i < dataset_count; i++) {
+        datasets[i]->log_if_needed(sim_time_usec);
     }
 };
 
-void Logger::print_file_tree() {
+void Logger::print_file_tree(const bool& print_file_attributes) {
     if (file_is_open == false) {
         open_file();
         file_is_open = true; 
@@ -80,14 +89,17 @@ void Logger::print_file_tree() {
     H5::Group root_group       = hdf5_file_ptr->openGroup("/");
     std::size_t level_to_print = 0;
 
-    print_file_tree_helper(root_group, level_to_print);
+    print_file_tree_helper(root_group, level_to_print, print_file_attributes);
     std::cout << "\n";
 };
 
-void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to_print) {
+void Logger::print_file_tree_helper(const H5::Group& group, 
+                                    std::size_t level_to_print, 
+                                    const bool& print_file_attributes) 
+{
     std::size_t num_objs = group.getNumObjs();
     std::string obj_name;
-    H5G_obj_t obj_type;
+    H5G_obj_t   obj_type;
 
     for (std::size_t i = 0; i < num_objs; i++) {
         obj_name = group.getObjnameByIdx(i);
@@ -98,13 +110,18 @@ void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to
         }
 
         if (obj_type == H5G_GROUP) {
-            std::cout << "|- " << "\033[34m" << obj_name << " (Group)\n" << "\033[0m";
+            std::cout << "|- " << "\033[1;36m" << obj_name << " (Group)\n" << "\033[0m"; // Blue
 
             H5::Group subgroup = group.openGroup(obj_name);
-            print_file_tree_helper(subgroup, level_to_print + 1);
+
+            if (print_file_attributes == true) {
+                print_attributes(subgroup, level_to_print + 1);
+            }
+
+            print_file_tree_helper(subgroup, level_to_print + 1, print_file_attributes);
 
         } else if (obj_type == H5G_DATASET) {
-            std::cout << "\033[32m" << "|- " << obj_name << " (Dataset) " << "\033[0m";
+            std::cout << "\033[32m" << "|- " << obj_name << " (Dataset) " << "\033[0m"; // Green
             
             H5::DataSet dataset        = group.openDataSet(obj_name);
             H5::DataType hdf5_datatype = dataset.getDataType();
@@ -129,30 +146,54 @@ void Logger::print_file_tree_helper(const H5::Group& group, std::size_t level_to
 
             std::cout << "]}\n";
 
+            if (print_file_attributes == true) {
+                print_attributes(dataset, level_to_print + 1);
+            }
+
         } else {
             std::cout << " (Other)\n";
         }
     }
 }
 
+void Logger::print_attributes(const H5::H5Object& object, std::size_t level_to_print) {
+    const int num_attrs = object.getNumAttrs();
+
+    for (int i = 0; i < num_attrs; i++) {
+        H5::Attribute attr = object.openAttribute(i);
+
+        std::string attr_name = attr.getName();
+        H5::DataType type     = attr.getDataType();
+        H5::DataSpace space   = attr.getSpace();
+
+        std::string cpp_type = hdf5_to_cpp_type_mapping(type);
+
+        for (std::size_t j = 0; j < level_to_print; j++) {
+            std::cout << "    ";
+        }
+
+        std::cout << "\033[34m|- " << attr_name << " (Attribute)\033[0m {Type: " << cpp_type << "}\n";
+    }
+}
+
 void Logger::verify_file_exists() const {
     if (std::filesystem::exists(file_path) == false) {
-        throw std::runtime_error("[logging_utilities.cpp] File does not exist here: " + file_path);
+        throw std::runtime_error("[logger.cpp] File does not exist here: " + file_path);
     }
 };
 
 void Logger::verify_file_path(const std::string& directory_path) const {
     if (std::filesystem::exists(directory_path) == false) {
-        throw std::runtime_error("[>logging_utilities.cpp] Path to directory does not exist: " + directory_path);
+        throw std::runtime_error("[>logger.cpp] Path to directory does not exist: " + directory_path);
     }
 
     if (std::filesystem::is_directory(directory_path) == false) {
-        throw std::runtime_error("[logging_utilities.cpp] File path does not lead to a directory: " + directory_path);
+        throw std::runtime_error("[logger.cpp] File path does not lead to a directory: " + directory_path);
     }
 };
 
 void Logger::verify_group_exists(const std::string& full_group_path) const {
     if (hdf5_file_ptr->exists(full_group_path) == false) {
-        throw std::runtime_error("[logging_utilities.cpp] Cannot add data set to a group that does exist. Group path: " + full_group_path);
+        throw std::runtime_error("[logger.cpp] Cannot add data set to a group that does exist. Group path: " + full_group_path);
     }
 };

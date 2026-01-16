@@ -14,6 +14,7 @@ link_directories(${PROJECT_SOURCE_DIR}/external/yaml-cpp/lib)
 include_directories(${PROJECT_SOURCE_DIR}/external/hdf5/include)
 link_directories(${PROJECT_SOURCE_DIR}/external/hdf5/lib)
 
+add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 # Build main executable only if tests are not enabled
 if(NOT ENABLE_TESTING)
@@ -34,7 +35,7 @@ if(NOT ENABLE_TESTING)
       -Wshadow                # Warn about variable shadowing
       -Wformat=2              # More thorough printf/scanf format checks
       -fno-omit-frame-pointer # Better debug info and profiling
-      -O0                     # Optimization level 0
+      -O1                     # Optimization level 1
       -g                      # Debug symbols
   )
 endif()
