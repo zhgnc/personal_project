@@ -38,7 +38,6 @@ private:
     void run_setup(std::size_t run_num);
     void run_step();
     void run_teardown();
-    void sim_teardown();
     void assign_meta_data();
 
     void end_sim_after_cycle(const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None") override;

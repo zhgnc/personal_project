@@ -161,8 +161,6 @@ void Simulation<DataBusType>::run() {
 
     run_teardown();
   }
-
-  sim_teardown();
 }
 
 template<typename DataBusType>
@@ -275,18 +273,19 @@ void Simulation<DataBusType>::run_teardown() {
   
   assign_meta_data();
   sim_data_logger->log_sim_meta_data(meta_data);
-  logger->close_file();
+  std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 
   // If this is the last run I want to print the file tree for reference if enabled
   if (current_mc_run >= num_mc_runs && print_hdf5_file_tree == true) {
+    std::cout << "\n[Simulation] ALL RUNS FINISHED!!!\n\n";
+    
     std::cout << "[Simulation] HDF5 output files will have the following data\n";
     logger->print_file_tree(print_file_attributes);
   }
   
+  logger->close_file();
   sim_data_logger.reset();  
   logger.reset();
-
-  std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 }
 
 template<typename DataBusType>
@@ -307,9 +306,4 @@ void Simulation<DataBusType>::assign_meta_data() {
   meta_data.sim_to_real_time_ratio   = sim_to_real_time_ratio;
   meta_data.app_count                = app_count;
   meta_data.logging_app_count        = logging_app_count;       
-}
-
-template<typename DataBusType>
-void Simulation<DataBusType>::sim_teardown() {  
-  std::cout << "\n[Simulation] ALL RUNS FINISHED!!!\n\n";
 }
