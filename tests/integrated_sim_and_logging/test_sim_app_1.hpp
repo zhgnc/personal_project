@@ -16,6 +16,8 @@ public:
     void configure_model(const std::string& path_to_config, SimulationControl& sim_ctrl) override {
         (void)path_to_config; // Tells the compiler I know this varible is unused
         (void)sim_ctrl; 
+        
+        count = 0;
     };
 
     void step(TestDataBus& bus, SimulationControl& sim_ctrl) override {
@@ -30,8 +32,7 @@ public:
 
 
 private:
-    // Sim start time is 0 and the count will be 0 on first sim cycle if count is -1 at initialization (-1 + 1 = 0)
-    int count = -1;  
+    int count;  
 };
 
 #endif
