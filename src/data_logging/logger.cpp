@@ -75,7 +75,6 @@ void Logger::add_group(const std::string& path_to_group) {
 };
 
 void Logger::log_data(const uint64_t &sim_time_usec) {
-    std::cout << "Log call\n";
     for (std::size_t i = 0; i < dataset_count; i++) {
         datasets[i]->log_if_needed(sim_time_usec);
     }
