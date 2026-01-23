@@ -10,6 +10,7 @@
 #include "test_logger.hpp"
 #include "data_logging/read_hdf5_data.hpp"
 #include "utilities/file_path_helper_functions.hpp"
+#include "utilities/yaml_utilities.hpp"
 
 struct SimMetaDataRaw {
     double start_time_sec;
@@ -69,9 +70,49 @@ SimCyclicalData get_sim_logged_data(const std::string& hdf5_file) {
     return data;
 }
 
+struct SimuRunYamlConfig {
+    double sim_start_time_sec;
+    double sim_stop_time_sec;
+    double simulation_rate_hz;
+    std::size_t number_of_monte_carlo_runs;
+    uint64_t initial_random_seed;
+    bool print_hdf5_file_format;
+    bool print_hdf5_attributes_in_file_format;
+    std::string logging_filename_prefix;
+    std::string logging_file_save_directory;
+    double logging_rate_A_hz;
+    double logging_rate_B_hz;
+    double logging_rate_C_hz;
+    double logging_rate_D_hz;
+    double logging_rate_E_hz;
+};
+
+SimuRunYamlConfig load_simulation_run_config(const std::string& yaml_path) {
+    YAML::Node root = load_yaml_file(yaml_path);
+    SimuRunYamlConfig config{};
+
+    config.sim_start_time_sec                   = get_yaml_key<double>(root, "sim_start_time_sec");
+    config.sim_stop_time_sec                    = get_yaml_key<double>(root, "sim_stop_time_sec");
+    config.simulation_rate_hz                   = get_yaml_key<double>(root, "simulation_rate_hz");
+    config.number_of_monte_carlo_runs           = get_yaml_key<std::size_t>(root, "number_of_monte_carlo_runs");
+    config.initial_random_seed                  = get_yaml_key<uint64_t>(root, "initial_random_seed");
+    config.print_hdf5_file_format               = get_yaml_key<bool>(root, "print_hdf5_file_format");
+    config.print_hdf5_attributes_in_file_format = get_yaml_key<bool>(root, "print_hdf5_attributes_in_file_format");
+    config.logging_filename_prefix              = get_yaml_key<std::string>(root, "logging_filename_prefix");
+    config.logging_file_save_directory          = get_yaml_key<std::string>(root, "logging_file_save_directory");
+    config.logging_rate_A_hz                    = get_yaml_key<double>(root, "logging_rate_A_hz");
+    config.logging_rate_B_hz                    = get_yaml_key<double>(root, "logging_rate_B_hz");
+    config.logging_rate_C_hz                    = get_yaml_key<double>(root, "logging_rate_C_hz");
+    config.logging_rate_D_hz                    = get_yaml_key<double>(root, "logging_rate_D_hz");
+    config.logging_rate_E_hz                    = get_yaml_key<double>(root, "logging_rate_E_hz");
+
+    return config;
+}
+
 
 TEST(simTests, BasicTest) {
     // Configuration
+    double tol = 1e-10;
     const std::string &sim_and_logger_config_path = "../../tests/integrated_sim_and_logging/test_sim_and_logger_config.yaml";
 
     TestDataBus data_bus;
@@ -98,32 +139,34 @@ TEST(simTests, BasicTest) {
     std::vector<int> app_counter_data = read_hdf5_dataset<int>(hdf5_file, "/test_group/counter");
     SimMetaDataRaw  sim_meta_data     = get_meta_data(hdf5_file);
     SimCyclicalData sim_data          = get_sim_logged_data(hdf5_file);
+    SimuRunYamlConfig config_data     = load_simulation_run_config(sim_and_logger_config_path);
 
-    EXPECT_NEAR(sim_meta_data.actual_stop_time_sec, 15.0, 1e-12);
+
+    EXPECT_NEAR(sim_meta_data.actual_stop_time_sec, config_data.sim_stop_time_sec, tol);
     EXPECT_EQ(sim_meta_data.app_count, 1);
     EXPECT_TRUE(sim_meta_data.computer_elapsed_time_sec > 0);
     EXPECT_FALSE(sim_meta_data.computer_start_time.empty());
     EXPECT_FALSE(sim_meta_data.computer_stop_time.empty());
-    EXPECT_NEAR(sim_meta_data.config_stop_time_sec, sim_meta_data.actual_stop_time_sec, 1e-12);
+    EXPECT_NEAR(sim_meta_data.config_stop_time_sec, sim_meta_data.actual_stop_time_sec, tol);
     EXPECT_EQ(sim_meta_data.current_mc_run, 1);
-    EXPECT_EQ(sim_meta_data.initial_random_seed, 0);
+    EXPECT_EQ(sim_meta_data.initial_random_seed, config_data.initial_random_seed);
     EXPECT_EQ(sim_meta_data.logging_app_count, 1);
-    EXPECT_EQ(sim_meta_data.num_total_mc_runs, 1);
-    EXPECT_NEAR(sim_meta_data.sim_rate_hz, 10.0, 1e-12);
+    EXPECT_EQ(sim_meta_data.num_total_mc_runs, config_data.number_of_monte_carlo_runs);
+    EXPECT_NEAR(sim_meta_data.sim_rate_hz, config_data.simulation_rate_hz, tol);
     EXPECT_TRUE(sim_meta_data.sim_to_real_time_ratio > 0);
-    EXPECT_NEAR(sim_meta_data.start_time_sec, 0, 1e-12);
+    EXPECT_NEAR(sim_meta_data.start_time_sec, config_data.sim_start_time_sec, tol);
     EXPECT_EQ(sim_meta_data.stop_type, "No Stop (Completed Whole Sim)");
     EXPECT_EQ(sim_meta_data.stop_reason, "Reached Configured Stop Time");
     EXPECT_EQ(sim_meta_data.stop_message, "None Provided");
-    
-
-
 
     EXPECT_EQ(sim_data.sim_step_count.size(), app_counter_data.size());
 
     bool step_increment_matches = true;
-    bool time_steps_match       = true;
+    bool sec_time_steps_match   = true;
+    bool usec_time_steps_match  = true;
+    double sec_to_usec          = 1e6;
     double expected_time_sec    = sim_meta_data.start_time_sec;
+    uint64_t expected_time_usec = static_cast<uint64_t>(sim_meta_data.start_time_sec * sec_to_usec);
 
     for(std::size_t i = 0; i < sim_data.sim_step_count.size(); i++) {
         // Simulation uses zero based step counting so subtracting 1 from `app_counter_Data`
@@ -133,21 +176,21 @@ TEST(simTests, BasicTest) {
     }
     
     for(std::size_t i = 0; i < sim_data.current_sim_time_sec.size(); i++) {
-        std::cout << expected_time_sec << "\n";
-        std::cout << sim_data.current_sim_time_sec[i] << "\n\n";
+        if (std::abs(expected_time_sec - sim_data.current_sim_time_sec[i]) > tol) {
+            sec_time_steps_match = false;
+        }
 
-        if (std::abs(expected_time_sec - sim_data.current_sim_time_sec[i]) > 1e-6) {
-            time_steps_match = false;
+        if (expected_time_usec != sim_data.current_sim_time_usec[i]) {
+            usec_time_steps_match = false;
         }
         
-        expected_time_sec += 1.0 / sim_meta_data.sim_rate_hz;
+        expected_time_sec  += 1.0 / sim_meta_data.sim_rate_hz;
+        expected_time_usec += static_cast<uint64_t>(sec_to_usec / sim_meta_data.sim_rate_hz);
     }
 
     EXPECT_TRUE(step_increment_matches);
-    EXPECT_TRUE(time_steps_match);
-
-    std::cout << sim_data.current_sim_time_sec.size() << "\n";
-    std::cout << sim_data.sim_step_count.size() << "\n";
+    EXPECT_TRUE(sec_time_steps_match);
+    EXPECT_TRUE(usec_time_steps_match);
     
     std::filesystem::remove(hdf5_file); // Delete test file so it isn't commited to repo
 }
