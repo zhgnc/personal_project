@@ -29,15 +29,15 @@ void Logger::open_file() {
 };
 
 void Logger::close_file() {
+    if (file_is_open == false) {  
+        return;          
+    }
+    
     for (std::size_t i = 0; i < dataset_count; ++i) {
         datasets[i]->flush_buffer();
     }
 
     verify_file_exists();
-  
-    if (file_is_open == false) {  
-        return;          
-    }
 
     hdf5_file_ptr->close();
     file_is_open = false;
@@ -75,6 +75,7 @@ void Logger::add_group(const std::string& path_to_group) {
 };
 
 void Logger::log_data(const uint64_t &sim_time_usec) {
+    std::cout << "Log call\n";
     for (std::size_t i = 0; i < dataset_count; i++) {
         datasets[i]->log_if_needed(sim_time_usec);
     }
