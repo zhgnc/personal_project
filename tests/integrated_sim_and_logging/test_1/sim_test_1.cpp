@@ -23,7 +23,7 @@ TEST(simTest1, BasicTest) {
     double app_rate_hz      = 10.0; 
     int app_priority        = 10;
     std::string config_path = "";
-    TestSimApp1 test_app_1(app_rate_hz, app_priority, config_path);
+    TestSimApp1 test_app_1("test_app_1", app_rate_hz, app_priority, config_path);
     sim.add_app(test_app_1);
 
     TestLogger1 logger;

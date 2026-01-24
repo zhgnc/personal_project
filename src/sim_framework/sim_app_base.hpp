@@ -10,7 +10,8 @@
 template<typename DataBusType>
 class SimAppBase {
 public: 
-    SimAppBase(double execution_rate_hz, 
+    SimAppBase(std::string app_name, 
+               double execution_rate_hz, 
                int schedule_priority, 
                const std::string& path_to_config);
 
@@ -23,6 +24,7 @@ public:
 
     int priority;
     double app_dt_sec;
+    std::string name;
     
 private:   
     uint64_t app_dt_usec;

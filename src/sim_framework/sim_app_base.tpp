@@ -3,7 +3,8 @@
 #include <string>
 
 template<typename DataBusType>
-SimAppBase<DataBusType>::SimAppBase(double execution_rate_hz, int schedule_priority, const std::string &path_to_config) {
+SimAppBase<DataBusType>::SimAppBase(std::string app_name, double execution_rate_hz, int schedule_priority, const std::string &path_to_config) {
+  name               = app_name;
   app_dt_sec         = 1.0 / execution_rate_hz;
   app_dt_usec        = static_cast<uint64_t>(sec2usec * app_dt_sec);
   next_run_time_usec = 0;

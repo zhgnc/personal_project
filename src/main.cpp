@@ -32,9 +32,10 @@ int main() {
   DataBus data_bus;
   Simulation sim(sim_and_logger_config_path, data_bus);
 
+  std::string gyro_app_name = "Gyro App";
   double gyro_rate  = get_yaml_key<double>(gyro_config_data, "rate_hz");
   int gyro_priority = get_yaml_key<int>(app_priority_data, "gyro_priority");
-  GyroSimApp gyro_app(gyro_rate, gyro_priority, gyro_config_path);
+  GyroSimApp gyro_app(gyro_app_name, gyro_rate, gyro_priority, gyro_config_path);
   sim.add_app(gyro_app);
 
   LoggingSimApp logger;
