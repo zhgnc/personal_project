@@ -22,10 +22,11 @@ public:
 
     void step(TestDataBus& bus, SimulationControl& sim_ctrl) override {
         count = count + 1;
-        bus.app_1_data.counter = count;
+        bus.app_2_data.counter = count;
 
         if (count > 10) {
             sim_ctrl.end_sim_after_cycle(StopReason::ReachedEndObjective, "Test 2 Stop!");
+            sim_ctrl.end_sim_after_app(StopReason::HardwareFailure, "Should not throw error");
         } 
     };
 

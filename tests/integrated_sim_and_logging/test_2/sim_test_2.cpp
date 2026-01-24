@@ -37,8 +37,6 @@ TEST(simTest2, TwoAppsWithStopTest) {
     
     sim.run();
 
-    EXPECT_EQ(1,2);
-
 
     // Tests
     EXPECT_EQ(test_app_1.app_dt_sec, 1.0/app_1_rate_hz);
@@ -80,9 +78,7 @@ TEST(simTest2, TwoAppsWithStopTest) {
     uint64_t expected_time_usec = static_cast<uint64_t>(sim_meta_data.start_time_sec * sec_to_usec);
 
     for(std::size_t i = 0; i < sim_data.sim_step_count.size(); i++) {
-        // Simulation uses zero based step counting so subtracting 1 from `app_1_counter_data`
-        std::cout << sim_data.sim_step_count[i] << "      " << app_1_counter_data[i] - 1 << "\n";
-        
+        // Simulation uses zero based step counting so subtracting 1 from `app_1_counter_data`    
         if (sim_data.sim_step_count[i] != (app_1_counter_data[i] - 1)) {
             step_increment_matches = false;
         }
