@@ -146,16 +146,14 @@ bool Simulation<DataBusType>::compare_by_priority(const std::shared_ptr<SimAppBa
 
 template<typename DataBusType>
 void Simulation<DataBusType>::display_sorted_app_info() {
-  std::cout << "[Simulation] Sorted Application List\n\n";
-  for (std::size_t i = 0; i < app_count; i++) {
-      // Use RTTI to get the class name
-      std::string name = app_list[i]->name;
+  std::cout << "[Simulation] Sorted Application List\n";
 
-      // Print class name, priority, and rate
-      std::cout << "Class: " << name
-                << " | Priority: " << app_list[i]->priority
-                << " | Time Step (s): " << app_list[i]->app_dt_sec << '\n';
+  for (std::size_t i = 0; i < app_count; i++) {
+    std::cout << "App Name: " << app_list[i]->name
+              << " | Priority: " << app_list[i]->priority
+              << " | Time Step (s): " << app_list[i]->app_dt_sec << '\n';
   }
+
   std::cout << "\n";
 }
 
@@ -236,11 +234,12 @@ void Simulation<DataBusType>::run_teardown() {
   computer_stop_time       = std::chrono::high_resolution_clock::now();
   computer_elapsed_seconds = computer_stop_time - computer_start_time;
   sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();
+  std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
   
   log_run_meta_data();
-  std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 
   // If this is the last run I want to print the file tree for reference if enabled
+  // which must be done before `.reset()` is called below
   if (current_mc_run >= num_mc_runs && print_hdf5_file_tree == true) {
     sim_teardown();
   }
