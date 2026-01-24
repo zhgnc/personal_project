@@ -70,17 +70,28 @@ TEST(simTest2, TwoAppsWithStopTest) {
 
     EXPECT_EQ(sim_data.sim_step_count.size(), app_1_counter_data.size());
 
-    bool step_increment_matches = true;
+    bool step_increment_matches_app1 = true;
+    bool step_increment_matches_app2 = true;
     bool sec_time_steps_match   = true;
     bool usec_time_steps_match  = true;
     double sec_to_usec          = 1e6;
     double expected_time_sec    = sim_meta_data.start_time_sec;
     uint64_t expected_time_usec = static_cast<uint64_t>(sim_meta_data.start_time_sec * sec_to_usec);
 
-    for(std::size_t i = 0; i < sim_data.sim_step_count.size(); i++) {
+    for(std::size_t i = 0; i < app_2_counter_data.size(); i++) {
         // Simulation uses zero based step counting so subtracting 1 from `app_1_counter_data`    
-        if (sim_data.sim_step_count[i] != (app_1_counter_data[i] - 1)) {
-            step_increment_matches = false;
+        if (sim_data.sim_step_count[i] != (app_2_counter_data[i] - 1)) {
+            step_increment_matches_app1 = false;
+        }
+    }
+
+    int sim_to_app2_ratio = static_cast<int>(sim_meta_data.sim_rate_hz / app_2_rate_hz);
+
+    for (std::size_t i = 0; i < app_2_counter_data.size(); i++) {
+        std::size_t sim_step = i * sim_to_app2_ratio;
+
+        if (sim_data.sim_step_count[sim_step] / sim_to_app2_ratio != app_2_counter_data[i] - 1) {
+            step_increment_matches_app2 = false;
         }
     }
     
@@ -97,7 +108,8 @@ TEST(simTest2, TwoAppsWithStopTest) {
         expected_time_usec += static_cast<uint64_t>(sec_to_usec / sim_meta_data.sim_rate_hz);
     }
 
-    EXPECT_TRUE(step_increment_matches);
+    EXPECT_TRUE(step_increment_matches_app1);
+    EXPECT_TRUE(step_increment_matches_app2);
     EXPECT_TRUE(sec_time_steps_match);
     EXPECT_TRUE(usec_time_steps_match);
     
