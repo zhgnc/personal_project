@@ -5,17 +5,17 @@
 #include "sim_framework/logging_app_base.hpp"
 #include "sim_framework/sim_data_logger.hpp"
 #include "sim_framework/sim_control.hpp"
-#include "integrated_sim_and_logging/test_1/test_sim_app_1.hpp"
-#include "integrated_sim_and_logging/test_1/test_data_bus.hpp"
-#include "integrated_sim_and_logging/test_1/test_logger.hpp"
+#include "integrated_sim_and_logging/common_test_code/test_sim_app_1.hpp"
+#include "integrated_sim_and_logging/common_test_code/test_data_bus.hpp"
+#include "integrated_sim_and_logging/test_1/test_logger_1.hpp"
 #include "data_logging/read_hdf5_data.hpp"
 #include "utilities/file_path_helper_functions.hpp"
-#include "integrated_sim_and_logging/helper_functions.hpp"
+#include "integrated_sim_and_logging/common_test_code/helper_functions.hpp"
 
-TEST(simTests, BasicTest) {
+TEST(simTest1, BasicTest) {
     // Configuration
     double tol = 1e-10;
-    const std::string &sim_and_logger_config_path = "../../tests/integrated_sim_and_logging/test_1/test_sim_and_logger_config.yaml";
+    const std::string &sim_and_logger_config_path = "../../tests/integrated_sim_and_logging/test_1/test_1_sim_and_logger_config.yaml";
 
     TestDataBus data_bus;
     Simulation sim(sim_and_logger_config_path, data_bus);
@@ -26,7 +26,7 @@ TEST(simTests, BasicTest) {
     TestSimApp1 test_app_1(app_rate_hz, app_priority, config_path);
     sim.add_app(test_app_1);
 
-    TestLogger logger;
+    TestLogger1 logger;
     sim.add_logging_app(logger);
     
     sim.run();

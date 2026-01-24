@@ -7,9 +7,7 @@ struct TestDataBus {
     };
 
     struct App2Data {
-        int    var_1 = 1;
-        double var_2 = 1.5;
-        float  var_3 = 2.0;
+        int counter = 0;
     };
 
 

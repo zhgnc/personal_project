@@ -7,15 +7,16 @@
 #include <format>
 
 #include "../../../src/sim_framework/logging_app_base.hpp"
-#include "../../../tests/integrated_sim_and_logging/test_1/test_data_bus.hpp"
+#include "../../../tests/integrated_sim_and_logging/common_test_code/test_data_bus.hpp"
 
-class TestLogger : public LoggingAppBase<TestDataBus> {
+class TestLogger2 : public LoggingAppBase<TestDataBus> {
 public:
     using LoggingAppBase<TestDataBus>::LoggingAppBase;
 
     void config_hdf5_with_app_data(Logger& logger, TestDataBus& data_bus, AppLoggingRates& rates) override {
         logger.add_group("test_group");
-        logger.add_dataset<int>("counter", "test_group", data_bus.app_1_data.counter, rates.rate_A_hz);
+        logger.add_dataset<int>("counter_1", "test_group", data_bus.app_1_data.counter, rates.rate_B_hz);
+        logger.add_dataset<int>("counter_2", "test_group", data_bus.app_2_data.counter, rates.rate_C_hz);
     };
 };
 
