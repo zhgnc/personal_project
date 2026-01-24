@@ -33,9 +33,7 @@ public:
     };
 
     virtual const AccessibleSimData& public_sim_data() const = 0;
-    virtual void end_sim_after_cycle(const StopReason& reason = StopReason::NotSpecified, const std::string& message = "") = 0;
-    virtual void end_sim_after_app(const StopReason& reason = StopReason::NotSpecified, const std::string& message = "") = 0;
-    virtual bool stop_requested() const = 0;
+    virtual void end_sim(const StopType& type, const StopReason& reason = StopReason::NotSpecified, const std::string& message = "") = 0;
     virtual uint64_t get_next_seed() = 0;
 
 

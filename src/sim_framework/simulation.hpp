@@ -42,9 +42,7 @@ private:
     void initialize_pre_run_data();
     void log_run_meta_data();
 
-    void end_sim_after_cycle(const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None") override;
-    void end_sim_after_app(const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None") override;
-    bool stop_requested() const override;
+    void end_sim(const StopType& type, const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None") override;
     void print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message);
     uint64_t get_next_seed() override;
     const AccessibleSimData& public_sim_data() const;
@@ -59,9 +57,7 @@ private:
     uint64_t current_seed;
     bool print_hdf5_file_tree;
     bool print_file_attributes;
-    
-    bool stop_sim_now;
-    bool stop_sim_after_cycle;      
+          
     StopType stop_type;          
     StopReason stop_reason;  
     std::string stop_message;

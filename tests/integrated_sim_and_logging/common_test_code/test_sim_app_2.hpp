@@ -25,8 +25,8 @@ public:
         bus.app_2_data.counter = count;
 
         if (count > 10) {
-            sim_ctrl.end_sim_after_cycle(StopReason::ReachedEndObjective, "Test 2 Stop!");
-            sim_ctrl.end_sim_after_app(StopReason::HardwareFailure, "Should not throw error");
+            sim_ctrl.end_sim(StopType::AfterCycle, StopReason::ReachedEndObjective, "Test 2 Stop!");
+            sim_ctrl.end_sim(StopType::AfterApp,   StopReason::HardwareFailure,     "Should not throw error and only error data from line above should be captured!");
         } 
     };
 
