@@ -17,6 +17,7 @@ public:
         logger.add_group("test_group");
         logger.add_dataset<int>("counter_1", "test_group", data_bus.app_1_data.counter, rates.rate_B_hz);
         logger.add_dataset<int>("counter_2", "test_group", data_bus.app_2_data.counter, rates.rate_C_hz);
+        logger.write_attribute<int>("test_group", "test_attribute", 1);
     };
 };
 

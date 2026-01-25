@@ -13,17 +13,22 @@ class LoggerFacade {
 public:
     explicit LoggerFacade(Logger& logger) : wrapped_logger(logger) {}
 
-    void add_group(const std::string& path) {
-        wrapped_logger.add_group(path);
+    void add_group(const std::string& group_path) {
+        wrapped_logger.add_group(group_path);
     }
 
     template<typename T>
     void add_dataset(const std::string& dataset_name, 
-                     const std::string& full_group_path, 
+                     const std::string& group_path, 
                      const T& data_reference, 
                      const double record_rate_hz) 
     {
-        wrapped_logger.add_dataset(dataset_name, full_group_path, data_reference, record_rate_hz);
+        wrapped_logger.add_dataset(dataset_name, group_path, data_reference, record_rate_hz);
+    }
+
+    template<typename T>
+    void write_attribute(const std::string& group_path, const std::string& attribute_name, const T& value) {
+        wrapped_logger.write_attribute(group_path, attribute_name, value);
     }
 
 private:
