@@ -13,7 +13,7 @@ class LoggingSimApp : public LoggingAppBase<DataBus> {
 public:
     using LoggingAppBase<DataBus>::LoggingAppBase;
 
-    void config_hdf5_with_app_data(Logger& logger, DataBus& data_bus, AppLoggingRates& rates) override {
+    void configure_hdf5_logging(LoggerFacade& logger, const DataBus& data_bus, const AppLoggingRates& rates) override {
         logger.add_group("gyro");
 
         logger.add_dataset<bool>("Gyro_Meas_Valid",          "gyro", data_bus.gyro_outputs.measurement_valid,     rates.rate_A_hz);

@@ -18,6 +18,17 @@ public:
         (void)sim_ctrl; 
         
         count = 0;
+
+        // Calling get_next seed three times to verify it is incrementing correctly
+        seed = sim_ctrl.get_next_seed();
+        seed = sim_ctrl.get_next_seed();
+        seed = sim_ctrl.get_next_seed();
+        // sim_ctrl.write_attibute<uint64_t>("test_group/", "app2_seed", data_bus.app_2_data.seed);
+        
+        sim_ctrl.public_sim_data().current_sim_time_sec;
+        sim_ctrl.public_sim_data().current_sim_time_sec;
+        sim_ctrl.public_sim_data().current_sim_time_sec;
+        sim_ctrl.public_sim_data().current_sim_time_sec;
     };
 
     void step(TestDataBus& bus, SimulationControl& sim_ctrl) override {
@@ -38,6 +49,7 @@ public:
 
 private:
     int count;  
+    uint64_t seed;
 };
 
 #endif

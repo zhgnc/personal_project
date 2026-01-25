@@ -181,8 +181,10 @@ void Simulation<DataBusType>::run_setup(std::size_t run_num) {
   std::string full_path     = data_output_directory + "/" + new_file_name;
   logger                    = std::make_unique<Logger>(full_path);
 
+  LoggerFacade logger_facade(*logger);
+
   for (std::size_t i = 0; i < logging_app_count; i++) {
-    logging_apps[i]->config_hdf5_with_app_data(*logger, data_bus, logging_rates);
+    logging_apps[i]->configure_hdf5_logging(logger_facade, data_bus, logging_rates);
   }
 
   sim_data_logger = std::make_unique<SimDataLogger>(*logger);
