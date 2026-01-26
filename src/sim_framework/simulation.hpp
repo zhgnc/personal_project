@@ -17,7 +17,7 @@
 #include <iostream>
 
 template<typename DataBusType>
-class Simulation : SimulationControl {
+class Simulation {
 public:
     Simulation(const std::string& path_to_sim_config, DataBusType& bus);
 
@@ -43,10 +43,10 @@ private:
     void initialize_pre_run_data();
     void log_run_meta_data();
 
-    void end_sim(const StopType& type, const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None") override;
+    SimControl make_sim_control();
+    void end_sim(const StopType& type, const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None");
     void print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message);
-    uint64_t get_next_seed() override;
-    const AccessibleSimData& public_sim_data() const;
+    uint64_t get_next_seed();
     void update_accessible_sim_data();
 
 
@@ -100,7 +100,7 @@ private:
     // ---- Shared data ----
     DataBusType& data_bus;
     SimMetaData meta_data;
-    AccessibleSimData accessible_sim_data;
+    SimControl::AccessibleSimData accessible_sim_data;
 };
 
 #include "simulation.tpp"

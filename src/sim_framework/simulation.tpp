@@ -26,7 +26,7 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
   current_seed          = init_seed;
   app_count             = 0;
   logging_app_count     = 0;
-  accessible_sim_data   = AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
+  accessible_sim_data   = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
 };
 
 
@@ -99,13 +99,8 @@ void Simulation<DataBusType>::print_stop_diagnostics(const StopType& type, const
 }
 
 template<typename DataBusType>
-const SimulationControl::AccessibleSimData& Simulation<DataBusType>::public_sim_data() const {
-  return accessible_sim_data;
-}
-
-template<typename DataBusType>
 void Simulation<DataBusType>::update_accessible_sim_data() {
-  accessible_sim_data = AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
+  accessible_sim_data = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
 }
 
 template<typename DataBusType>
@@ -159,7 +154,7 @@ void Simulation<DataBusType>::display_sorted_app_info() {
 
 template<typename DataBusType>
 void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
-  SimulationControl& sim_ctrl = *this;
+  SimControl sim_ctrl = make_sim_control();
   
   for (std::size_t i = 0; i < app_count; i++) {
     app_list[i]->initialize(sim_ctrl);
@@ -202,12 +197,13 @@ void Simulation<DataBusType>::initialize_pre_run_data() {
   stop_reason           = StopReason::ReachedConfiguredStopTime;
   stop_message          = "None Provided";
   actual_stop_time_sec  = config_stop_time_sec;
+  accessible_sim_data   = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
 }
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run_step() {
   update_accessible_sim_data();
-  SimulationControl& sim_ctrl = *this;
+  SimControl sim_ctrl = make_sim_control();
   
   for (std::size_t i = 0; i < app_count; i++) {
     app_list[i]->check_step(current_sim_time_usec, data_bus, sim_ctrl);
@@ -227,7 +223,7 @@ void Simulation<DataBusType>::run_step() {
 template<typename DataBusType>
 void Simulation<DataBusType>::run_teardown() {
   update_accessible_sim_data();
-  SimulationControl& sim_ctrl = *this;
+  SimControl sim_ctrl = make_sim_control();
 
   for (std::size_t i = 0; i < app_count; i++) {
     app_list[i]->teardown(data_bus, sim_ctrl);
@@ -278,4 +274,11 @@ void Simulation<DataBusType>::sim_teardown() {
     
   std::cout << "[Simulation] HDF5 output files will have the following data\n";
   logger->print_file_tree(print_file_attributes);
+}
+
+template<typename DataBusType>
+SimControl Simulation<DataBusType>::make_sim_control() {
+  return SimControl(accessible_sim_data,
+                    [this](StopType t, StopReason r, const std::string& m) { end_sim(t, r, m); },
+                    [this]() { return get_next_seed(); });
 }

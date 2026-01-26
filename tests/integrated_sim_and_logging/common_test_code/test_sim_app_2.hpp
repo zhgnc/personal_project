@@ -13,7 +13,7 @@ class TestSimApp2 : public SimAppBase<TestDataBus> {
 public:
     using SimAppBase::SimAppBase;
 
-    void configure_model(const std::string& path_to_config, SimulationControl& sim_ctrl) override {
+    void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
         (void)path_to_config; // Tells the compiler I know this varible is unused
         (void)sim_ctrl; 
         
@@ -31,7 +31,7 @@ public:
         sim_ctrl.public_sim_data().current_sim_time_sec;
     };
 
-    void step(TestDataBus& bus, SimulationControl& sim_ctrl) override {
+    void step(TestDataBus& bus, SimControl& sim_ctrl) override {
         count = count + 1;
         bus.app_2_data.counter = count;
 
@@ -41,7 +41,7 @@ public:
         } 
     };
 
-    void teardown(TestDataBus& bus, SimulationControl& sim_ctrl) override {
+    void teardown(TestDataBus& bus, SimControl& sim_ctrl) override {
         (void)bus;
         (void)sim_ctrl;
     };

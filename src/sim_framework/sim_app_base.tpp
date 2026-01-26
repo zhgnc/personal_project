@@ -13,12 +13,12 @@ SimAppBase<DataBusType>::SimAppBase(std::string app_name, double execution_rate_
 };
 
 template<typename DataBusType>
-void SimAppBase<DataBusType>::initialize(SimulationControl& sim_ctrl) { 
+void SimAppBase<DataBusType>::initialize(SimControl& sim_ctrl) { 
   this->configure_model(config_path, sim_ctrl); 
 };
 
 template<typename DataBusType>
-void SimAppBase<DataBusType>::check_step(const uint64_t &sim_time_usec, DataBusType& bus, SimulationControl& sim_ctrl) {
+void SimAppBase<DataBusType>::check_step(const uint64_t &sim_time_usec, DataBusType& bus, SimControl& sim_ctrl) {
   time_to_step = sim_time_usec % app_dt_usec == 0;
 
   if (time_to_step == false) {

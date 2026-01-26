@@ -15,12 +15,12 @@ public:
                int schedule_priority, 
                const std::string& path_to_config);
 
-    virtual void configure_model(const std::string& path_to_config, SimulationControl& sim_ctrl) = 0;
-    virtual void step(DataBusType& bus, SimulationControl& sim_ctrl) = 0;
-    virtual void teardown(DataBusType& bus, SimulationControl& sim_ctrl) = 0;
+    virtual void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) = 0;
+    virtual void step(DataBusType& bus, SimControl& sim_ctrl) = 0;
+    virtual void teardown(DataBusType& bus, SimControl& sim_ctrl) = 0;
     
-    void initialize(SimulationControl& sim_ctrl);
-    void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimulationControl& sim_ctrl);
+    void initialize(SimControl& sim_ctrl);
+    void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimControl& sim_ctrl);
 
     int priority;
     double app_dt_sec;
