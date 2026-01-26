@@ -39,10 +39,10 @@ TEST(simTest2, TwoAppsWithStopTest) {
 
 
     // Tests (Only checking meta data that is different than test 1)
-    EXPECT_EQ(test_app_1.app_dt_sec, 1.0/app_1_rate_hz);
-    EXPECT_EQ(test_app_1.priority,   app_1_priority);
-    EXPECT_EQ(test_app_2.app_dt_sec, 1.0/app_2_rate_hz);
-    EXPECT_EQ(test_app_2.priority,   app_2_priority);
+    EXPECT_EQ(test_app_1.dt_sec(), 1.0/app_1_rate_hz);
+    EXPECT_EQ(test_app_1.priority(), app_1_priority);
+    EXPECT_EQ(test_app_2.dt_sec(), 1.0/app_2_rate_hz);
+    EXPECT_EQ(test_app_2.priority(), app_2_priority);
 
     std::string hdf5_file               = get_absolute_path("tests/integrated_sim_and_logging/test_2/test_RUN_00001.hdf5");
     std::vector<int> app_2_counter_data = read_hdf5_dataset<int>(hdf5_file, "/test_group/counter_2");

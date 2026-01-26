@@ -111,8 +111,6 @@ uint64_t Simulation<DataBusType>::get_next_seed() {
 template<typename DataBusType>
 void Simulation<DataBusType>::run() {
   sort_apps_by_priority();
-  display_sorted_app_info();
-  initialize_apps();
 
   // For loop configured so that run_num starts at 1
   for (std::size_t run_num = 1; run_num < num_mc_runs + 1; run_num++) {
@@ -130,13 +128,15 @@ template<typename DataBusType>
 void Simulation<DataBusType>::sort_apps_by_priority() {
   std::cout << "[Simulation] Configuring Simulation\n";
   std::sort(app_list.begin(), app_list.begin() + app_count, Simulation::compare_by_priority);
+  
+  display_sorted_app_info();
 };
 
 template<typename DataBusType>
 bool Simulation<DataBusType>::compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>> &app_A,
                                      const std::shared_ptr<SimAppBase<DataBusType>> &app_B) {
   // `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
-  return app_A->priority < app_B->priority;
+  return app_A->priority() < app_B->priority();
 };
 
 template<typename DataBusType>
@@ -144,23 +144,12 @@ void Simulation<DataBusType>::display_sorted_app_info() {
   std::cout << "[Simulation] Sorted Application List\n";
 
   for (std::size_t i = 0; i < app_count; i++) {
-    std::cout << "App Name: " << app_list[i]->name
-              << " | Priority: " << app_list[i]->priority
-              << " | Time Step (s): " << app_list[i]->app_dt_sec << '\n';
+    std::cout << "App Name: " << app_list[i]->name()
+              << " | Priority: " << app_list[i]->priority()
+              << " | Time Step (s): " << app_list[i]->dt_sec() << '\n';
   }
 
   std::cout << "\n";
-}
-
-template<typename DataBusType>
-void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
-  SimControl sim_ctrl = make_sim_control();
-  
-  for (std::size_t i = 0; i < app_count; i++) {
-    app_list[i]->initialize(sim_ctrl);
-  }
-
-  std::cout << "[Simulation] Apps Initialized\n\n";
 }
 
 template<typename DataBusType>
@@ -184,6 +173,14 @@ void Simulation<DataBusType>::run_setup(std::size_t run_num) {
 
   sim_data_logger = std::make_unique<SimDataLogger>(*logger);
   sim_data_logger->configure_file_with_sim_data(current_sim_time_sec, current_sim_time_usec, sim_rate_hz, sim_step_count);
+
+  // Initialize all sim apps which is done after logging is initialized 
+  // so sim_ctrl has reference to the instance of the logging app
+  SimControl sim_ctrl = make_sim_control();
+  
+  for (std::size_t i = 0; i < app_count; i++) {
+    app_list[i]->initialize(sim_ctrl);
+  }
 
   computer_start_time = std::chrono::high_resolution_clock::now();
 }
@@ -280,5 +277,6 @@ template<typename DataBusType>
 SimControl Simulation<DataBusType>::make_sim_control() {
   return SimControl(accessible_sim_data,
                     [this](StopType t, StopReason r, const std::string& m) { end_sim(t, r, m); },
-                    [this]() { return get_next_seed(); });
+                    [this]() { return get_next_seed(); },
+                    *logger);
 }

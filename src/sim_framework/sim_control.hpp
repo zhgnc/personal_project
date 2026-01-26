@@ -1,6 +1,8 @@
 #ifndef SIMULATION_CONTROL_HPP
 #define SIMULATION_CONTROL_HPP
 
+#include "../../src/data_logging/logger.hpp"
+
 #include <string>
 #include <functional>
 
@@ -58,11 +60,13 @@ public:
     SimControl(
         const AccessibleSimData& sim_data_ref,
         std::function<void(StopType, StopReason, const std::string&)> end_sim_func,
-        std::function<uint64_t()> next_seed_func
+        std::function<uint64_t()> next_seed_func,
+        Logger& logger_ref
     )
     : sim_data(sim_data_ref),
       end_sim_callback(end_sim_func),
-      get_next_seed_callback(next_seed_func)
+      get_next_seed_callback(next_seed_func),
+      wrapped_logger(logger_ref)
     {}
 
     const AccessibleSimData& public_sim_data() const{
@@ -77,6 +81,11 @@ public:
         return get_next_seed_callback();
     };
 
+    template <typename T>
+    void write_attribute(const std::string& object_path, const std::string& attribute_name, const T& value) {
+        wrapped_logger.write_attribute(object_path, attribute_name, value);
+    }
+
 
 protected:
     friend class SimDataLogger; // Needs `_to_string` functions for logging
@@ -84,6 +93,7 @@ protected:
     const AccessibleSimData& sim_data;
     std::function<void(StopType, StopReason, const std::string&)> end_sim_callback;
     std::function<uint64_t()> get_next_seed_callback;
+    Logger& wrapped_logger;
 };
 
 #endif

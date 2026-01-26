@@ -8,6 +8,7 @@
 #include "sim_config.hpp"
 #include "../utilities/yaml_utilities.hpp"
 #include "../data_logging/logger.hpp"
+#include "logging_facade.hpp"
 
 #include <array>
 #include <memory>
@@ -30,7 +31,6 @@ public:
     void run();
 
 private:
-    void initialize_apps();
     void sort_apps_by_priority();
     void display_sorted_app_info();
     static bool compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>>& app_A, 

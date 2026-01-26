@@ -33,8 +33,8 @@ TEST(simTest1, BasicTest) {
 
 
     // Tests
-    EXPECT_EQ(test_app_1.app_dt_sec, 1.0/app_rate_hz);
-    EXPECT_EQ(test_app_1.priority,   app_priority);
+    EXPECT_EQ(test_app_1.dt_sec(), 1.0/app_rate_hz);
+    EXPECT_EQ(test_app_1.priority(), app_priority);
 
     std::string hdf5_file             = get_absolute_path("tests/integrated_sim_and_logging/test_1/test_RUN_00001.hdf5");
     std::vector<int> app_counter_data = read_hdf5_dataset<int>(hdf5_file, "/test_group/counter");

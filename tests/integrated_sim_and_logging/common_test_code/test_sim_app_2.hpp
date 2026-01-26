@@ -26,9 +26,11 @@ public:
         // sim_ctrl.write_attibute<uint64_t>("test_group/", "app2_seed", data_bus.app_2_data.seed);
         
         sim_ctrl.public_sim_data().current_sim_time_sec;
-        sim_ctrl.public_sim_data().current_sim_time_sec;
-        sim_ctrl.public_sim_data().current_sim_time_sec;
-        sim_ctrl.public_sim_data().current_sim_time_sec;
+        sim_ctrl.public_sim_data().sim_dt_sec;
+        sim_ctrl.public_sim_data().sim_rate_hz;
+        sim_ctrl.public_sim_data().sim_step_count;
+
+        sim_ctrl.write_attribute<int>("test_group", "sim_ctrl_test_attribute", 5);
     };
 
     void step(TestDataBus& bus, SimControl& sim_ctrl) override {
