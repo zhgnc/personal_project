@@ -6,8 +6,15 @@
 #include <string>
 
 #include "../../src/sim_framework/sim_control.hpp"
-#include "logging_facade.hpp"
 #include "sim_control.hpp"
+
+// Forward declare template Simulation so that it can be a friend class. This 
+// allows the `simulation` class to access the `initialize` and `check_step` 
+// functions without exposing the methods to the user when creating their own 
+// apps by inheriting from the `SimAppBase` class  
+template<typename DataBusType>
+class Simulation;
+
 
 template<typename DataBusType>
 class SimAppBase {
@@ -24,15 +31,12 @@ public:
     const std::string& name() const { return app_name; }
     int priority() const { return app_priority; }
     double dt_sec() const { return app_dt_sec; }
-
-    void initialize(SimControl& sim_ctrl);
-    void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimControl& sim_ctrl);
     
 private:   
-    // friend class Simulation<DataBusType>;
+    friend class Simulation<DataBusType>;
     
-    // void initialize(SimControl& sim_ctrl);
-    // void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimControl& sim_ctrl);
+    void initialize(SimControl& sim_ctrl);
+    void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimControl& sim_ctrl);
     
     uint64_t app_dt_usec;
     bool time_to_step;
