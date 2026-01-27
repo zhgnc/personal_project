@@ -26,5 +26,3 @@ void SimAppBase<DataBusType>::check_step(const uint64_t &sim_time_usec, DataBusT
 
   this->step(bus, sim_ctrl);
 };
-
-template<typename DataBusType>

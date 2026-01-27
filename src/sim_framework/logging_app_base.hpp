@@ -2,7 +2,7 @@
 #define LOGGING_APP_BASE_HPP
 
 #include "../../src/data_logging/logger.hpp"
-#include "../../src/sim_framework/logging_facade.hpp"
+#include "logging_facade.hpp"
 
 struct AppLoggingRates {
     double rate_A_hz;

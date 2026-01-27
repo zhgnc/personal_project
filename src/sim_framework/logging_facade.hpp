@@ -4,6 +4,7 @@
 
 #include <string>
 #include <typeinfo>
+
 #include "../data_logging/logger.hpp"
 
 // This class exists so that when users are configuring the HDF5 file in their logging app 

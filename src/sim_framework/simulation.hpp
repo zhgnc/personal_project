@@ -1,8 +1,8 @@
 #ifndef SIMULATION_HPP
 #define SIMULATION_HPP
 
-#include "sim_control.hpp"
 #include "sim_app_base.hpp"
+#include "sim_control.hpp"
 #include "logging_app_base.hpp"
 #include "sim_data_logger.hpp"
 #include "sim_config.hpp"

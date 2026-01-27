@@ -6,10 +6,8 @@
 #include <string>
 
 #include "../../src/sim_framework/sim_control.hpp"
-
-// Forward declare simulation so that it can be a friend class
-template<typename DataBusType>
-class Simulation;
+#include "logging_facade.hpp"
+#include "sim_control.hpp"
 
 template<typename DataBusType>
 class SimAppBase {
@@ -26,12 +24,15 @@ public:
     const std::string& name() const { return app_name; }
     int priority() const { return app_priority; }
     double dt_sec() const { return app_dt_sec; }
-    
-private:   
-    friend class Simulation<DataBusType>;
-    
+
     void initialize(SimControl& sim_ctrl);
     void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimControl& sim_ctrl);
+    
+private:   
+    // friend class Simulation<DataBusType>;
+    
+    // void initialize(SimControl& sim_ctrl);
+    // void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimControl& sim_ctrl);
     
     uint64_t app_dt_usec;
     bool time_to_step;
