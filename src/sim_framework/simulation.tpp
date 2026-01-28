@@ -26,7 +26,6 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
   current_seed          = init_seed;
   app_count             = 0;
   logging_app_count     = 0;
-  accessible_sim_data   = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
 };
 
 
@@ -104,8 +103,9 @@ void Simulation<DataBusType>::update_accessible_sim_data() {
 }
 
 template<typename DataBusType>
-uint64_t Simulation<DataBusType>::get_next_seed() {
+uint64_t Simulation<DataBusType>::get_seed() {
   return current_seed++; // Returns then increments seed
+  
 }
 
 template<typename DataBusType>
@@ -194,7 +194,7 @@ void Simulation<DataBusType>::initialize_pre_run_data() {
   stop_reason           = StopReason::ReachedConfiguredStopTime;
   stop_message          = "None Provided";
   actual_stop_time_sec  = config_stop_time_sec;
-  accessible_sim_data   = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
+  update_accessible_sim_data();
 }
 
 template<typename DataBusType>
@@ -277,6 +277,6 @@ template<typename DataBusType>
 SimControl Simulation<DataBusType>::make_sim_control() {
   return SimControl(accessible_sim_data,
                     [this](StopType t, StopReason r, const std::string& m) { end_sim(t, r, m); },
-                    [this]() { return get_next_seed(); },
+                    [this]() { return get_seed(); },
                     *logger);
 }

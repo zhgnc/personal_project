@@ -14,8 +14,8 @@ public:
     using LoggingAppBase<TestDataBus>::LoggingAppBase;
 
     void configure_hdf5_logging(LoggerFacade& logger, const TestDataBus& data_bus, const AppLoggingRates& rates) override {
-        logger.add_group("test_group");
-        logger.add_dataset<int>("counter", "test_group", data_bus.app_1_data.counter, rates.rate_A_hz);
+        logger.add_group("app_1");
+        logger.add_dataset<int>("counter", "app_1", data_bus.app_1_data.counter, rates.rate_A_hz);
     };
 };
 

@@ -46,7 +46,7 @@ private:
     SimControl make_sim_control();
     void end_sim(const StopType& type, const StopReason& reason = StopReason::NotSpecified, const std::string& message = "None");
     void print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message);
-    uint64_t get_next_seed();
+    uint64_t get_seed();
     void update_accessible_sim_data();
 
 

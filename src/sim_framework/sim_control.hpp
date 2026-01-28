@@ -65,7 +65,7 @@ public:
     )
     : sim_data(sim_data_ref),
       end_sim_callback(end_sim_func),
-      get_next_seed_callback(next_seed_func),
+      get_seed_callback(next_seed_func),
       wrapped_logger(logger_ref)
     {}
 
@@ -77,8 +77,8 @@ public:
         end_sim_callback(type, reason, message);
     };
 
-    uint64_t get_next_seed() {
-        return get_next_seed_callback();
+    uint64_t get_seed() {
+        return get_seed_callback();
     };
 
     template <typename T>
@@ -92,7 +92,7 @@ protected:
 
     const AccessibleSimData& sim_data;
     std::function<void(StopType, StopReason, const std::string&)> end_sim_callback;
-    std::function<uint64_t()> get_next_seed_callback;
+    std::function<uint64_t()> get_seed_callback;
     Logger& wrapped_logger;
 };
 
