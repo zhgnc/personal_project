@@ -18,6 +18,7 @@ add_executable(unit_tests ${TEST_SOURCES})
 target_include_directories(unit_tests
     PRIVATE
       ${PROJECT_SOURCE_DIR}/src
+      ${CMAKE_CURRENT_SOURCE_DIR}
     SYSTEM
       ${PROJECT_SOURCE_DIR}/external/eigen
       ${PROJECT_SOURCE_DIR}/external/google_test/gmock/include

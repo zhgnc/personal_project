@@ -5,12 +5,12 @@
 
 GyroModel::GyroModel() {
   init_bias_1_sigma = default_config.turn_on_bias_1_sigma;
-  arw_1_sigma = default_config.angle_random_walk_1_sigma;
-  rrw_1_sigma = default_config.rate_random_walk_1_sigma;
-  sf_1_sigma = default_config.scale_factor_1_sigma;
-  misalign_1_sigma = default_config.misalignment_1_sigma;
-  frequency = default_config.rate_hz;
-  random_seed = default_config.random_seed;
+  arw_1_sigma       = default_config.angle_random_walk_1_sigma;
+  rrw_1_sigma       = default_config.rate_random_walk_1_sigma;
+  sf_1_sigma        = default_config.scale_factor_1_sigma;
+  misalign_1_sigma  = default_config.misalignment_1_sigma;
+  frequency         = default_config.rate_hz;
+  random_seed       = default_config.random_seed;
 };
 
 GyroModel::GyroModel(const std::string &config_file) {
@@ -33,21 +33,19 @@ void GyroModel::initialize() {
   normal_distribution = std::normal_distribution<>(mean, std);
 
   for (std::size_t i = 0; i < initial_rate_biases.num_rows; i++) {
-    initial_rate_biases(i) = init_bias_1_sigma * normal_distribution(rng);
-    bias_error(i) = initial_rate_biases(i);
-
-    scale_factors(i) = sf_1_sigma * normal_distribution(rng);
-    misalignments(i) = misalign_1_sigma * normal_distribution(rng);
+    bias_error(i)          = init_bias_1_sigma * normal_distribution(rng);
+    scale_factors(i)       = sf_1_sigma        * normal_distribution(rng);
+    misalignments(i)       = misalign_1_sigma  * normal_distribution(rng);
   }
 
-  sf_misalign_matrix = {scale_factors(0),  -misalignments(2), misalignments(1),
-                        misalignments(2),  scale_factors(1),  -misalignments(0),
-                        -misalignments(1), misalignments(0),  scale_factors(2)};
+  sf_misalign_matrix = {scale_factors(0), -misalignments(2),  misalignments(1),
+                        misalignments(2),  scale_factors(1), -misalignments(0),
+                       -misalignments(1),  misalignments(0),  scale_factors(2)};
   I3.setIdentity();
   dt = 1 / frequency;
 
   gyro_meas_valid = false;
-  first_cycle = true;
+  first_cycle     = true;
 };
 
 void GyroModel::run() {
@@ -68,16 +66,15 @@ void GyroModel::execute() {
     return;
   };
 
-  q_prev_to_now = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
+  q_prev_to_now     = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
   true_delta_angles = to_rot_vec(q_prev_to_now);
 
   for (std::size_t i = 0; i < arw_error.num_rows; i++) {
-    arw_error(i) = arw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
+    arw_error(i)   = arw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
     bias_error(i) += rrw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
   }
 
-  meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles +
-                      bias_error * dt + arw_error;
+  meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + bias_error * dt + arw_error;
 
   q_j2000_to_body_prev = q_j2000_to_body_now;
   gyro_meas_valid = true;

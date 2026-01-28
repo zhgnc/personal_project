@@ -29,15 +29,15 @@ void Logger::open_file() {
 };
 
 void Logger::close_file() {
+    if (file_is_open == false) {  
+        return;          
+    }
+    
     for (std::size_t i = 0; i < dataset_count; ++i) {
         datasets[i]->flush_buffer();
     }
 
     verify_file_exists();
-  
-    if (file_is_open == false) {  
-        return;          
-    }
 
     hdf5_file_ptr->close();
     file_is_open = false;

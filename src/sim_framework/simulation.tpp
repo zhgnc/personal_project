@@ -1,9 +1,7 @@
 #include "simulation.hpp"
 
 template<typename DataBusType>
-Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataBusType& bus) 
-  : data_bus(bus)
-{
+Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataBusType& bus) : data_bus(bus) {
   YAML::Node config_data = load_yaml_file(path_to_sim_config);
 
   start_time_sec        = get_yaml_key<double>(config_data, "sim_start_time_sec");
@@ -22,25 +20,12 @@ Simulation<DataBusType>::Simulation(const std::string &path_to_sim_config, DataB
   logging_rates.rate_D_hz = get_yaml_key<double>(config_data, "logging_rate_D_hz");
   logging_rates.rate_E_hz = get_yaml_key<double>(config_data, "logging_rate_E_hz");
 
-  sim_dt_sec            = 1.0 / sim_rate_hz;
-  sim_dt_usec           = static_cast<uint64_t>(sec2usec * (1.0 / sim_rate_hz));
-  current_sim_time_usec = static_cast<uint64_t>(sec2usec * start_time_sec);
-  current_sim_time_sec  = start_time_sec;
   config_stop_time_usec = static_cast<uint64_t>(sec2usec * config_stop_time_sec);
-  sim_step_count        = 0; 
+  sim_dt_sec            = 1.0 / sim_rate_hz;
+  sim_dt_usec           = static_cast<uint64_t>(sec2usec * (1.0 / sim_rate_hz)); 
   current_seed          = init_seed;
-
-  stop_sim_after_cycle  = false;
-  stop_sim_now          = false;
-  stop_type             = StopType::NoStop;
-  stop_reason           = StopReason::ReachedConfiguredStopTime;
-  stop_message          = "None Provided";
-  actual_stop_time_sec  = config_stop_time_sec; 
-
-  app_count         = 0;
-  logging_app_count = 0;
-
-  accessible_sim_data   = AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
+  app_count             = 0;
+  logging_app_count     = 0;
 };
 
 
@@ -85,32 +70,19 @@ void Simulation<DataBusType>::add_logging_app(LoggingAppType&& new_logging_app) 
 }
 
 template<typename DataBusType>
-void Simulation<DataBusType>::end_sim_after_cycle(const StopReason& reason, const std::string& message) { 
-  print_stop_diagnostics(StopType::AfterCycle, reason, message);
-  bool first_request_to_end_sim = stop_sim_after_cycle == false && stop_sim_now == false;
-  
-  if (first_request_to_end_sim == true) {
-    stop_sim_after_cycle = true;
-    stop_type            = StopType::AfterCycle;
+void Simulation<DataBusType>::end_sim(const StopType& type, const StopReason& reason, const std::string& message) {
+    if (stop_type != StopType::NoStop) { 
+      return; 
+    }
+
+    stop_type            = type;
     stop_reason          = reason;
     stop_message         = message;
     actual_stop_time_sec = current_sim_time_sec;
-  }
+    
+    print_stop_diagnostics(type, reason, message);
 }
 
-template<typename DataBusType>
-void Simulation<DataBusType>::end_sim_after_app(const StopReason& reason, const std::string& message) {
-  print_stop_diagnostics(StopType::AfterApp, reason, message);
-  bool first_request_to_end_sim = stop_sim_after_cycle == false && stop_sim_now == false;
-
-  if (first_request_to_end_sim == true) {
-    stop_sim_now         = true;
-    stop_type            = StopType::AfterApp;
-    stop_reason          = reason;
-    stop_message         = message;
-    actual_stop_time_sec = current_sim_time_sec;
-  }
-}
 
 template<typename DataBusType>
 void Simulation<DataBusType>::print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message) {
@@ -126,82 +98,58 @@ void Simulation<DataBusType>::print_stop_diagnostics(const StopType& type, const
 }
 
 template<typename DataBusType>
-bool Simulation<DataBusType>::stop_requested() const {
-  return stop_sim_after_cycle == true || stop_sim_now == true;
-}
-
-template<typename DataBusType>
-const SimulationControl::AccessibleSimData& Simulation<DataBusType>::public_sim_data() const {
-  return accessible_sim_data;
-}
-
-template<typename DataBusType>
 void Simulation<DataBusType>::update_accessible_sim_data() {
-  accessible_sim_data = AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
+  accessible_sim_data = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
 }
 
 template<typename DataBusType>
-uint64_t Simulation<DataBusType>::get_next_seed() {
-  return current_seed++; // Returns seed an increments
+uint64_t Simulation<DataBusType>::get_seed() {
+  return current_seed++; // Returns value of `current_seed` and then increments by 1
+  
 }
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run() {
   sort_apps_by_priority();
-  display_sorted_app_info();
-  initialize_apps();
 
-  // run_num starts at 1 so that when num_mc_runs = 1 the current_mc_run != 0 and = 1 in the metadata
-  for (std::size_t run_num = 1; run_num < num_mc_runs+1; run_num++) {
+  // For loop configured so that run_num starts at 1
+  for (std::size_t run_num = 1; run_num < num_mc_runs + 1; run_num++) {
     run_setup(run_num);
 
-    while (current_sim_time_usec <= config_stop_time_usec && stop_requested() == false) {
+    while (current_sim_time_usec <= config_stop_time_usec && stop_type == StopType::NoStop) {
       run_step();
     }
 
     run_teardown();
   }
-
-  sim_teardown();
 }
 
 template<typename DataBusType>
 void Simulation<DataBusType>::sort_apps_by_priority() {
   std::cout << "[Simulation] Configuring Simulation\n";
   std::sort(app_list.begin(), app_list.begin() + app_count, Simulation::compare_by_priority);
+  
+  display_sorted_app_info();
 };
 
 template<typename DataBusType>
 bool Simulation<DataBusType>::compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>> &app_A,
                                      const std::shared_ptr<SimAppBase<DataBusType>> &app_B) {
   // `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
-  return app_A->priority < app_B->priority;
+  return app_A->priority() < app_B->priority();
 };
 
 template<typename DataBusType>
 void Simulation<DataBusType>::display_sorted_app_info() {
-  std::cout << "[Simulation] Sorted Application List\n\n";
-  for (std::size_t i = 0; i < app_count; i++) {
-      // Use RTTI to get the class name
-      std::string class_name = typeid(*app_list[i]).name();
+  std::cout << "[Simulation] Sorted Application List\n";
 
-      // Print class name, priority, and rate
-      std::cout << "Class: " << class_name
-                << " | Priority: " << app_list[i]->priority
-                << " | Time Step (s): " << app_list[i]->app_dt_sec << '\n';
+  for (std::size_t i = 0; i < app_count; i++) {
+    std::cout << "App Name: " << app_list[i]->name()
+              << " | Priority: " << app_list[i]->priority()
+              << " | Time Step (s): " << app_list[i]->dt_sec() << '\n';
   }
+
   std::cout << "\n";
-}
-
-template<typename DataBusType>
-void Simulation<DataBusType>::initialize_apps() {std::cout << "[Simulation] Initializing Apps\n";
-  SimulationControl& sim_ctrl = *this;
-  
-  for (std::size_t i = 0; i < app_count; i++) {
-    app_list[i]->initialize(sim_ctrl);
-  }
-
-  std::cout << "[Simulation] Apps Initialized\n\n";
 }
 
 template<typename DataBusType>
@@ -209,61 +157,70 @@ void Simulation<DataBusType>::run_setup(std::size_t run_num) {
   std::cout << "[Simulation] Starting Simulation Run #" << run_num << std::endl;
   current_mc_run = run_num;
 
-  sim_step_count        = 0;
-  stop_sim_now          = false;
-  stop_sim_after_cycle  = false;
-  stop_type             = StopType::NoStop;
-  stop_reason           = StopReason::ReachedConfiguredStopTime;
-  stop_message          = "None Provided";
-  current_sim_time_sec  = start_time_sec;
-  current_sim_time_usec = current_sim_time_sec * sec2usec; 
+  initialize_pre_run_data();
 
-  // `logger` must be reset per-run to avoid accumulation of data in hdf5 
-  // class or simulation execution may slow down during very long MC tests
+  // `logger` must be reset per-run to avoid accumulation of meta data in hdf5 
+  // class or else simulation execution will slow down during very long MC tests
   std::string new_file_name = std::format("{}_RUN_{:05}.hdf5", base_file_name, current_mc_run);
   std::string full_path     = data_output_directory + "/" + new_file_name;
   logger                    = std::make_unique<Logger>(full_path);
 
-  for (std::size_t i = 0; i < logging_app_count; ++i) {
-    logging_apps[i]->config_hdf5_with_app_data(*logger, data_bus, logging_rates);
+  LoggerFacade logger_facade(*logger);
+
+  for (std::size_t i = 0; i < logging_app_count; i++) {
+    logging_apps[i]->configure_hdf5_logging(logger_facade, data_bus, logging_rates);
   }
 
   sim_data_logger = std::make_unique<SimDataLogger>(*logger);
   sim_data_logger->configure_file_with_sim_data(current_sim_time_sec, current_sim_time_usec, sim_rate_hz, sim_step_count);
 
-  computer_start_time = std::chrono::high_resolution_clock::now();
+  // Initialize all sim apps which is done after logging is initialized 
+  // so sim_ctrl has reference to the instance of the logging app
+  SimControl sim_ctrl = make_sim_control();
+  
+  for (std::size_t i = 0; i < app_count; i++) {
+    app_list[i]->initialize(sim_ctrl);
+  }
 
+  computer_start_time = std::chrono::high_resolution_clock::now();
+}
+
+template<typename DataBusType>
+void Simulation<DataBusType>::initialize_pre_run_data() {
+  current_sim_time_usec = static_cast<uint64_t>(sec2usec * start_time_sec);
+  current_sim_time_sec  = start_time_sec;
+  sim_step_count        = 0;
+  stop_type             = StopType::NoStop;
+  stop_reason           = StopReason::ReachedConfiguredStopTime;
+  stop_message          = "None Provided";
+  actual_stop_time_sec  = config_stop_time_sec;
   update_accessible_sim_data();
 }
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run_step() {
-  SimulationControl& sim_ctrl = *this;
+  update_accessible_sim_data();
+  SimControl sim_ctrl = make_sim_control();
   
   for (std::size_t i = 0; i < app_count; i++) {
     app_list[i]->check_step(current_sim_time_usec, data_bus, sim_ctrl);
 
-    if (stop_sim_now == true) {
+    if (stop_type == StopType::AfterApp) {
       return;
     }
   }
 
   logger->log_data(current_sim_time_usec);
-
-  if (stop_sim_after_cycle == true) {
-    return;
-  }
-
+  
   current_sim_time_usec += sim_dt_usec;
   current_sim_time_sec   = current_sim_time_usec / sec2usec;
   sim_step_count         = sim_step_count + 1;
-
-  update_accessible_sim_data();
 }
 
 template<typename DataBusType>
 void Simulation<DataBusType>::run_teardown() {
-  SimulationControl& sim_ctrl = *this;
+  update_accessible_sim_data();
+  SimControl sim_ctrl = make_sim_control();
 
   for (std::size_t i = 0; i < app_count; i++) {
     app_list[i]->teardown(data_bus, sim_ctrl);
@@ -272,25 +229,22 @@ void Simulation<DataBusType>::run_teardown() {
   computer_stop_time       = std::chrono::high_resolution_clock::now();
   computer_elapsed_seconds = computer_stop_time - computer_start_time;
   sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();
+  std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
   
-  assign_meta_data();
-  sim_data_logger->log_sim_meta_data(meta_data);
-  logger->close_file();
+  log_run_meta_data();
 
   // If this is the last run I want to print the file tree for reference if enabled
+  // which must be done before `.reset()` is called below
   if (current_mc_run >= num_mc_runs && print_hdf5_file_tree == true) {
-    std::cout << "[Simulation] HDF5 output files will have the following data\n";
-    logger->print_file_tree(print_file_attributes);
+    sim_teardown();
   }
   
-  sim_data_logger.reset();  
+  sim_data_logger.reset(); // `.reset()` calls deconstructors
   logger.reset();
-
-  std::cout << "[Simulation] Run #" << current_mc_run << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
 }
 
 template<typename DataBusType>
-void Simulation<DataBusType>::assign_meta_data() {
+void Simulation<DataBusType>::log_run_meta_data() {
   meta_data.start_time_sec           = start_time_sec; 
   meta_data.config_stop_time_sec     = config_stop_time_sec;
   meta_data.actual_stop_time_sec     = actual_stop_time_sec; 
@@ -306,10 +260,23 @@ void Simulation<DataBusType>::assign_meta_data() {
   meta_data.computer_elapsed_seconds = computer_elapsed_seconds; 
   meta_data.sim_to_real_time_ratio   = sim_to_real_time_ratio;
   meta_data.app_count                = app_count;
-  meta_data.logging_app_count        = logging_app_count;       
+  meta_data.logging_app_count        = logging_app_count;  
+  
+  sim_data_logger->log_sim_meta_data(meta_data);
 }
 
 template<typename DataBusType>
-void Simulation<DataBusType>::sim_teardown() {  
+void Simulation<DataBusType>::sim_teardown() {
   std::cout << "\n[Simulation] ALL RUNS FINISHED!!!\n\n";
+    
+  std::cout << "[Simulation] HDF5 output files will have the following data\n";
+  logger->print_file_tree(print_file_attributes);
+}
+
+template<typename DataBusType>
+SimControl Simulation<DataBusType>::make_sim_control() {
+  return SimControl(accessible_sim_data,
+                    [this](StopType t, StopReason r, const std::string& m) { end_sim(t, r, m); },
+                    [this]() { return get_seed(); },
+                    *logger);
 }
