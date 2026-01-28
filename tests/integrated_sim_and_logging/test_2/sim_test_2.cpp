@@ -8,7 +8,8 @@
 #include "integrated_sim_and_logging/common_test_code/test_sim_app_1.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_sim_app_2.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_data_bus.hpp"
-#include "integrated_sim_and_logging/test_2/test_logger_2.hpp"
+#include "integrated_sim_and_logging/common_test_code/test_logger_1.hpp"
+#include "integrated_sim_and_logging/common_test_code/test_logger_2.hpp"
 #include "data_logging/read_hdf5_data.hpp"
 #include "utilities/file_path_helper_functions.hpp"
 #include "integrated_sim_and_logging/common_test_code/helper_functions.hpp"
@@ -32,8 +33,11 @@ TEST(simTest2, TwoAppsWithStopTest) {
     TestSimApp2 test_app_2("test_app_2", app_2_rate_hz, app_2_priority, config_path);
     sim.add_app(test_app_2);
 
-    TestLogger2 logger;
-    sim.add_logging_app(logger);
+    TestLogger1 logger_1;
+    sim.add_logging_app(logger_1);
+    
+    TestLogger2 logger_2; // Testing to make sure sim can use multiple logging classes
+    sim.add_logging_app(logger_2);
     
     sim.run();
 

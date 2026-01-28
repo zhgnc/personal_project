@@ -1,5 +1,5 @@
-#ifndef TEST_LOGGER_HPP
-#define TEST_LOGGER_HPP
+#ifndef TEST_LOGGER_1_HPP
+#define TEST_LOGGER_1_HPP
 
 #include <memory>
 #include <iostream>

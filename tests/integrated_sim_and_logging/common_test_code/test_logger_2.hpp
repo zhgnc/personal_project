@@ -1,5 +1,5 @@
-#ifndef TEST_LOGGER_HPP
-#define TEST_LOGGER_HPP
+#ifndef TEST_LOGGER_2_HPP
+#define TEST_LOGGER_2_HPP
 
 #include <memory>
 #include <iostream>
@@ -14,11 +14,9 @@ public:
     using LoggingAppBase<TestDataBus>::LoggingAppBase;
 
     void configure_hdf5_logging(LoggerFacade& logger, const TestDataBus& data_bus, const AppLoggingRates& rates) override {
-        logger.add_group("test_group");
-        logger.add_group("app_1");
         logger.add_group("app_2");
+        logger.add_group("test_group");
 
-        logger.add_dataset<int>("counter",             "app_1", data_bus.app_1_data.counter,        rates.rate_B_hz);
         logger.add_dataset<int>("counter",             "app_2", data_bus.app_2_data.counter,        rates.rate_C_hz);
         logger.add_dataset<double>("sim_time_sec",     "app_2", data_bus.app_2_data.sim_time_sec,   rates.rate_C_hz);
         logger.add_dataset<uint64_t>("sim_step_count", "app_2", data_bus.app_2_data.sim_step_count, rates.rate_C_hz);
