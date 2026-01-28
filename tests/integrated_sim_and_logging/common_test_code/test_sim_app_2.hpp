@@ -17,7 +17,7 @@ public:
         (void)path_to_config; // Tells the compiler I know this varible is unused
         
         count = 0;
-        seed  = sim_ctrl.get_seed();
+        seed  = sim_ctrl.get_seed(); // Should return seed equal to config which is zero 
         
         sim_ctrl.write_attribute<uint64_t>("test_group", "init_seed",                 seed);
         sim_ctrl.write_attribute<double>("test_group",   "init_current_sim_time_sec", sim_ctrl.public_sim_data().current_sim_time_sec);
@@ -27,8 +27,8 @@ public:
     };
 
     void step(TestDataBus& bus, SimControl& sim_ctrl) override {
-        count          = count + 1;
-        seed           = sim_ctrl.get_seed();
+        count = count + 1;
+        seed  = sim_ctrl.get_seed();
         
         bus.app_2_data.counter        = count;
         bus.app_2_data.sim_time_sec   = sim_ctrl.public_sim_data().current_sim_time_sec;
@@ -45,8 +45,8 @@ public:
     void teardown(TestDataBus& bus, SimControl& sim_ctrl) override {
         (void)bus;
 
-        seed = sim_ctrl.get_seed(); // Seed should have incremented seed 13 times after this line
-        sim_ctrl.write_attribute<int>("test_group", "seed", seed);
+        seed = sim_ctrl.get_seed(); // Seed should have incremented seed 11 times after this line
+        sim_ctrl.write_attribute<uint64_t>("test_group", "ending_seed", seed);
     };
 
 

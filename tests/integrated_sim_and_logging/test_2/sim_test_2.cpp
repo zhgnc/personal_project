@@ -51,8 +51,14 @@ TEST(simTest2, TwoAppsWithStopTest) {
     std::vector<uint64_t> app_2_sim_step_count = read_hdf5_dataset<uint64_t>(hdf5_file, "/app_2/sim_step_count");
     std::vector<double> app_2_sim_rate_hz      = read_hdf5_dataset<double>(hdf5_file,   "/app_2/sim_rate_hz");
     std::vector<double> app_2_sim_dt_sec       = read_hdf5_dataset<double>(hdf5_file,   "/app_2/sim_dt_sec");
-    uint64_t test_attr_write_in_logger         = read_hdf5_attribute<uint64_t>(hdf5_file, "test_group", "test_attribute_write_in_logger");
 
+    uint64_t test_attr_write_in_logger         = read_hdf5_attribute<uint64_t>(hdf5_file, "test_group", "test_attribute_write_in_logger");
+    uint64_t init_seed                         = read_hdf5_attribute<uint64_t>(hdf5_file, "test_group", "init_seed");                 
+    uint64_t ending_seed                       = read_hdf5_attribute<uint64_t>(hdf5_file, "test_group", "ending_seed");
+    double init_sim_time                       = read_hdf5_attribute<double>(hdf5_file,   "test_group", "init_current_sim_time_sec");
+    double init_sim_dt                         = read_hdf5_attribute<double>(hdf5_file,   "test_group", "init_sim_dt_sec");
+    double init_sim_rate                       = read_hdf5_attribute<double>(hdf5_file,   "test_group", "init_sim_rate_hz");        
+    uint64_t init_sim_count                    = read_hdf5_attribute<uint64_t>(hdf5_file, "test_group", "init_sim_step_count");
 
     SimMetaDataRaw  sim_meta_data = get_meta_data(hdf5_file);
     SimCyclicalData sim_data      = get_sim_logged_data(hdf5_file);
@@ -108,8 +114,12 @@ TEST(simTest2, TwoAppsWithStopTest) {
     EXPECT_TRUE(app2_sim_dt_matches_real_sim_dt);
 
     EXPECT_EQ(test_attr_write_in_logger, 12345);
-    
-    // EXPECT_TRUE(false);
-    
+    EXPECT_EQ(init_seed, config_data.initial_random_seed);
+    EXPECT_EQ(ending_seed, 11);
+    EXPECT_NEAR(init_sim_time, config_data.sim_start_time_sec, tol);
+    EXPECT_NEAR(init_sim_dt, 1.0/config_data.simulation_rate_hz, tol);
+    EXPECT_NEAR(init_sim_rate, config_data.simulation_rate_hz, tol);
+    EXPECT_EQ(init_sim_count, 0);
+        
     std::filesystem::remove(hdf5_file); // Delete test file so it isn't commited to repo
 }
