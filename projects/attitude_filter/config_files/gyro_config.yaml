@@ -1,4 +1,4 @@
-turn_on_bias_1_sigma: 0.001745
+turn_on_bias_1_sigma: 1.0e-8
 angle_random_walk_1_sigma: 1.0e-9
 rate_random_walk_1_sigma: 3.0e-10
 scale_factor_1_sigma: 1e-3
