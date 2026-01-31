@@ -10,10 +10,10 @@
 class GyroModel 
 {
 public:
-    GyroModel();
+    GyroModel() = default;
     GyroModel(const std::string& config_file);
 
-    void initialize();
+    void initialize(uint64_t seed);
     void run();
 
     gyro_inputs  inputs; 
@@ -32,7 +32,7 @@ private:
     double sf_1_sigma; 
     double misalign_1_sigma;
     double frequency;
-    int random_seed;
+    uint64_t random_seed;
 
     quat<double> q_j2000_to_body_now; 
     quat<double> q_j2000_to_body_prev;

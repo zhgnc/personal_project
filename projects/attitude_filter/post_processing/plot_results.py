@@ -12,6 +12,7 @@ import os
 hdf5_folder = "C:/git/personal_project/projects/attitude_filter/results/"
 hdf5_files  = sorted(glob.glob(os.path.join(hdf5_folder, "*.hdf5")))
 num_mc_runs = len(hdf5_files)
+print(num_mc_runs)
 
 if not hdf5_files:
     raise FileNotFoundError(f"No HDF5 files found in folder: {hdf5_folder}")

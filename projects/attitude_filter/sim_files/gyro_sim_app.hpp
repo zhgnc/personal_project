@@ -14,14 +14,14 @@ public:
     using SimAppBase::SimAppBase;
 
     void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
-        (void)sim_ctrl;  // Tells the compiler I know this varible is unused
+        uint64_t seed = sim_ctrl.get_seed();  
         
         gyro = GyroModel(path_to_config);
-        gyro.initialize();
+        gyro.initialize(seed);
     }
 
     void step(DataBus& bus, SimControl& sim_ctrl) override {
-        (void)sim_ctrl;
+        (void)sim_ctrl; // Tells the compiler I know this varible is unused
 
         gyro.inputs.q_j2000_to_body_true = bus.fake_dynamics_outputs.q_fake;
 

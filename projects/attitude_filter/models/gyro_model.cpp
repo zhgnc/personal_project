@@ -3,16 +3,6 @@
 
 #include "gyro_model.hpp"
 
-GyroModel::GyroModel() {
-  init_bias_1_sigma = default_config.turn_on_bias_1_sigma;
-  arw_1_sigma       = default_config.angle_random_walk_1_sigma;
-  rrw_1_sigma       = default_config.rate_random_walk_1_sigma;
-  sf_1_sigma        = default_config.scale_factor_1_sigma;
-  misalign_1_sigma  = default_config.misalignment_1_sigma;
-  frequency         = default_config.rate_hz;
-  random_seed       = default_config.random_seed;
-};
-
 GyroModel::GyroModel(const std::string &config_file) {
   YAML::Node config_data = load_yaml_file(config_file);
 
@@ -22,12 +12,12 @@ GyroModel::GyroModel(const std::string &config_file) {
   sf_1_sigma        = get_yaml_value<double>(config_data, "scale_factor_1_sigma");
   misalign_1_sigma  = get_yaml_value<double>(config_data, "misalignment_1_sigma");
   frequency         = get_yaml_value<double>(config_data, "rate_hz");
-  random_seed       = get_yaml_value<double>(config_data, "random_seed");
 };
 
-void GyroModel::initialize() {
+void GyroModel::initialize(uint64_t seed) {
   const double mean = 0.0;
-  const double std = 1.0;
+  const double std  = 1.0;
+  random_seed       = seed;
 
   rng.seed(random_seed);
   normal_distribution = std::normal_distribution<>(mean, std);
