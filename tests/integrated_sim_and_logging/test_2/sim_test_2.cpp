@@ -1,18 +1,15 @@
 #include <gtest/gtest.h>
 #include "yaml-cpp/yaml.h"
 
-#include "sim_framework/simulation.hpp"
-#include "sim_framework/logging_app_base.hpp"
-#include "sim_framework/sim_data_logger.hpp"
-#include "sim_framework/sim_control.hpp"
+#include "sim_framework/sim_includes.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_sim_app_1.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_sim_app_2.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_data_bus.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_logger_1.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_logger_2.hpp"
-#include "data_logging/read_hdf5_data.hpp"
-#include "utilities/file_path_helper_functions.hpp"
 #include "integrated_sim_and_logging/common_test_code/helper_functions.hpp"
+
+#include "integrated_sim_and_logging/common_test_code/file_path_helper_functions.hpp"
 
 TEST(simTest2, TwoAppsWithStopTest) {
     // Configuration

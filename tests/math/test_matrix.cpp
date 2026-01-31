@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/math/matrix/matrix.hpp"
+#include "../math//matrix/matrix.hpp"
 #include <Eigen/Dense>
 #include <random>
 #include <limits> 

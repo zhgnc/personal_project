@@ -4,20 +4,18 @@
 
 add_compile_definitions(_POSIX_C_SOURCE=200809L)
 
-# Links all the cpp files in the tests/ and src/ directories other than 
-# src/main.cpp which will conflict with main() in test_main.cpp 
+# Links all the cpp files in the tests/ and sim_framework/ directories other than 
+# sim_framework/main.cpp which will conflict with main() in test_main.cpp 
 file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"          
-    "${PROJECT_SOURCE_DIR}/src/data_logging/*.cpp"
-    "${PROJECT_SOURCE_DIR}/src/sensor_models/*.cpp"
-    "${PROJECT_SOURCE_DIR}/src/sim_framework/*.cpp"            
+    "${PROJECT_SOURCE_DIR}/sim_framework/**/*.cpp"
 )
 
 add_executable(unit_tests ${TEST_SOURCES})
 
 target_include_directories(unit_tests
     PRIVATE
-      ${PROJECT_SOURCE_DIR}/src
+      ${PROJECT_SOURCE_DIR}
       ${CMAKE_CURRENT_SOURCE_DIR}
     SYSTEM
       ${PROJECT_SOURCE_DIR}/external/eigen

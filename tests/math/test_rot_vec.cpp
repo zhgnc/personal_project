@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/math/rotation_vector/rot_vec.hpp"
+#include "../math//rotation_vector/rot_vec.hpp"
 
 TEST(rotVecTest, ConstructorAndAccessTest) {
     rot_vec<int> v1 = {1, 2, 3};
