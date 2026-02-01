@@ -30,6 +30,20 @@ template<typename T, size_t R, size_t C>
 const void* DataTraits<matrix<T, R, C>>::data_ptr(const matrix<T, R, C>* mat) { return mat->data(); }
 
 
+template<typename T>
+std::array<hsize_t, 1> DataTraits<quat<T>>::dimension_sizes() { return {4}; }
+
+template<typename T>
+const void* DataTraits<quat<T>>::data_ptr(const quat<T>* quat) { return quat->data(); }
+
+
+template<typename T>
+std::array<hsize_t, 1> DataTraits<rot_vec<T>>::dimension_sizes() { return {3}; }
+
+template<typename T>
+const void* DataTraits<rot_vec<T>>::data_ptr(const rot_vec<T>* rot_vec) { return rot_vec->data(); }
+
+
 
 
 // Implementation of DatasetOverrides class methods

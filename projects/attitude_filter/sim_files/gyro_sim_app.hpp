@@ -19,7 +19,7 @@ public:
     }
 
     void step(DataBus& bus, SimControl& sim_ctrl) override {
-        gyro.inputs.q_j2000_to_body_true = bus.fake_dynamics_outputs.q_fake;
+        gyro.inputs.q_j2000_to_body_true = bus.fake_dynamics_outputs.quat;
         gyro.inputs.current_time_sec     = sim_ctrl.public_sim_data().current_sim_time_sec;
 
         gyro.run();

@@ -34,6 +34,20 @@ struct DataTraits<matrix<T, R, C>> {
     static const void* data_ptr(const matrix<T, R, C>* mat);
 };
 
+template<typename T>
+struct DataTraits<quat<T>> {
+    static constexpr int num_dimensions = 1;
+    static std::array<hsize_t, 1> dimension_sizes();
+    static const void* data_ptr(const quat<T>* quat);
+};
+
+template<typename T>
+struct DataTraits<rot_vec<T>> {
+    static constexpr int num_dimensions = 1;
+    static std::array<hsize_t, 1> dimension_sizes();
+    static const void* data_ptr(const rot_vec<T>* rot_vec);
+};
+
 template<typename T, std::size_t buffer_length>
 class DatasetOverrides : public DatasetBase {
 public:

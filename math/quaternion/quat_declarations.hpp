@@ -16,11 +16,14 @@ public:
     quat();
     quat(std::initializer_list<T> initial_quaternion);
     quat(const quat<T>& another_quaternion);
+    explicit quat(const std::array<T,4>& std_array_quat);
 
     // Utilities
     T& operator()(std::size_t element_to_return);
     const T& operator()(std::size_t element_to_return) const;
     quat<T>& operator=(const quat<T>& another_quaternion);
+    quat<T>& operator=(const std::array<T,4>& std_array_quat);
+
     void print() const;
     void setIdentity();
     T scalar() const;
@@ -31,6 +34,7 @@ public:
 
     template <typename U>
     explicit operator quat<U>() const;
+    operator std::array<T,4>() const;
 
     // Math
     quat<T> normalize() const;

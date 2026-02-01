@@ -6,7 +6,9 @@
 
 struct DataBus {
     struct FakeDynamicsData {
-        quat<double> q_fake = {0.5, -0.5, -0.5, 0.5};
+        quat<double> quat;
+        vector<double, 3> body_rates;
+        rot_vec<double> rot_vec_attitude;
     };
 
     struct GyroData {

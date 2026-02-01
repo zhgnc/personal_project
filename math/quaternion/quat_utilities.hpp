@@ -30,6 +30,12 @@ quat<T>& quat<T>::operator=(const quat<T>& another_quaternion) {
 }
 
 template <typename T>
+quat<T>& quat<T>::operator=(const std::array<T,4>& std_array_quat) {
+    data = std_array_quat;
+    return (*this);
+}
+
+template <typename T>
 void quat<T>::print() const {
     for (std::size_t row = 0; row < 4; row++) {
         std::cout << data[row] << "\n"; 
@@ -85,6 +91,11 @@ quat<T>::operator quat<U>() const {
     }
 
     return output;
+}
+
+template <typename T>
+quat<T>::operator std::array<T,4>() const {
+    return data;
 }
 
 #endif

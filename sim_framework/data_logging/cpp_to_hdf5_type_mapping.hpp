@@ -82,4 +82,18 @@ struct HDF5Type<matrix<T, R, C>> {
     }
 };
 
+template<typename T>
+struct HDF5Type<quat<T>> {
+    static H5::DataType get() {
+        return HDF5Type<T>::get();
+    }
+};
+
+template<typename T>
+struct HDF5Type<rot_vec<T>> {
+    static H5::DataType get() {
+        return HDF5Type<T>::get();
+    }
+};
+
 #endif 

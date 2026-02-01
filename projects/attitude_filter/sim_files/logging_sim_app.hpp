@@ -14,14 +14,23 @@ public:
     using LoggingAppBase<DataBus>::LoggingAppBase;
 
     void configure_hdf5_logging(LoggerFacade& logger, const DataBus& data_bus, const AppLoggingRates& rates) override {
+        // Dynamics
+        logger.add_group("fake_dynamics");
+
+        logger.add_dataset("quat",             "fake_dynamics", data_bus.fake_dynamics_outputs.quat,             rates.rate_A_hz);
+        logger.add_dataset("rot_vec_attitude", "fake_dynamics", data_bus.fake_dynamics_outputs.rot_vec_attitude, rates.rate_A_hz);
+        logger.add_dataset("body_rates",       "fake_dynamics", data_bus.fake_dynamics_outputs.body_rates,       rates.rate_A_hz);
+
+        
+        // Gyro
         logger.add_group("gyro");
 
-        logger.add_dataset("gyro_meas_valid_flag", "gyro", data_bus.gyro_outputs.measurement_valid,     rates.rate_A_hz);
-        logger.add_dataset("meas_delta_angles",    "gyro", data_bus.gyro_outputs.measured_delta_angles, rates.rate_A_hz);
-        logger.add_dataset("angle_biases",         "gyro", data_bus.gyro_outputs.angle_biases,          rates.rate_A_hz);
-        logger.add_dataset("scale_factors",        "gyro", data_bus.gyro_outputs.scale_factors,         rates.rate_A_hz);
-        logger.add_dataset("misalignments",        "gyro", data_bus.gyro_outputs.misalignments,         rates.rate_A_hz);
-        logger.add_dataset("seed",                 "gyro", data_bus.gyro_outputs.seed,                  rates.rate_A_hz);
+        logger.add_dataset("gyro_meas_valid_flag", "gyro", data_bus.gyro_outputs.measurement_valid,     rates.rate_B_hz);
+        logger.add_dataset("meas_delta_angles",    "gyro", data_bus.gyro_outputs.measured_delta_angles, rates.rate_B_hz);
+        logger.add_dataset("angle_biases",         "gyro", data_bus.gyro_outputs.angle_biases,          rates.rate_B_hz);
+        logger.add_dataset("scale_factors",        "gyro", data_bus.gyro_outputs.scale_factors,         rates.rate_B_hz);
+        logger.add_dataset("misalignments",        "gyro", data_bus.gyro_outputs.misalignments,         rates.rate_B_hz);
+        logger.add_dataset("seed",                 "gyro", data_bus.gyro_outputs.seed,                  rates.rate_B_hz);
     };
 };
 

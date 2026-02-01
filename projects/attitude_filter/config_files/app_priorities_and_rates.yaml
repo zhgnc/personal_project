@@ -5,4 +5,5 @@ star_tracker_priority: 3
 attitude_filter_priority: 4
 
 # Rates
+dynamics_rate_hz: 5.0
 gyro_rate_hz: 5.0
