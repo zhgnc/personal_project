@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <string>
 
-#include "../../sim_framework/sim_core/sim_control.hpp"
 #include "../sim_core/sim_control.hpp"
 
 // Forward declare template Simulation so that it can be a friend class. This 
@@ -27,6 +26,8 @@ public:
     virtual void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) = 0;
     virtual void step(DataBusType& bus, SimControl& sim_ctrl) = 0;
     virtual void teardown(DataBusType& bus, SimControl& sim_ctrl) = 0;
+
+    virtual ~SimAppBase() = default;
 
     const std::string& name() const { return app_name; }
     int priority() const { return app_priority; }

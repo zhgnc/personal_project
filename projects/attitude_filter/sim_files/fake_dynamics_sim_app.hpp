@@ -19,8 +19,6 @@ public:
 
         q_attitude           = get_yaml_value<std::array<double,4>>(config_data, "initial_quaternion");
         rot_vec_attitude     = to_rot_vec(q_attitude);
-        q_attitude.print();
-        rot_vec_attitude.print();
 
         x_axis_period_s      = get_yaml_value<double>(config_data, "x_axis_period_s");
         x_axis_amplitude_rps = get_yaml_value<double>(config_data, "x_axis_amplitude_dps") * deg2rad;

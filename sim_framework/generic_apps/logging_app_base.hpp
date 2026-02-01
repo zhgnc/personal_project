@@ -16,6 +16,8 @@ template<typename DataBusType>
 class LoggingAppBase {
 public: 
     LoggingAppBase() = default;
+    virtual ~LoggingAppBase() = default;
+    
     virtual void configure_hdf5_logging(LoggerFacade& logger, const DataBusType& data_bus, const AppLoggingRates& rates) = 0;
 };
 

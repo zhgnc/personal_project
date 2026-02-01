@@ -30,6 +30,9 @@ axis_labels = ['X', 'Y', 'Z']
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
         delta_theta_data = f["/gyro/meas_delta_angles"][:]
+        sim_time_sec     = f["/gyro/angle_biases"][:]
+        sim_time_sec     = f["/gyro/misalignments"][:]
+        sim_time_sec     = f["/gyro/scale_factors"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
     # Plot each dataset with a different color and label

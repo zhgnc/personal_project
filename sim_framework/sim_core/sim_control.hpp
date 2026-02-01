@@ -24,7 +24,7 @@ enum class StopReason {
     NotSpecified              = 8             
 };
 
-static std::string stop_reason_to_string(StopReason reason) {
+inline std::string stop_reason_to_string(StopReason reason) {
     switch(reason) {
         case StopReason::ReachedConfiguredStopTime: return "Reached Configured Stop Time";
         case StopReason::ReachedEndObjective:       return "Reached End Objective";
@@ -39,7 +39,7 @@ static std::string stop_reason_to_string(StopReason reason) {
     }
 }
 
-static std::string stop_type_to_string(StopType type) {
+inline std::string stop_type_to_string(StopType type) {
     switch(type) {
         case StopType::AfterApp:   return "After This App";
         case StopType::AfterCycle: return "After This Cycle";
