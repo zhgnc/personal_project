@@ -15,9 +15,7 @@ public:
 
     void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
         uint64_t seed = sim_ctrl.get_seed();  
-        
-        gyro = GyroModel(path_to_config);
-        gyro.initialize(seed);
+        gyro          = GyroModel(path_to_config, seed);
     }
 
     void step(DataBus& bus, SimControl& sim_ctrl) override {
@@ -35,13 +33,12 @@ public:
     }
     
     void teardown(DataBus& bus, SimControl& sim_ctrl) override {
-        (void)bus;
+        (void)bus; // Tells compiler that I know these variables are unused
         (void)sim_ctrl;
     }
 
 private:
     GyroModel gyro; 
-    int count = 0;
 };
 
 #endif

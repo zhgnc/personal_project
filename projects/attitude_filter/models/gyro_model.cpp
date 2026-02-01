@@ -3,7 +3,7 @@
 
 #include "gyro_model.hpp"
 
-GyroModel::GyroModel(const std::string &config_file) {
+GyroModel::GyroModel(const std::string &config_file, uint64_t seed) {
   YAML::Node config_data = load_yaml_file(config_file);
 
   init_rate_bias_1_sigma = get_yaml_value<double>(config_data, "turn_on_rate_bias_1_sigma");
@@ -11,12 +11,14 @@ GyroModel::GyroModel(const std::string &config_file) {
   rrw_1_sigma            = get_yaml_value<double>(config_data, "rate_random_walk_1_sigma");
   sf_1_sigma             = get_yaml_value<double>(config_data, "scale_factor_1_sigma");
   misalign_1_sigma       = get_yaml_value<double>(config_data, "misalignment_1_sigma");
+  random_seed            = seed;
+
+  initialize();
 };
 
-void GyroModel::initialize(uint64_t seed) {
+void GyroModel::initialize() {
   const double mean = 0.0;
   const double std  = 1.0;
-  random_seed       = seed;
 
   rng.seed(random_seed);
   normal_distribution = std::normal_distribution<>(mean, std);
