@@ -10,8 +10,12 @@ struct DataBus {
     };
 
     struct GyroData {
-        vector<double, 3> measured_delta_angles;
         bool measurement_valid;
+        vector<double, 3> measured_delta_angles;
+        vector<double, 3> angle_biases;
+        vector<double, 3> scale_factors;
+        vector<double, 3> misalignments;
+        uint64_t seed;
     };
 
 

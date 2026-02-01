@@ -21,14 +21,17 @@ public:
     }
 
     void step(DataBus& bus, SimControl& sim_ctrl) override {
-        (void)sim_ctrl; // Tells the compiler I know this varible is unused
-
         gyro.inputs.q_j2000_to_body_true = bus.fake_dynamics_outputs.q_fake;
+        gyro.inputs.current_time_sec     = sim_ctrl.public_sim_data().current_sim_time_sec;
 
         gyro.run();
 
-        bus.gyro_outputs.measured_delta_angles = gyro.outputs.measured_delta_angles;
         bus.gyro_outputs.measurement_valid     = gyro.outputs.gyro_measurement_valid;
+        bus.gyro_outputs.measured_delta_angles = gyro.outputs.measured_delta_angles;
+        bus.gyro_outputs.angle_biases          = gyro.outputs.angle_biases;
+        bus.gyro_outputs.scale_factors         = gyro.outputs.scale_factors;
+        bus.gyro_outputs.misalignments         = gyro.outputs.misalignments;
+        bus.gyro_outputs.seed                  = gyro.outputs.seed;
     }
     
     void teardown(DataBus& bus, SimControl& sim_ctrl) override {

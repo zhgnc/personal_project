@@ -24,9 +24,7 @@ private:
     void execute(); 
     void set_outputs();
 
-    gyro_default_config default_config;
-
-    double init_bias_1_sigma;
+    double init_rate_bias_1_sigma;
     double arw_1_sigma; 
     double rrw_1_sigma; 
     double sf_1_sigma; 
@@ -37,17 +35,20 @@ private:
     quat<double> q_j2000_to_body_now; 
     quat<double> q_j2000_to_body_prev;
     quat<double> q_prev_to_now;
+
+    double time_now_sec;
+    double time_prev_sec;
+
     vector<double, 3> true_delta_angles;
     vector<double, 3> meas_delta_angles;
 
-    vector<double, 3> initial_rate_biases;
-    vector<double, 3> rate_biases;
     vector<double, 3> scale_factors;
     vector<double, 3> misalignments;
 
     double dt;
     vector<double, 3> arw_error;
-    vector<double, 3> bias_error;
+    vector<double, 3> rate_bias;
+    vector<double, 3> angle_bias;
     matrix<double, 3,3> sf_misalign_matrix;
     matrix<double, 3,3> I3;
 
