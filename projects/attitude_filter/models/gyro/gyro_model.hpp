@@ -2,8 +2,8 @@
 #define GYRO_MODEL_HPP
 
 #include "math/math.hpp"
-#include "struct_defs.hpp"
-#include "../utilities/yaml_utilities.hpp"
+#include "utilities/yaml_utilities.hpp"
+#include "gyro_struct_defs.hpp"
 
 #include <random>
 

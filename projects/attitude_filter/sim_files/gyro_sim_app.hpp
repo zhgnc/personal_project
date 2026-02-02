@@ -6,7 +6,7 @@
 #include <string>
 
 #include "../../../sim_framework/sim_includes.hpp"
-#include "../../../projects/attitude_filter/models/gyro_model.hpp"
+#include "../../../projects/attitude_filter/models/gyro/gyro_model.hpp"
 #include "../../../projects/attitude_filter/sim_files/data_bus.hpp"
 
 class GyroSimApp : public SimAppBase<DataBus> {

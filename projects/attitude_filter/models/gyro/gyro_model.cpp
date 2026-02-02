@@ -1,6 +1,3 @@
-#ifndef GYRO_CPP
-#define GYRO_CPP
-
 #include "gyro_model.hpp"
 
 GyroModel::GyroModel(const std::string &config_file, uint64_t seed) {
@@ -87,5 +84,3 @@ void GyroModel::set_outputs() {
   outputs.misalignments           = misalignments;
   outputs.seed                    = random_seed;
 };
-
-#endif
