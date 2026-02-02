@@ -20,34 +20,122 @@ if not hdf5_files:
 
 plt.style.use('dark_background')
 
-##############################
-# Plot Measured Delta Angles #
-##############################
+##################
+# Plot Gyro Data #
+##################
+# Plot measured delta angles
 fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
-axis_labels = ['X', 'Y', 'Z']
+axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
 
-# Loop over each HDF5 file
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
         delta_theta_data = f["/gyro/meas_delta_angles"][:]
-        sim_time_sec     = f["/gyro/angle_biases"][:]
-        sim_time_sec     = f["/gyro/misalignments"][:]
-        sim_time_sec     = f["/gyro/scale_factors"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
-    # Plot each dataset with a different color and label
     for i in range(3):
-        axs[i].plot(sim_time_sec[1:], delta_theta_data[1:, i], linewidth=0.5)
+        axs[i].plot(sim_time_sec[1:], delta_theta_data[1:, i] * rad2deg, linewidth=0.5)
 
-# Set labels, legends, and grid
+
 for i in range(3):
-    axs[i].set_ylabel("Delta Theta (rad)", fontsize=16)
+    axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].grid(True)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
-fig.suptitle(f"Gyro Delta Thetas Over Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
+fig.suptitle(f"Gyro Measured Delta Angles vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("gyro_data")
+plt.savefig("gyro_meas_delta_angles")
+
+
+# Plot gyro biases
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axis_labels = ['X-Biases [deg]', 'Y-Biases [deg]', 'Z-Biases [deg]']
+
+for file_idx, hdf5_path in enumerate(hdf5_files):
+    with h5py.File(hdf5_path, "r") as f:
+        angle_biases     = f["/gyro/angle_biases"][:]
+        sim_time_sec     = f["/sim/current_sim_time_sec"][:]
+
+    for i in range(3):
+        axs[i].plot(sim_time_sec[1:], angle_biases[1:, i] * rad2deg, linewidth=0.5)
+
+
+for i in range(3):
+    axs[i].set_ylabel(axis_labels[i], fontsize=16)
+    axs[i].grid(True)
+
+axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
+fig.suptitle(f"Gyro Angle Biases vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.savefig("gyro_angle_biases")
+
+
+# Plot gyro misalignments
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
+
+for file_idx, hdf5_path in enumerate(hdf5_files):
+    with h5py.File(hdf5_path, "r") as f:
+        misalignments    = f["/gyro/misalignments"][:]
+        sim_time_sec     = f["/sim/current_sim_time_sec"][:]
+
+    for i in range(3):
+        axs[i].plot(sim_time_sec[1:], misalignments[1:, i] * rad2deg, linewidth=0.5)
+
+
+for i in range(3):
+    axs[i].set_ylabel(axis_labels[i], fontsize=16)
+    axs[i].grid(True)
+
+axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
+fig.suptitle(f"Gyro Misalignments vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.savefig("gyro_misalignments")
+
+
+# Plot gyro scale factors
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axis_labels = ['X-Axis [PPM]', 'Y-Axis [PPM]', 'Z-Axis [PPM]']
+
+for file_idx, hdf5_path in enumerate(hdf5_files):
+    with h5py.File(hdf5_path, "r") as f:
+        scale_factors    = f["/gyro/scale_factors"][:]
+        sim_time_sec     = f["/sim/current_sim_time_sec"][:]
+
+    for i in range(3):
+        axs[i].plot(sim_time_sec[1:], scale_factors[1:, i] * 1e6, linewidth=0.5)
+
+
+for i in range(3):
+    axs[i].set_ylabel(axis_labels[i], fontsize=16)
+    axs[i].grid(True)
+
+axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
+fig.suptitle(f"Gyro Scale Factors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.savefig("gyro_scale_factors")
+
+
+# Plot total gyro errors
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
+
+for file_idx, hdf5_path in enumerate(hdf5_files):
+    with h5py.File(hdf5_path, "r") as f:
+        total_error  = f["/gyro/total_delta_angle_error"][:]
+        sim_time_sec = f["/sim/current_sim_time_sec"][:]
+
+    for i in range(3):
+        axs[i].plot(sim_time_sec[1:], total_error[1:, i] * rad2deg, linewidth=0.5)
+
+
+for i in range(3):
+    axs[i].set_ylabel(axis_labels[i], fontsize=16)
+    axs[i].grid(True)
+
+axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
+fig.suptitle(f"Gyro Delta Angle Total Error vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.savefig("gyro_total_error")
 
 ######################
 # Plot Fake Dynamics #

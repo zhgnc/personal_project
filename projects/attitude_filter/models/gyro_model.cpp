@@ -6,11 +6,11 @@
 GyroModel::GyroModel(const std::string &config_file, uint64_t seed) {
   YAML::Node config_data = load_yaml_file(config_file);
 
-  init_rate_bias_1_sigma = get_yaml_value<double>(config_data, "turn_on_rate_bias_1_sigma");
-  arw_1_sigma            = get_yaml_value<double>(config_data, "angle_random_walk_1_sigma");
-  rrw_1_sigma            = get_yaml_value<double>(config_data, "rate_random_walk_1_sigma");
-  sf_1_sigma             = get_yaml_value<double>(config_data, "scale_factor_1_sigma");
-  misalign_1_sigma       = get_yaml_value<double>(config_data, "misalignment_1_sigma");
+  init_rate_bias_1_sigma = get_yaml_value<double>(config_data, "turn_on_rate_bias_deg_1_sigma") * deg2rad;
+  arw_1_sigma            = get_yaml_value<double>(config_data, "angle_random_walk_deg_1_sigma") * deg2rad;
+  rrw_1_sigma            = get_yaml_value<double>(config_data, "rate_random_walk_deg_1_sigma")  * deg2rad;
+  sf_1_sigma             = get_yaml_value<double>(config_data, "scale_factor_ppm_1_sigma")      * 1e-6;
+  misalign_1_sigma       = get_yaml_value<double>(config_data, "misalignment_deg_1_sigma")      * deg2rad;
   random_seed            = seed;
 
   initialize();
@@ -73,17 +73,19 @@ void GyroModel::execute() {
   angle_bias        = rate_bias * dt;
   meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + angle_bias + arw_error;
 
+  total_delta_angle_error = true_delta_angles - meas_delta_angles;
   q_j2000_to_body_prev = q_j2000_to_body_now;
   gyro_meas_valid = true;
 };
 
 void GyroModel::set_outputs() {
-  outputs.gyro_measurement_valid = gyro_meas_valid;
-  outputs.measured_delta_angles  = meas_delta_angles;
-  outputs.angle_biases           = angle_bias;
-  outputs.scale_factors          = scale_factors;
-  outputs.misalignments          = misalignments;
-  outputs.seed                   = random_seed;
+  outputs.gyro_measurement_valid  = gyro_meas_valid;
+  outputs.measured_delta_angles   = meas_delta_angles;
+  outputs.total_delta_angle_error = total_delta_angle_error;
+  outputs.angle_biases            = angle_bias;
+  outputs.scale_factors           = scale_factors;
+  outputs.misalignments           = misalignments;
+  outputs.seed                    = random_seed;
 };
 
 #endif

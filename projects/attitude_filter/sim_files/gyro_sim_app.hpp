@@ -24,12 +24,13 @@ public:
 
         gyro.run();
 
-        bus.gyro_outputs.measurement_valid     = gyro.outputs.gyro_measurement_valid;
-        bus.gyro_outputs.measured_delta_angles = gyro.outputs.measured_delta_angles;
-        bus.gyro_outputs.angle_biases          = gyro.outputs.angle_biases;
-        bus.gyro_outputs.scale_factors         = gyro.outputs.scale_factors;
-        bus.gyro_outputs.misalignments         = gyro.outputs.misalignments;
-        bus.gyro_outputs.seed                  = gyro.outputs.seed;
+        bus.gyro_outputs.measurement_valid       = gyro.outputs.gyro_measurement_valid;
+        bus.gyro_outputs.measured_delta_angles   = gyro.outputs.measured_delta_angles;
+        bus.gyro_outputs.total_delta_angle_error = gyro.outputs.total_delta_angle_error;
+        bus.gyro_outputs.angle_biases            = gyro.outputs.angle_biases;
+        bus.gyro_outputs.scale_factors           = gyro.outputs.scale_factors;
+        bus.gyro_outputs.misalignments           = gyro.outputs.misalignments;
+        bus.gyro_outputs.seed                    = gyro.outputs.seed;
     }
     
     void teardown(DataBus& bus, SimControl& sim_ctrl) override {

@@ -3,7 +3,7 @@
 
 #include "math/math.hpp"
 #include "struct_defs.hpp"
-#include "..//utilities/yaml_utilities.hpp"
+#include "../utilities/yaml_utilities.hpp"
 
 #include <random>
 
@@ -41,6 +41,7 @@ private:
 
     vector<double, 3> true_delta_angles;
     vector<double, 3> meas_delta_angles;
+    vector<double, 3> total_delta_angle_error;
     vector<double, 3> scale_factors;
     vector<double, 3> misalignments;
     vector<double, 3> arw_error;
@@ -52,6 +53,8 @@ private:
         
     matrix<double, 3,3> I3;
     matrix<double, 3,3> sf_misalign_matrix;
+
+    static constexpr double deg2rad = M_PI / 180.0;
 
     std::mt19937 rng;
     std::normal_distribution<> normal_distribution;

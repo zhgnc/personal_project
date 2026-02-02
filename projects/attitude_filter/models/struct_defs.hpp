@@ -11,6 +11,7 @@ struct gyro_inputs {
 struct gyro_outputs {
     bool gyro_measurement_valid;
     vector<double, 3> measured_delta_angles;
+    vector<double, 3> total_delta_angle_error;
     vector<double, 3> angle_biases;
     vector<double, 3> scale_factors;
     vector<double, 3> misalignments;
