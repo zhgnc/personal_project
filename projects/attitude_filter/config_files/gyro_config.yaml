@@ -3,3 +3,4 @@ angle_random_walk_deg_1_sigma: 3.0e-8
 rate_random_walk_deg_1_sigma: 2.0e-8
 scale_factor_ppm_1_sigma: 1000
 misalignment_deg_1_sigma: 1.0
+q_body_to_gyro: [0.0, 0.0, 0.0, 1.0]

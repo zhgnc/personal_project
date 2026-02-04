@@ -8,6 +8,7 @@ GyroModel::GyroModel(const std::string &config_file, uint64_t seed) {
   rrw_1_sigma            = get_yaml_value<double>(config_data, "rate_random_walk_deg_1_sigma")  * deg2rad;
   sf_1_sigma             = get_yaml_value<double>(config_data, "scale_factor_ppm_1_sigma")      * 1e-6;
   misalign_1_sigma       = get_yaml_value<double>(config_data, "misalignment_deg_1_sigma")      * deg2rad;
+  q_body_to_gyro         = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_gyro");
   random_seed            = seed;
 
   initialize();
@@ -58,6 +59,7 @@ void GyroModel::execute() {
 
   q_prev_to_now     = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
   true_delta_angles = to_rot_vec(q_prev_to_now);
+  true_delta_angles = q_body_to_gyro * true_delta_angles;
 
   dt            = time_now_sec - time_prev_sec;
   time_prev_sec = time_now_sec;

@@ -29,6 +29,7 @@ private:
     double rrw_1_sigma; 
     double sf_1_sigma; 
     double misalign_1_sigma;
+    quat<double> q_body_to_gyro;
     uint64_t random_seed;
 
     quat<double> q_j2000_to_body_now; 

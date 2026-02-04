@@ -86,6 +86,11 @@ void Logger::print_file_tree(const bool& print_file_attributes) {
         file_is_open = true; 
     }
 
+    // Must close file so that each dataset buffers is flushed otherwise the hdf5 
+    // file will not know how much data is in each dataset when printing the size
+    close_file();
+    open_file();
+
     H5::Group root_group       = hdf5_file_ptr->openGroup("/");
     std::size_t level_to_print = 0;
 

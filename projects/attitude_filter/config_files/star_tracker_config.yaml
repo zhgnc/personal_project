@@ -1,0 +1,5 @@
+x_axis_noise_deg_1_sigma: 0.0
+y_axis_noise_deg_1_sigma: 0.0 
+z_axis_noise_deg_1_sigma: 0.0
+max_rate_dps: 10.0
+q_body_to_star_tracker: [0.0, 0.0, 0.0, 1.0]

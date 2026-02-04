@@ -32,6 +32,15 @@ public:
         logger.add_dataset("scale_factors",           "gyro", data_bus.gyro_outputs.scale_factors,           rates.rate_B_hz);
         logger.add_dataset("misalignments",           "gyro", data_bus.gyro_outputs.misalignments,           rates.rate_B_hz);
         logger.add_dataset("seed",                    "gyro", data_bus.gyro_outputs.seed,                    rates.rate_B_hz);
+
+
+        // Star Tracker
+        logger.add_group("star_tracker");
+
+        logger.add_dataset("measurement_valid",            "star_tracker", data_bus.star_tracker_outputs.measurement_valid,            rates.rate_C_hz);
+        logger.add_dataset("q_j2000_to_star_tracker_meas", "star_tracker", data_bus.star_tracker_outputs.q_j2000_to_star_tracker_meas, rates.rate_C_hz);
+        logger.add_dataset("measurement_error_rad",        "star_tracker", data_bus.star_tracker_outputs.measurement_error_rad,        rates.rate_C_hz);
+        logger.add_dataset("seed",                         "star_tracker", data_bus.star_tracker_outputs.seed,                         rates.rate_C_hz);
     };
 };
 

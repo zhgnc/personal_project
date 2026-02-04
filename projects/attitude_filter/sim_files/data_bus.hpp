@@ -21,9 +21,17 @@ struct DataBus {
         uint64_t seed;
     };
 
+    struct StarTrackerData {
+        bool measurement_valid;
+        quat<double> q_j2000_to_star_tracker_meas;
+        vector<double, 3> measurement_error_rad;
+        uint64_t seed;
+    };
+
 
     FakeDynamicsData fake_dynamics_outputs;
     GyroData gyro_outputs;
+    StarTrackerData star_tracker_outputs;
 };
 
 #endif
