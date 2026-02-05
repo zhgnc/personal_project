@@ -41,6 +41,14 @@ public:
         logger.add_dataset("q_j2000_to_star_tracker_meas", "star_tracker", data_bus.star_tracker_outputs.q_j2000_to_star_tracker_meas, rates.rate_C_hz);
         logger.add_dataset("measurement_error_rad",        "star_tracker", data_bus.star_tracker_outputs.measurement_error_rad,        rates.rate_C_hz);
         logger.add_dataset("seed",                         "star_tracker", data_bus.star_tracker_outputs.seed,                         rates.rate_C_hz);
+    
+        // Attitude filter
+        logger.add_group("attitude_filter");
+
+        logger.add_dataset("q_j2000_to_body_est",              "attitude_filter", data_bus.attitude_filter_outputs.q_j2000_to_body_est,              rates.rate_D_hz);
+        logger.add_dataset("corrected_gyro_delta_thetas",      "attitude_filter", data_bus.attitude_filter_outputs.corrected_gyro_delta_thetas,      rates.rate_D_hz);
+        logger.add_dataset("est_gyro_to_st_misalignments_rad", "attitude_filter", data_bus.attitude_filter_outputs.est_gyro_to_st_misalignments_rad, rates.rate_D_hz);
+        logger.add_dataset("est_gyro_scale_factors",           "attitude_filter", data_bus.attitude_filter_outputs.est_gyro_scale_factors,           rates.rate_D_hz);
     };
 };
 

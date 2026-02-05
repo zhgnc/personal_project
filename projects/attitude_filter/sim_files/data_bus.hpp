@@ -28,10 +28,19 @@ struct DataBus {
         uint64_t seed;
     };
 
+    struct AttitudeFilterData {
+        quat<double> q_j2000_to_body_est;
+        vector<double, 3> corrected_gyro_delta_thetas;
+        vector<double, 3> est_gyro_biases_rps;
+        vector<double, 3> est_gyro_to_st_misalignments_rad;
+        vector<double, 3> est_gyro_scale_factors;
+    };
+
 
     FakeDynamicsData fake_dynamics_outputs;
     GyroData gyro_outputs;
     StarTrackerData star_tracker_outputs;
+    AttitudeFilterData attitude_filter_outputs;
 };
 
 #endif

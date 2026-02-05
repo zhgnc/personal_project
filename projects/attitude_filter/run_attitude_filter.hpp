@@ -17,6 +17,7 @@
 #include "sim_files/fake_dynamics_sim_app.hpp"
 #include "sim_files/gyro_sim_app.hpp"
 #include "sim_files/star_tracker_sim_app.hpp"
+#include "sim_files/attitude_filter_sim_app.hpp"
 
 int run_attitude_filter() {
   std::string sim_and_logger_config_path    = "projects/attitude_filter/config_files/sim_and_logging_config.yaml";
@@ -24,6 +25,8 @@ int run_attitude_filter() {
   std::string fake_dynamics_config_path     = "projects/attitude_filter/config_files/fake_dynamics_config.yaml";
   std::string gyro_config_path              = "projects/attitude_filter/config_files/gyro_config.yaml";
   std::string star_tracker_config_path      = "projects/attitude_filter/config_files/star_tracker_config.yaml";
+  std::string attitude_filter_config_path   = "projects/attitude_filter/config_files/attitude_filter_config.yaml";
+
 
   YAML::Node app_priority_and_rate_data = load_yaml_file(priority_and_rate_config_path);
 
@@ -46,6 +49,12 @@ int run_attitude_filter() {
   double star_tracker_rate  = get_yaml_value<double>(app_priority_and_rate_data, "star_tracker_rate_hz");
   int star_tracker_priority = get_yaml_value<int>(app_priority_and_rate_data, "star_tracker_priority");
   StarTrackerSimApp star_tracker_app(star_tracker_app_name, star_tracker_rate, star_tracker_priority, star_tracker_config_path);
+  sim.add_app(star_tracker_app);
+
+  std::string attitude_filter_app_name = "Attitude Filter App";
+  double attitude_filter_rate  = get_yaml_value<double>(app_priority_and_rate_data, "attitude_filter_rate_hz");
+  int attitude_filter_priority = get_yaml_value<int>(app_priority_and_rate_data, "attitude_filter_priority");
+  AttitudeFilterSimApp attitude_filter_app(attitude_filter_app_name, attitude_filter_rate, attitude_filter_priority, attitude_filter_config_path);
   sim.add_app(star_tracker_app);
 
   LoggingSimApp logger;
