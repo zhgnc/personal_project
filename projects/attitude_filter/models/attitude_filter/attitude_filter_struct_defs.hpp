@@ -6,14 +6,14 @@
 struct AttitudeFilterInputs {
     quat<double> q_j2000_to_star_tracker_meas;
     bool star_tracker_meas_valid;
-    vector<double, 3> meas_delta_thetas;
+    rot_vec<double> meas_delta_thetas;
     bool gyro_meas_valid;
     double current_time_sec;
 };
 
 struct AttitudeFilterOutputs {
     quat<double> q_j2000_to_body_est;
-    vector<double, 3> corrected_gyro_delta_thetas;
+    rot_vec<double> corrected_gyro_delta_thetas;
     vector<double, 3> est_gyro_biases_rps;
     vector<double, 3> est_gyro_to_st_misalignments_rad;
     vector<double, 3> est_gyro_scale_factors;
