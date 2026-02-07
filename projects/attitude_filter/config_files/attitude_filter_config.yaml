@@ -1,1 +1,12 @@
-nothing: 0.0
+q_body_to_gyro: [0.0, 0.0, 0.0, 1.0]
+q_body_to_star_tracker: [0.0, 0.0, 0.0, 1.0]
+
+attitude_process_noise: 1.0
+gyro_bias_process_noise: 2.0
+gyro_misalignment_process_noise: 3.0
+gyro_scale_factor_process_noise: 4.0
+
+attitude_covariance: 1.0
+gyro_bias_covariance: 2.0
+gyro_misalignment_covariance: 3.0
+gyro_scale_factor_covariance: 4.0

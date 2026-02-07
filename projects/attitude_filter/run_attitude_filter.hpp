@@ -55,7 +55,7 @@ int run_attitude_filter() {
   double attitude_filter_rate  = get_yaml_value<double>(app_priority_and_rate_data, "attitude_filter_rate_hz");
   int attitude_filter_priority = get_yaml_value<int>(app_priority_and_rate_data, "attitude_filter_priority");
   AttitudeFilterSimApp attitude_filter_app(attitude_filter_app_name, attitude_filter_rate, attitude_filter_priority, attitude_filter_config_path);
-  sim.add_app(star_tracker_app);
+  sim.add_app(attitude_filter_app);
 
   LoggingSimApp logger;
   sim.add_logging_app(logger);
