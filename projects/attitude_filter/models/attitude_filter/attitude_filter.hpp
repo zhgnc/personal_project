@@ -31,6 +31,7 @@ private:
     quat<double> q_body_to_gyro;
     matrix<double, 12,12> Q;
     matrix<double, 12,12> P;
+    matrix<double, 3,3>   R;
     
     // Inputs 
     quat<double> q_j2000_to_st_meas;
@@ -45,6 +46,7 @@ private:
     vector<double, 3> est_biases;
     vector<double, 3> est_sf;
     vector<double, 3> est_misalign;
+    rot_vec<double> rot_vec_residual;
 
     // Private class members
     bool first_cycle;
@@ -56,6 +58,7 @@ private:
     double time_prev_sec;
     double dt;
     matrix<double, 3,3> I3;
+    matrix<double, 12,12> I12;
     
 
 };

@@ -9,10 +9,14 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     double gyro_bias_pn        = get_yaml_value<double>(config_data, "gyro_bias_process_noise");
     double gyro_misalign_pn    = get_yaml_value<double>(config_data, "gyro_misalignment_process_noise");
     double gyro_sf_pn          = get_yaml_value<double>(config_data, "gyro_scale_factor_process_noise");
-    double attitude_covar      = get_yaml_value<double>(config_data, "attitude_process_noise");
-    double gyro_bias_covar     = get_yaml_value<double>(config_data, "gyro_bias_process_noise");
-    double gyro_misalign_covar = get_yaml_value<double>(config_data, "gyro_misalignment_process_noise");
-    double gyro_sf_covar       = get_yaml_value<double>(config_data, "gyro_scale_factor_process_noise");
+    double attitude_covar      = get_yaml_value<double>(config_data, "attitude_covariance");
+    double gyro_bias_covar     = get_yaml_value<double>(config_data, "gyro_bias_covariance");
+    double gyro_misalign_covar = get_yaml_value<double>(config_data, "gyro_misalignment_covariance");
+    double gyro_sf_covar       = get_yaml_value<double>(config_data, "gyro_scale_factor_covariance");
+    double st_x_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_x_noise_1_sigma_rad");
+    double st_y_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_y_noise_1_sigma_rad");
+    double st_z_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_z_noise_1_sigma_rad");
+
 
     Q.setIdentity();
     Q(0,0)   = attitude_pn;
@@ -29,18 +33,23 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     Q(11,11) = gyro_sf_pn;
 
     P.setIdentity();
-    Q(0,0)   = attitude_covar;
-    Q(1,1)   = attitude_covar;
-    Q(2,2)   = attitude_covar;
-    Q(3,3)   = gyro_bias_covar;
-    Q(4,4)   = gyro_bias_covar;
-    Q(5,5)   = gyro_bias_covar;
-    Q(6,6)   = gyro_misalign_covar;
-    Q(7,7)   = gyro_misalign_covar;
-    Q(8,8)   = gyro_misalign_covar;
-    Q(9,9)   = gyro_sf_covar;
-    Q(10,10) = gyro_sf_covar;
-    Q(11,11) = gyro_sf_covar;
+    P(0,0)   = attitude_covar;
+    P(1,1)   = attitude_covar;
+    P(2,2)   = attitude_covar;
+    P(3,3)   = gyro_bias_covar;
+    P(4,4)   = gyro_bias_covar;
+    P(5,5)   = gyro_bias_covar;
+    P(6,6)   = gyro_misalign_covar;
+    P(7,7)   = gyro_misalign_covar;
+    P(8,8)   = gyro_misalign_covar;
+    P(9,9)   = gyro_sf_covar;
+    P(10,10) = gyro_sf_covar;
+    P(11,11) = gyro_sf_covar;
+
+    R.setIdentity();
+    R(0,0) = st_x_meas_noise * st_x_meas_noise;
+    R(1,1) = st_y_meas_noise * st_y_meas_noise;
+    R(2,2) = st_z_meas_noise * st_z_meas_noise;
 
     q_j2000_to_body_est.setIdentity();
     est_biases.setZeros();
@@ -48,12 +57,15 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     est_misalign.setZeros();
 
     I3.setIdentity();
+    I12.setIdentity();
 
     first_cycle = true;
 }
 
 void AttitudeFilter::run() {
     get_input_data();
+    process_gyro_meas();
+    process_star_tracker_meas();
 
     if (first_cycle == true) {
         first_cycle   = false;
@@ -61,17 +73,14 @@ void AttitudeFilter::run() {
         return;
     }
 
-    process_gyro_meas();
     propagate_states();
 
     if (st_meas_valid == false) {
         return;
     }
 
-    process_star_tracker_meas();
-
-
-
+    compute_residual();
+    update_state();
     populate_output_data();
 }
 
@@ -99,7 +108,7 @@ void AttitudeFilter::propagate_states() {
     q_j2000_to_body_est = q_gyro * q_j2000_to_body_est;
 
     const rot_vec<double>& omega_hat = corrected_delta_thetas;
-    const rot_vec<double>& omega_bar = bias_corrected_delta_thetas;
+    const rot_vec<double>& omega_bar = bias_corrected_delta_thetas;                
 
     dt            = time_now_sec - time_prev_sec;
     time_prev_sec = time_now_sec;
@@ -140,10 +149,6 @@ void AttitudeFilter::propagate_states() {
     stm(1,10) = -omega_bar(1);
     stm(2,11) = -omega_bar(2);
 
-    stm.print();
-    omega_bar.print();
-    omega_hat.print();
-
     P = stm * P * stm.transpose() + Q;
 }
 
@@ -151,7 +156,42 @@ void AttitudeFilter::process_star_tracker_meas() {
     q_j2000_to_body_meas = q_body_to_star_tracker.inv() * q_j2000_to_st_meas;
 }
 
+void AttitudeFilter::compute_residual() {
+    quat<double> q_est_to_meas = q_j2000_to_body_meas * q_j2000_to_body_est.inv();
+    rot_vec_residual = to_rot_vec(q_est_to_meas);
 
+    rot_vec_residual.print();
+}
+
+void AttitudeFilter::update_state() {
+    matrix<double, 3,12> H;
+    H.setZeros();
+    H(0,0) = 1.0;
+    H(1,1) = 1.0;
+    H(2,2) = 1.0;
+
+    matrix<double, 12,3> H_T;
+    H_T = H.transpose();
+
+
+    matrix<double, 12,3> K = P * H_T * (H * P * H_T + R).inv();
+    vector<double, 12> estimated_error = K * rot_vec_residual;
+    P = (I12 - K*H) * P * (I12 - K*H).transpose() + K*R*K.transpose();
+
+    // It would be great to be able to access a certain amount of the vector elements
+    rot_vec<double> rot_vec_error = {estimated_error(0), estimated_error(1), estimated_error(2)};
+    quat<double> q_error          = to_quat(rot_vec_error); 
+    q_j2000_to_body_est           = q_error * q_j2000_to_body_est;
+
+    vector<double, 3> bias_errors = {estimated_error(3), estimated_error(4), estimated_error(5)};
+    est_biases = est_biases + bias_errors;
+
+    vector<double, 3> misalignment_errors = {estimated_error(6), estimated_error(7), estimated_error(8)};
+    est_misalign = est_misalign + misalignment_errors;
+
+    vector<double, 3> sf_errors = {estimated_error(9), estimated_error(10), estimated_error(11)};
+    est_sf = est_sf + sf_errors;
+}
 
 void AttitudeFilter::populate_output_data() {
     outputs.corrected_gyro_delta_thetas      = corrected_delta_thetas;
@@ -159,4 +199,5 @@ void AttitudeFilter::populate_output_data() {
     outputs.est_gyro_scale_factors           = est_sf;
     outputs.est_gyro_to_st_misalignments_rad = est_misalign;
     outputs.q_j2000_to_body_est              = q_j2000_to_body_est; 
+    outputs.rot_vec_residual                 = rot_vec_residual;
 }

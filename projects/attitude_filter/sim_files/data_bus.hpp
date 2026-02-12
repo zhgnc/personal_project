@@ -34,6 +34,7 @@ struct DataBus {
         vector<double, 3> est_gyro_biases_rps;
         vector<double, 3> est_gyro_to_st_misalignments_rad;
         vector<double, 3> est_gyro_scale_factors;
+        rot_vec<double> rot_vec_residual;
     };
 
 

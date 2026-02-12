@@ -33,6 +33,7 @@ public:
         bus.attitude_filter_outputs.est_gyro_biases_rps              = attitude_filter.outputs.est_gyro_biases_rps;
         bus.attitude_filter_outputs.est_gyro_to_st_misalignments_rad = attitude_filter.outputs.est_gyro_to_st_misalignments_rad;
         bus.attitude_filter_outputs.est_gyro_scale_factors           = attitude_filter.outputs.est_gyro_scale_factors;
+        bus.attitude_filter_outputs.rot_vec_residual                 = attitude_filter.outputs.rot_vec_residual;
     }
     
     void teardown(DataBus& bus, SimControl& sim_ctrl) override {
