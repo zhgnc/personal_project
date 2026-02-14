@@ -59,8 +59,7 @@ private:
     double dt;
     matrix<double, 3,3> I3;
     matrix<double, 12,12> I12;
-    
-
+    double deg2rad = M_PI / 180.0;
 };
 
 

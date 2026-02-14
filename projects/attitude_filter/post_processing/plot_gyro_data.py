@@ -27,8 +27,6 @@ for file_idx, hdf5_path in enumerate(hdf5_files):
         delta_theta_data = f["/gyro/meas_delta_angles"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
-        print(sim_time_sec)
-
     for i in range(3):
         axs[i].plot(sim_time_sec[1:], delta_theta_data[1:, i] * rad2deg, linewidth=0.5)
 

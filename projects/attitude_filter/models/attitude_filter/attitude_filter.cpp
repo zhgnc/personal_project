@@ -13,9 +13,9 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     double gyro_bias_covar     = get_yaml_value<double>(config_data, "gyro_bias_covariance");
     double gyro_misalign_covar = get_yaml_value<double>(config_data, "gyro_misalignment_covariance");
     double gyro_sf_covar       = get_yaml_value<double>(config_data, "gyro_scale_factor_covariance");
-    double st_x_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_x_noise_1_sigma_rad");
-    double st_y_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_y_noise_1_sigma_rad");
-    double st_z_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_z_noise_1_sigma_rad");
+    double st_x_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_x_noise_1_sigma_deg") * deg2rad;
+    double st_y_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_y_noise_1_sigma_deg") * deg2rad;
+    double st_z_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_z_noise_1_sigma_deg") * deg2rad;
 
 
     Q.setIdentity();
@@ -95,9 +95,9 @@ void AttitudeFilter::get_input_data() {
 void AttitudeFilter::process_gyro_meas() {
     gyro_delta_thetas = q_body_to_gyro.inv() * gyro_delta_thetas;
 
-    S = {est_sf(0),      -est_misalign(0), est_misalign(1), 
-         est_misalign(0), est_sf(1),      -est_misalign(2), 
-        -est_misalign(1), est_misalign(2), est_sf(2)};
+    S = {est_sf(0),      -est_misalign(2), est_misalign(1), 
+         est_misalign(2), est_sf(1),      -est_misalign(0), 
+        -est_misalign(1), est_misalign(0), est_sf(2)};
 
     bias_corrected_delta_thetas = gyro_delta_thetas - est_biases;
     corrected_delta_thetas      = (I3 - S) * bias_corrected_delta_thetas;
@@ -149,7 +149,7 @@ void AttitudeFilter::propagate_states() {
     stm(1,10) = -omega_bar(1);
     stm(2,11) = -omega_bar(2);
 
-    P = stm * P * stm.transpose() + Q;
+    P = stm * P * stm.transpose() + Q * dt;
 }
 
 void AttitudeFilter::process_star_tracker_meas() {

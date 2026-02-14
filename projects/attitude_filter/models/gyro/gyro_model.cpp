@@ -3,8 +3,8 @@
 GyroModel::GyroModel(const std::string &config_file, uint64_t seed) {
   YAML::Node config_data = load_yaml_file(config_file);
 
-  init_rate_bias_1_sigma = get_yaml_value<double>(config_data, "turn_on_rate_bias_deg_1_sigma") * deg2rad;
   arw_1_sigma            = get_yaml_value<double>(config_data, "angle_random_walk_deg_1_sigma") * deg2rad;
+  init_rate_bias_1_sigma = get_yaml_value<double>(config_data, "turn_on_rate_bias_deg_1_sigma") * deg2rad;
   rrw_1_sigma            = get_yaml_value<double>(config_data, "rate_random_walk_deg_1_sigma")  * deg2rad;
   sf_1_sigma             = get_yaml_value<double>(config_data, "scale_factor_ppm_1_sigma")      * 1e-6;
   misalign_1_sigma       = get_yaml_value<double>(config_data, "misalignment_deg_1_sigma")      * deg2rad;
