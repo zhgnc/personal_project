@@ -1,6 +1,7 @@
 import h5py
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 import glob
@@ -26,23 +27,26 @@ axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
         rot_vec_error = f["/attitude_filter/rot_vec_error"][:] * rad2deg
-        rot_vec_cov   = f["/attitude_filter/diagonal_covariance"][:]
+        diag_cov      = f["/attitude_filter/diagonal_covariance"][:]
         sim_time_sec  = f["/sim/current_sim_time_sec"][:]
  
-    print(rot_vec_error.shape)
+    std_3_bounds = 3.0 * np.sqrt(diag_cov[:, 0:3]) * rad2deg
 
     for i in range(3):
-        axs[i].plot(sim_time_sec[1:], rot_vec_error[1:, i], linewidth=3.0)
+        axs[i].plot(sim_time_sec[1:], rot_vec_error[1:, i], linewidth=3.0, label="Errors" if file_idx == 0 else None)
+        
+        axs[i].plot(sim_time_sec[1:], std_3_bounds[1:, i], linewidth=3.0, color="red", label="3-Sigma Bounds" if file_idx == 0 else None)
+        axs[i].plot(sim_time_sec[1:],-std_3_bounds[1:, i], linewidth=3.0, color="red", label=None)
 
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
+    axs[i].legend()
     axs[i].grid(True)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Rotation Vector Attitude Error vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
 plt.savefig("filter_attitude_error")
-
 
 print("Number of MC runs:", num_mc_runs)
