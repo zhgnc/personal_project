@@ -159,8 +159,6 @@ void AttitudeFilter::process_star_tracker_meas() {
 void AttitudeFilter::compute_residual() {
     quat<double> q_est_to_meas = q_j2000_to_body_meas * q_j2000_to_body_est.inv();
     rot_vec_residual = to_rot_vec(q_est_to_meas);
-
-    rot_vec_residual.print();
 }
 
 void AttitudeFilter::update_state() {
@@ -195,9 +193,22 @@ void AttitudeFilter::update_state() {
 
 void AttitudeFilter::populate_output_data() {
     outputs.corrected_gyro_delta_thetas      = corrected_delta_thetas;
-    outputs.est_gyro_biases_rps              = est_biases;
+    outputs.est_gyro_biases_rad              = est_biases;
     outputs.est_gyro_scale_factors           = est_sf;
     outputs.est_gyro_to_st_misalignments_rad = est_misalign;
     outputs.q_j2000_to_body_est              = q_j2000_to_body_est; 
     outputs.rot_vec_residual                 = rot_vec_residual;
+    
+    outputs.covariance_diagonals(0)          = P(0,0);
+    outputs.covariance_diagonals(1)          = P(1,1);
+    outputs.covariance_diagonals(2)          = P(2,2);
+    outputs.covariance_diagonals(3)          = P(3,3);
+    outputs.covariance_diagonals(4)          = P(4,4);
+    outputs.covariance_diagonals(5)          = P(5,5);
+    outputs.covariance_diagonals(6)          = P(6,6);
+    outputs.covariance_diagonals(7)          = P(7,7);
+    outputs.covariance_diagonals(8)          = P(8,8);
+    outputs.covariance_diagonals(9)          = P(9,9);
+    outputs.covariance_diagonals(10)         = P(10,10);
+    outputs.covariance_diagonals(11)         = P(11,11);
 }

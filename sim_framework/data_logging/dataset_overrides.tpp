@@ -112,7 +112,6 @@ void DatasetOverrides<T, buffer_length>::log_if_needed(const uint64_t& current_s
     }
 
     flush_buffer();
-    buffer_index = 0;
 }
 
 template<typename T, std::size_t buffer_length>
@@ -140,6 +139,7 @@ void DatasetOverrides<T, buffer_length>::flush_buffer() {
     dataset.write(data_buffer.data(), hdf5_data_type, memory_space, file_space);
 
     old_dataset_size[0] = new_dataset_size[0];
+    buffer_index = 0;
 }
 
 #endif
