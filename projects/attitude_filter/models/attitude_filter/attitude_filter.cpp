@@ -17,6 +17,9 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     double st_y_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_y_noise_1_sigma_deg") * deg2rad;
     double st_z_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_z_noise_1_sigma_deg") * deg2rad;
 
+    q_gyro_to_body = q_body_to_gyro.inv();
+    q_st_to_body   = q_body_to_star_tracker.inv();
+
 
     Q.setIdentity();
     Q(0,0)   = attitude_pn;
@@ -50,6 +53,13 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     R(0,0) = st_x_meas_noise * st_x_meas_noise;
     R(1,1) = st_y_meas_noise * st_y_meas_noise;
     R(2,2) = st_z_meas_noise * st_z_meas_noise;
+
+    H.setZeros();
+    H(0,0) = 1.0;
+    H(1,1) = 1.0;
+    H(2,2) = 1.0;
+
+    H_T = H.transpose();
 
     q_j2000_to_body_est.setIdentity();
     est_biases.setZeros();
@@ -93,7 +103,7 @@ void AttitudeFilter::get_input_data() {
 }
 
 void AttitudeFilter::process_gyro_meas() {
-    // gyro_delta_thetas = q_body_to_gyro.inv() * gyro_delta_thetas;
+    gyro_delta_thetas = q_gyro_to_body * gyro_delta_thetas;
 
     S = {est_sf(0),      -est_misalign(2), est_misalign(1), 
          est_misalign(2), est_sf(1),      -est_misalign(0), 
@@ -102,8 +112,6 @@ void AttitudeFilter::process_gyro_meas() {
     bias_corrected_delta_thetas = gyro_delta_thetas - est_biases;
     corrected_delta_thetas      = (I3 - S) * bias_corrected_delta_thetas;
     q_gyro                      = to_quat(corrected_delta_thetas);
-    
-    q_gyro.normalize();
 }
 
 void AttitudeFilter::propagate_states() {
@@ -157,29 +165,15 @@ void AttitudeFilter::propagate_states() {
 }
 
 void AttitudeFilter::process_star_tracker_meas() {
-    q_j2000_to_body_meas = q_body_to_star_tracker.inv() * q_j2000_to_st_meas;
-    q_j2000_to_body_meas.normalize();
+    q_j2000_to_body_meas = q_st_to_body * q_j2000_to_st_meas;
 }
 
 void AttitudeFilter::compute_residual() {
     quat<double> q_est_to_meas = q_j2000_to_body_meas * q_j2000_to_body_est.inv();
     rot_vec_residual = to_rot_vec(q_est_to_meas);
-
-    // quat<double> q_meas_to_est = q_j2000_to_body_est * q_j2000_to_body_meas.inv();
-    // rot_vec_residual = to_rot_vec(q_meas_to_est);
 }
 
 void AttitudeFilter::update_state() {
-    matrix<double, 3,12> H;
-    H.setZeros();
-    H(0,0) = 1.0;
-    H(1,1) = 1.0;
-    H(2,2) = 1.0;
-
-    matrix<double, 12,3> H_T;
-    H_T = H.transpose();
-
-
     matrix<double, 12,3> K = P * H_T * (H * P * H_T + R).inv();
     vector<double, 12> estimated_error = K * rot_vec_residual;
     P = (I12 - K*H) * P * (I12 - K*H).transpose() + K*R*K.transpose();
@@ -188,7 +182,6 @@ void AttitudeFilter::update_state() {
     rot_vec<double> rot_vec_error = {estimated_error(0), estimated_error(1), estimated_error(2)};
     quat<double> q_error          = to_quat(rot_vec_error); 
     q_j2000_to_body_est           = q_error * q_j2000_to_body_est;
-    q_j2000_to_body_est.normalize();
 
     vector<double, 3> bias_errors = {estimated_error(3), estimated_error(4), estimated_error(5)};
     est_biases = est_biases + bias_errors;

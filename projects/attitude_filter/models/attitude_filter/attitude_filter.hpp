@@ -29,9 +29,13 @@ private:
     // Config 
     quat<double> q_body_to_star_tracker;
     quat<double> q_body_to_gyro;
+    quat<double> q_gyro_to_body;
+    quat<double> q_st_to_body;
     matrix<double, 12,12> Q;
     matrix<double, 12,12> P;
     matrix<double, 3,3>   R;
+    matrix<double, 3,12>  H;
+    matrix<double, 12,3>  H_T;
     
     // Inputs 
     quat<double> q_j2000_to_st_meas;
