@@ -22,9 +22,9 @@ void GyroModel::initialize() {
   normal_distribution = std::normal_distribution<>(mean, std);
 
   for (std::size_t i = 0; i < rate_bias.num_rows; i++) {
-    rate_bias(i)           = init_rate_bias_1_sigma * normal_distribution(rng);
-    scale_factors(i)       = sf_1_sigma        * normal_distribution(rng);
-    misalignments(i)       = misalign_1_sigma  * normal_distribution(rng);
+    rate_bias(i)     = init_rate_bias_1_sigma * normal_distribution(rng);
+    scale_factors(i) = sf_1_sigma             * normal_distribution(rng);
+    misalignments(i) = misalign_1_sigma       * normal_distribution(rng);
   }
 
   sf_misalign_matrix = {scale_factors(0), -misalignments(2),  misalignments(1),
@@ -73,8 +73,8 @@ void GyroModel::execute() {
   meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + angle_bias + arw_error;
 
   total_delta_angle_error = true_delta_angles - meas_delta_angles;
-  q_j2000_to_body_prev = q_j2000_to_body_now;
-  gyro_meas_valid = true;
+  q_j2000_to_body_prev    = q_j2000_to_body_now;
+  gyro_meas_valid         = true;
 };
 
 void GyroModel::set_outputs() {

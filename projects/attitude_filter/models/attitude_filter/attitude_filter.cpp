@@ -93,7 +93,7 @@ void AttitudeFilter::get_input_data() {
 }
 
 void AttitudeFilter::process_gyro_meas() {
-    gyro_delta_thetas = q_body_to_gyro.inv() * gyro_delta_thetas;
+    // gyro_delta_thetas = q_body_to_gyro.inv() * gyro_delta_thetas;
 
     S = {est_sf(0),      -est_misalign(2), est_misalign(1), 
          est_misalign(2), est_sf(1),      -est_misalign(0), 
@@ -102,13 +102,16 @@ void AttitudeFilter::process_gyro_meas() {
     bias_corrected_delta_thetas = gyro_delta_thetas - est_biases;
     corrected_delta_thetas      = (I3 - S) * bias_corrected_delta_thetas;
     q_gyro                      = to_quat(corrected_delta_thetas);
+    
+    q_gyro.normalize();
 }
 
 void AttitudeFilter::propagate_states() {
     q_j2000_to_body_est = q_gyro * q_j2000_to_body_est;
+    q_j2000_to_body_est.normalize();
 
-    const rot_vec<double>& omega_hat = corrected_delta_thetas;
-    const rot_vec<double>& omega_bar = bias_corrected_delta_thetas;                
+    rot_vec<double> omega_hat = corrected_delta_thetas;
+    rot_vec<double> omega_bar = bias_corrected_delta_thetas;                
 
     dt            = time_now_sec - time_prev_sec;
     time_prev_sec = time_now_sec;
@@ -116,12 +119,13 @@ void AttitudeFilter::propagate_states() {
     stm.setIdentity();
 
     // Set first block for attitude
-    stm(0,1) =  omega_hat(0);
+    // Should be: (I3 - skew(omega_hat))
+    stm(0,1) =  omega_hat(2);
     stm(0,2) = -omega_hat(1);
-    stm(1,2) =  omega_hat(2);
-    stm(1,0) = -omega_hat(0);
+    stm(1,2) =  omega_hat(0);
+    stm(1,0) = -omega_hat(2);
     stm(2,0) =  omega_hat(1);
-    stm(2,1) = -omega_hat(2);
+    stm(2,1) = -omega_hat(0);
 
     // Set second block for gyro biases 
     matrix<double, 3,3> temp = -(I3 - S) * dt;
@@ -137,12 +141,12 @@ void AttitudeFilter::propagate_states() {
     stm(2,5) = temp(2,2);
 
     // Set third block for gyro to star tracker misalignments
-    stm(0,7) = -omega_bar(0);
+    stm(0,7) = -omega_bar(2);
     stm(0,8) =  omega_bar(1);
-    stm(1,8) = -omega_bar(2);
-    stm(1,6) =  omega_bar(0);
+    stm(1,8) = -omega_bar(0);
+    stm(1,6) =  omega_bar(2);
     stm(2,6) = -omega_bar(1);
-    stm(2,7) =  omega_bar(2);
+    stm(2,7) =  omega_bar(0);
 
     // Set fourth block for gyro scale factors
     stm(0,9)  = -omega_bar(0);
@@ -154,11 +158,15 @@ void AttitudeFilter::propagate_states() {
 
 void AttitudeFilter::process_star_tracker_meas() {
     q_j2000_to_body_meas = q_body_to_star_tracker.inv() * q_j2000_to_st_meas;
+    q_j2000_to_body_meas.normalize();
 }
 
 void AttitudeFilter::compute_residual() {
     quat<double> q_est_to_meas = q_j2000_to_body_meas * q_j2000_to_body_est.inv();
     rot_vec_residual = to_rot_vec(q_est_to_meas);
+
+    // quat<double> q_meas_to_est = q_j2000_to_body_est * q_j2000_to_body_meas.inv();
+    // rot_vec_residual = to_rot_vec(q_meas_to_est);
 }
 
 void AttitudeFilter::update_state() {
@@ -180,6 +188,7 @@ void AttitudeFilter::update_state() {
     rot_vec<double> rot_vec_error = {estimated_error(0), estimated_error(1), estimated_error(2)};
     quat<double> q_error          = to_quat(rot_vec_error); 
     q_j2000_to_body_est           = q_error * q_j2000_to_body_est;
+    q_j2000_to_body_est.normalize();
 
     vector<double, 3> bias_errors = {estimated_error(3), estimated_error(4), estimated_error(5)};
     est_biases = est_biases + bias_errors;

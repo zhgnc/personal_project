@@ -47,6 +47,7 @@ public:
 
         logger.add_dataset("q_j2000_to_body_est",              "attitude_filter", data_bus.attitude_filter_outputs.q_j2000_to_body_est,              rates.rate_D_hz);
         logger.add_dataset("corrected_gyro_delta_thetas",      "attitude_filter", data_bus.attitude_filter_outputs.corrected_gyro_delta_thetas,      rates.rate_D_hz);
+        logger.add_dataset("est_gyro_biases_rad",              "attitude_filter", data_bus.attitude_filter_outputs.est_gyro_biases_rad,              rates.rate_D_hz);
         logger.add_dataset("est_gyro_to_st_misalignments_rad", "attitude_filter", data_bus.attitude_filter_outputs.est_gyro_to_st_misalignments_rad, rates.rate_D_hz);
         logger.add_dataset("est_gyro_scale_factors",           "attitude_filter", data_bus.attitude_filter_outputs.est_gyro_scale_factors,           rates.rate_D_hz);
         logger.add_dataset("rot_vec_residual",                 "attitude_filter", data_bus.attitude_filter_outputs.rot_vec_residual,                 rates.rate_D_hz);

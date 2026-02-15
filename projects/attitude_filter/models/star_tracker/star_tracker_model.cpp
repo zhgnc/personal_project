@@ -22,9 +22,7 @@ void StarTrackerModel::initialize() {
   normal_distribution = std::normal_distribution<>(mean, std);
 
   star_tracker_meas_valid    = false;
-  per_axis_noise_rad_1_sigma = {x_axis_noise_rad_1_sigma, 
-                                y_axis_noise_rad_1_sigma, 
-                                z_axis_noise_rad_1_sigma};
+  per_axis_noise_rad_1_sigma = {x_axis_noise_rad_1_sigma, y_axis_noise_rad_1_sigma, z_axis_noise_rad_1_sigma};
 };
 
 void StarTrackerModel::run() {
