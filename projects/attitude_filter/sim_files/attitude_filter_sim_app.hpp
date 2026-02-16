@@ -37,8 +37,8 @@ public:
         bus.attitude_filter_outputs.covariance_diagonals             = attitude_filter.outputs.covariance_diagonals;
 
 
-        quat<double> q_true_to_est = attitude_filter.outputs.q_j2000_to_body_est * bus.fake_dynamics_outputs.quat.inv();
-        
+        quat<double> q_true_to_est = (attitude_filter.outputs.q_j2000_to_body_est * bus.fake_dynamics_outputs.quat.inv()).normalize();
+
         bus.attitude_filter_performance.rot_vec_error      = to_rot_vec(q_true_to_est);
         bus.attitude_filter_performance.bias_error         = attitude_filter.outputs.est_gyro_biases_rad              - bus.gyro_outputs.angle_biases;
         bus.attitude_filter_performance.misalignment_error = attitude_filter.outputs.est_gyro_to_st_misalignments_rad - bus.gyro_outputs.misalignments;

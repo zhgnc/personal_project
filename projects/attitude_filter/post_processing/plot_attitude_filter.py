@@ -164,11 +164,11 @@ axis_labels = ['X-Axis [arcsec]', 'Y-Axis [arcsec]', 'Z-Axis [arcsec]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        rot_vec_error = f["/attitude_filter/rot_vec_error"][:] * (1.0 / 3600.0)
+        rot_vec_error = f["/attitude_filter/rot_vec_error"][:] * rad2deg * 3600.0
         diag_cov      = f["/attitude_filter/diagonal_covariance"][:]
         sim_time_sec  = f["/sim/current_sim_time_sec"][:]
  
-    std_3_bounds = 3.0 * np.sqrt(diag_cov[:, 0:3]) * (1.0 / 3600.0)
+    std_3_bounds = 3.0 * np.sqrt(diag_cov[:, 0:3]) * rad2deg * 3600.0
 
     for i in range(3):
         axs[i].plot(sim_time_sec[1:], rot_vec_error[1:, i], linewidth=0.5, label="Errors" if file_idx == 0 else None)
@@ -181,6 +181,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend()
     axs[i].grid(True)
+    # axs[i].set_ylim(-50, 50)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Rotation Vector Attitude Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)

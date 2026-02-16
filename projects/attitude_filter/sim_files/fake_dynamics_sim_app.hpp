@@ -43,8 +43,8 @@ public:
         body_rates(2) = z_axis_amplitude_rps * sin((2*M_PI/z_axis_period_s) * t + z_axis_shift_rad);
 
         rot_vec_attitude = rot_vec_attitude + body_rates * dt;
-        q_attitude       = to_quat(rot_vec_attitude);
-
+        q_attitude       = to_quat(rot_vec_attitude).normalize();
+    
         bus.fake_dynamics_outputs.quat             = q_attitude;
         bus.fake_dynamics_outputs.body_rates       = body_rates;
         bus.fake_dynamics_outputs.rot_vec_attitude = rot_vec_attitude;

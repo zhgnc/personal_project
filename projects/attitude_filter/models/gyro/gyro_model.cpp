@@ -57,7 +57,7 @@ void GyroModel::execute() {
     return;
   };
 
-  q_prev_to_now     = q_j2000_to_body_now * q_j2000_to_body_prev.inv();
+  q_prev_to_now     = (q_j2000_to_body_now * q_j2000_to_body_prev.inv()).normalize();
   true_delta_angles = to_rot_vec(q_prev_to_now);
   true_delta_angles = q_body_to_gyro * true_delta_angles;
 

@@ -9,6 +9,8 @@ StarTrackerModel::StarTrackerModel(const std::string &config_file, uint64_t seed
   max_rate_rps             = get_yaml_value<double>(config_data, "max_rate_dps")             * deg2rad;
 
   q_body_to_star_tracker   = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_star_tracker");
+  manual_outage_start_sec  = get_yaml_value<double>(config_data, "outage_start_sec");
+  manual_outage_stop_sec   = get_yaml_value<double>(config_data, "outage_stop_sec");
   random_seed              = seed;
 
   initialize();
@@ -38,7 +40,10 @@ void StarTrackerModel::copy_inputs_to_class() {
 };
 
 void StarTrackerModel::execute() {
-  if (true_body_rates_rps.mag() > max_rate_rps) {
+  bool max_rate_exceeded    = true_body_rates_rps.mag() > max_rate_rps;
+  bool manual_outage_active = time_now_sec > manual_outage_start_sec && time_now_sec < manual_outage_stop_sec;
+  
+  if (max_rate_exceeded || manual_outage_active) {
     q_j2000_to_star_tracker_meas.setIdentity();
     noise.setZeros();
     star_tracker_meas_valid = false;
@@ -50,7 +55,7 @@ void StarTrackerModel::execute() {
   }
 
   q_noise                      = to_quat(noise);
-  q_j2000_to_star_tracker_meas = q_noise * q_body_to_star_tracker * true_q_j2000_to_body;
+  q_j2000_to_star_tracker_meas = (q_noise * q_body_to_star_tracker * true_q_j2000_to_body).normalize();
   star_tracker_meas_valid      = true;
 };
 

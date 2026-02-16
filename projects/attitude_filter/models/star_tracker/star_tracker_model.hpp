@@ -29,6 +29,8 @@ private:
     double z_axis_noise_rad_1_sigma;
     quat<double> q_body_to_star_tracker;
     double max_rate_rps;
+    double manual_outage_start_sec;
+    double manual_outage_stop_sec;
     uint64_t random_seed;
 
     quat<double> true_q_j2000_to_body;

@@ -1,7 +1,7 @@
 q_body_to_gyro: [0.0, 0.0, 0.0, 1.0]
 q_body_to_star_tracker: [0.0, 0.0, 0.0, 1.0]
 
-attitude_process_noise: 1e-6
+attitude_process_noise: 1e-8
 gyro_bias_process_noise: 1e-19
 gyro_misalignment_process_noise: 1e-20
 gyro_scale_factor_process_noise: 1e-20

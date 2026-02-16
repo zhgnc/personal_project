@@ -86,6 +86,7 @@ void AttitudeFilter::run() {
     propagate_states();
 
     if (st_meas_valid == false) {
+        populate_output_data();
         return;
     }
 
@@ -111,12 +112,11 @@ void AttitudeFilter::process_gyro_meas() {
 
     bias_corrected_delta_thetas = gyro_delta_thetas - est_biases;
     corrected_delta_thetas      = (I3 - S) * bias_corrected_delta_thetas;
-    q_gyro                      = to_quat(corrected_delta_thetas);
+    q_gyro                      = to_quat(corrected_delta_thetas).normalize();
 }
 
 void AttitudeFilter::propagate_states() {
-    q_j2000_to_body_est = q_gyro * q_j2000_to_body_est;
-    q_j2000_to_body_est.normalize();
+    q_j2000_to_body_est = (q_gyro * q_j2000_to_body_est).normalize();
 
     rot_vec<double> omega_hat = corrected_delta_thetas;
     rot_vec<double> omega_bar = bias_corrected_delta_thetas;                
@@ -165,11 +165,11 @@ void AttitudeFilter::propagate_states() {
 }
 
 void AttitudeFilter::process_star_tracker_meas() {
-    q_j2000_to_body_meas = q_st_to_body * q_j2000_to_st_meas;
+    q_j2000_to_body_meas = (q_st_to_body * q_j2000_to_st_meas).normalize();
 }
 
 void AttitudeFilter::compute_residual() {
-    quat<double> q_est_to_meas = q_j2000_to_body_meas * q_j2000_to_body_est.inv();
+    quat<double> q_est_to_meas = (q_j2000_to_body_meas * q_j2000_to_body_est.inv()).normalize();
     rot_vec_residual = to_rot_vec(q_est_to_meas);
 }
 
@@ -180,8 +180,8 @@ void AttitudeFilter::update_state() {
 
     // It would be great to be able to access a certain amount of the vector elements
     rot_vec<double> rot_vec_error = {estimated_error(0), estimated_error(1), estimated_error(2)};
-    quat<double> q_error          = to_quat(rot_vec_error); 
-    q_j2000_to_body_est           = q_error * q_j2000_to_body_est;
+    quat<double> q_error          = to_quat(rot_vec_error).normalize(); 
+    q_j2000_to_body_est           = (q_error * q_j2000_to_body_est).normalize();
 
     vector<double, 3> bias_errors = {estimated_error(3), estimated_error(4), estimated_error(5)};
     est_biases = est_biases + bias_errors;
