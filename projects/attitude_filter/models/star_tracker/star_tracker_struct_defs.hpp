@@ -13,6 +13,7 @@ struct star_tracker_outputs {
     bool star_tracker_measurement_valid;
     quat<double> q_j2000_to_star_tracker_meas;
     vector<double, 3> measurement_error_rad;
+    double measurement_time;
     uint64_t seed;
 };
 

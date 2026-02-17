@@ -63,5 +63,6 @@ void StarTrackerModel::set_outputs() {
   outputs.star_tracker_measurement_valid = star_tracker_meas_valid;
   outputs.q_j2000_to_star_tracker_meas   = q_j2000_to_star_tracker_meas;
   outputs.measurement_error_rad          = noise;
+  outputs.measurement_time               = time_now_sec;
   outputs.seed                           = random_seed;
 };

@@ -43,6 +43,8 @@ private:
     rot_vec<double> gyro_delta_thetas;
     bool gyro_valid_meas;
     double time_now_sec;
+    double gyro_meas_time;
+    double st_meas_time;
 
     // Outputs
     quat<double> q_j2000_to_body_est;

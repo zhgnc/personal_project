@@ -13,6 +13,7 @@ struct DataBus {
 
     struct GyroData {
         bool measurement_valid;
+        double measurement_time;
         vector<double, 3> measured_delta_angles;
         vector<double, 3> total_delta_angle_error;
         vector<double, 3> angle_biases;
@@ -25,6 +26,7 @@ struct DataBus {
         bool measurement_valid;
         quat<double> q_j2000_to_star_tracker_meas;
         vector<double, 3> measurement_error_rad;
+        double measurement_time;
         uint64_t seed;
     };
 
@@ -36,6 +38,7 @@ struct DataBus {
         vector<double, 3> est_gyro_scale_factors;
         rot_vec<double> rot_vec_residual;
         vector<double, 12> covariance_diagonals;
+        double current_time_sec;
     };
 
     struct AttitudeFilterPerformance {

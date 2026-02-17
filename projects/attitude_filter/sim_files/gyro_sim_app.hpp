@@ -25,6 +25,7 @@ public:
         gyro.run();
 
         bus.gyro_outputs.measurement_valid       = gyro.outputs.gyro_measurement_valid;
+        bus.gyro_outputs.measurement_time        = gyro.outputs.measurement_time;
         bus.gyro_outputs.measured_delta_angles   = gyro.outputs.measured_delta_angles;
         bus.gyro_outputs.total_delta_angle_error = gyro.outputs.total_delta_angle_error;
         bus.gyro_outputs.angle_biases            = gyro.outputs.angle_biases;

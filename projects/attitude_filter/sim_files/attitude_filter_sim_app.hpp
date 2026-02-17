@@ -22,8 +22,10 @@ public:
     void step(DataBus& bus, SimControl& sim_ctrl) override {
         attitude_filter.inputs.q_j2000_to_star_tracker_meas = bus.star_tracker_outputs.q_j2000_to_star_tracker_meas;
         attitude_filter.inputs.star_tracker_meas_valid      = bus.star_tracker_outputs.measurement_valid;
+        attitude_filter.inputs.star_tracker_meas_time       = bus.star_tracker_outputs.measurement_time;
         attitude_filter.inputs.meas_delta_thetas            = bus.gyro_outputs.measured_delta_angles;
         attitude_filter.inputs.gyro_meas_valid              = bus.gyro_outputs.measurement_valid;
+        attitude_filter.inputs.gyro_meas_time               = bus.gyro_outputs.measurement_time;
         attitude_filter.inputs.current_time_sec             = sim_ctrl.public_sim_data().current_sim_time_sec;
 
         attitude_filter.run();
@@ -35,6 +37,7 @@ public:
         bus.attitude_filter_outputs.est_gyro_scale_factors           = attitude_filter.outputs.est_gyro_scale_factors;
         bus.attitude_filter_outputs.rot_vec_residual                 = attitude_filter.outputs.rot_vec_residual;
         bus.attitude_filter_outputs.covariance_diagonals             = attitude_filter.outputs.covariance_diagonals;
+        bus.attitude_filter_outputs.current_time_sec                 = attitude_filter.outputs.time_now_sec;
 
 
         quat<double> q_true_to_est = (attitude_filter.outputs.q_j2000_to_body_est * bus.fake_dynamics_outputs.quat.inv()).normalize();

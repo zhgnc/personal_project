@@ -28,6 +28,7 @@ public:
         bus.star_tracker_outputs.measurement_valid            = star_tracker.outputs.star_tracker_measurement_valid;
         bus.star_tracker_outputs.q_j2000_to_star_tracker_meas = star_tracker.outputs.q_j2000_to_star_tracker_meas;
         bus.star_tracker_outputs.measurement_error_rad        = star_tracker.outputs.measurement_error_rad;
+        bus.star_tracker_outputs.measurement_time             = star_tracker.outputs.measurement_time;
         bus.star_tracker_outputs.seed                         = star_tracker.outputs.seed;
     }
     

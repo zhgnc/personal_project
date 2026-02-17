@@ -79,6 +79,7 @@ void GyroModel::execute() {
 
 void GyroModel::set_outputs() {
   outputs.gyro_measurement_valid  = gyro_meas_valid;
+  outputs.measurement_time        = time_now_sec;
   outputs.measured_delta_angles   = meas_delta_angles;
   outputs.total_delta_angle_error = total_delta_angle_error;
   outputs.angle_biases            = angle_bias;

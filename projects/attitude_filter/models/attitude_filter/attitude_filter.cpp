@@ -85,7 +85,7 @@ void AttitudeFilter::run() {
 
     propagate_states();
 
-    if (st_meas_valid == false) {
+    if (st_meas_valid == false || (st_meas_time - time_now_sec) < 0.0) {
         populate_output_data();
         return;
     }
@@ -99,8 +99,10 @@ void AttitudeFilter::get_input_data() {
     time_now_sec       = inputs.current_time_sec;
     gyro_valid_meas    = inputs.gyro_meas_valid;
     gyro_delta_thetas  = inputs.meas_delta_thetas;
+    gyro_meas_time     = inputs.gyro_meas_time;
     st_meas_valid      = inputs.star_tracker_meas_valid;
     q_j2000_to_st_meas = inputs.q_j2000_to_star_tracker_meas;
+    st_meas_time       = inputs.star_tracker_meas_time;
 }
 
 void AttitudeFilter::process_gyro_meas() {
@@ -200,6 +202,7 @@ void AttitudeFilter::populate_output_data() {
     outputs.est_gyro_to_st_misalignments_rad = est_misalign;
     outputs.q_j2000_to_body_est              = q_j2000_to_body_est; 
     outputs.rot_vec_residual                 = rot_vec_residual;
+    outputs.time_now_sec                     = time_now_sec;
     
     outputs.covariance_diagonals(0)          = P(0,0);
     outputs.covariance_diagonals(1)          = P(1,1);

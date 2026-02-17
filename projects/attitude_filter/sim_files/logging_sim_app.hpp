@@ -52,6 +52,7 @@ public:
         logger.add_dataset("est_gyro_scale_factors",           "attitude_filter", data_bus.attitude_filter_outputs.est_gyro_scale_factors,           rates.rate_D_hz);
         logger.add_dataset("rot_vec_residual",                 "attitude_filter", data_bus.attitude_filter_outputs.rot_vec_residual,                 rates.rate_D_hz);
         logger.add_dataset("diagonal_covariance",              "attitude_filter", data_bus.attitude_filter_outputs.covariance_diagonals,             rates.rate_D_hz);
+        logger.add_dataset("current_time_sec",                 "attitude_filter", data_bus.attitude_filter_outputs.current_time_sec,                 rates.rate_D_hz);
 
         logger.add_dataset("rot_vec_error",                    "attitude_filter", data_bus.attitude_filter_performance.rot_vec_error,                rates.rate_D_hz);
         logger.add_dataset("bias_error",                       "attitude_filter", data_bus.attitude_filter_performance.bias_error,                   rates.rate_D_hz);
