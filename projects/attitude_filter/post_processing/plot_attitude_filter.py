@@ -48,7 +48,7 @@ axs[3].plot(sim_time_sec[1:], q_j2000_to_body_true[1:, 3], linewidth=3.0, linest
 
 for i in range(4):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
 
 axs[3].set_xlabel("Simulation Time (sec)", fontsize=16)
@@ -80,7 +80,7 @@ axs[2].plot(sim_time_sec[1:], true_gyro_biases_deg[1:, 2], linewidth=3.0, linest
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
@@ -113,7 +113,7 @@ axs[2].plot(sim_time_sec[1:], true_gyro_misalign_deg[1:, 2], linewidth=3.0, line
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
@@ -146,7 +146,7 @@ axs[2].plot(sim_time_sec[1:], true_gyro_sf_ppm[1:, 2], linewidth=3.0, linestyle=
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
@@ -179,9 +179,9 @@ for file_idx, hdf5_path in enumerate(hdf5_files):
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    # axs[i].set_ylim(-50, 50)
+    # axs[i].set_ylim(-1500, 1500)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Rotation Vector Attitude Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
@@ -213,7 +213,7 @@ for file_idx, hdf5_path in enumerate(hdf5_files):
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
     # axs[i].set_ylim(-0.01, 0.01)
 
@@ -245,9 +245,9 @@ for file_idx, hdf5_path in enumerate(hdf5_files):
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    # axs[i].set_ylim(-3, 3)
+    axs[i].set_ylim(-1, 1)
 
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
@@ -278,9 +278,9 @@ for file_idx, hdf5_path in enumerate(hdf5_files):
 
 for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
-    axs[i].legend()
+    axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    # axs[i].set_ylim(-100000, 100000)
+    axs[i].set_ylim(-15000, 15000)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Scale Factor Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
