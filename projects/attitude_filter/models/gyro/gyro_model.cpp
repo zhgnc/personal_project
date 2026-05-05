@@ -82,7 +82,7 @@ void GyroModel::set_outputs() {
   outputs.measurement_time        = time_now_sec;
   outputs.measured_delta_angles   = meas_delta_angles;
   outputs.total_delta_angle_error = total_delta_angle_error;
-  outputs.angle_biases            = angle_bias;
+  outputs.angle_biases            = rate_bias; // angle_bias;
   outputs.scale_factors           = scale_factors;
   outputs.misalignments           = misalignments;
   outputs.seed                    = random_seed;

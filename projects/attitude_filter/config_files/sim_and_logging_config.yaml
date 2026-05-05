@@ -1,5 +1,5 @@
 sim_start_time_sec: 0.0
-sim_stop_time_sec: 7200.0
+sim_stop_time_sec: 660.0
 simulation_rate_hz: 5.0
 number_of_monte_carlo_runs: 25
 initial_random_seed: 0

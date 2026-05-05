@@ -106,13 +106,16 @@ void AttitudeFilter::get_input_data() {
 }
 
 void AttitudeFilter::process_gyro_meas() {
+    dt            = time_now_sec - time_prev_sec;
+    time_prev_sec = time_now_sec;
+    
     gyro_delta_thetas = q_gyro_to_body * gyro_delta_thetas;
 
     S = {est_sf(0),      -est_misalign(2), est_misalign(1), 
          est_misalign(2), est_sf(1),      -est_misalign(0), 
         -est_misalign(1), est_misalign(0), est_sf(2)};
 
-    bias_corrected_delta_thetas = gyro_delta_thetas - est_biases;
+    bias_corrected_delta_thetas = gyro_delta_thetas - est_biases * dt; // Added * dt
     corrected_delta_thetas      = (I3 - S) * bias_corrected_delta_thetas;
     q_gyro                      = to_quat(corrected_delta_thetas).normalize();
 }
@@ -120,22 +123,19 @@ void AttitudeFilter::process_gyro_meas() {
 void AttitudeFilter::propagate_states() {
     q_j2000_to_body_est = (q_gyro * q_j2000_to_body_est).normalize();
 
-    rot_vec<double> omega_hat = corrected_delta_thetas;
-    rot_vec<double> omega_bar = bias_corrected_delta_thetas;                
-
-    dt            = time_now_sec - time_prev_sec;
-    time_prev_sec = time_now_sec;
-
+    rot_vec<double> theta_hat = corrected_delta_thetas;
+    rot_vec<double> theta_bar = bias_corrected_delta_thetas;
+    
     stm.setIdentity();
 
     // Set first block for attitude
-    // Should be: (I3 - skew(omega_hat))
-    stm(0,1) =  omega_hat(2);
-    stm(0,2) = -omega_hat(1);
-    stm(1,2) =  omega_hat(0);
-    stm(1,0) = -omega_hat(2);
-    stm(2,0) =  omega_hat(1);
-    stm(2,1) = -omega_hat(0);
+    // Should be: (I3 - skew(theta_hat))
+    stm(0,1) =  theta_hat(2);
+    stm(0,2) = -theta_hat(1);
+    stm(1,2) =  theta_hat(0);
+    stm(1,0) = -theta_hat(2);
+    stm(2,0) =  theta_hat(1);
+    stm(2,1) = -theta_hat(0);
 
     // Set second block for gyro biases 
     matrix<double, 3,3> temp = -(I3 - S) * dt;
@@ -151,17 +151,17 @@ void AttitudeFilter::propagate_states() {
     stm(2,5) = temp(2,2);
 
     // Set third block for gyro to star tracker misalignments
-    stm(0,7) = -omega_bar(2);
-    stm(0,8) =  omega_bar(1);
-    stm(1,8) = -omega_bar(0);
-    stm(1,6) =  omega_bar(2);
-    stm(2,6) = -omega_bar(1);
-    stm(2,7) =  omega_bar(0);
+    stm(0,7) = -theta_bar(2);
+    stm(0,8) =  theta_bar(1);
+    stm(1,8) = -theta_bar(0);
+    stm(1,6) =  theta_bar(2);
+    stm(2,6) = -theta_bar(1);
+    stm(2,7) =  theta_bar(0);
 
     // Set fourth block for gyro scale factors
-    stm(0,9)  = -omega_bar(0);
-    stm(1,10) = -omega_bar(1);
-    stm(2,11) = -omega_bar(2);
+    stm(0,9)  = -theta_bar(0);
+    stm(1,10) = -theta_bar(1);
+    stm(2,11) = -theta_bar(2);
 
     P = stm * P * stm.transpose() + Q * dt;
 }
