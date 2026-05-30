@@ -43,9 +43,9 @@ public:
         quat<double> q_true_to_est = (attitude_filter.outputs.q_j2000_to_body_est * bus.fake_dynamics_outputs.quat.inv()).normalize();
 
         bus.attitude_filter_performance.rot_vec_error      = to_rot_vec(q_true_to_est);
-        bus.attitude_filter_performance.bias_error         = attitude_filter.outputs.est_gyro_biases_rad              - bus.gyro_outputs.angle_biases;
-        bus.attitude_filter_performance.misalignment_error = attitude_filter.outputs.est_gyro_to_st_misalignments_rad - bus.gyro_outputs.misalignments;
-        bus.attitude_filter_performance.scale_factor_error = attitude_filter.outputs.est_gyro_scale_factors           - bus.gyro_outputs.scale_factors;
+        bus.attitude_filter_performance.bias_error         = bus.gyro_outputs.rate_biases  - attitude_filter.outputs.est_gyro_biases_rad;             
+        bus.attitude_filter_performance.misalignment_error = bus.gyro_outputs.misalignments - attitude_filter.outputs.est_gyro_to_st_misalignments_rad;
+        bus.attitude_filter_performance.scale_factor_error = bus.gyro_outputs.scale_factors - attitude_filter.outputs.est_gyro_scale_factors;          
     }
     
     void teardown(DataBus& bus, SimControl& sim_ctrl) override {

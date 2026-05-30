@@ -69,8 +69,7 @@ void GyroModel::execute() {
     rate_bias(i) += rrw_1_sigma * std::sqrt(dt) * normal_distribution(rng);
   }
 
-  angle_bias        = rate_bias * dt;
-  meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + angle_bias + arw_error;
+  meas_delta_angles = (I3 + sf_misalign_matrix) * true_delta_angles + (rate_bias * dt) + arw_error;
 
   total_delta_angle_error = true_delta_angles - meas_delta_angles;
   q_j2000_to_body_prev    = q_j2000_to_body_now;
@@ -82,7 +81,7 @@ void GyroModel::set_outputs() {
   outputs.measurement_time        = time_now_sec;
   outputs.measured_delta_angles   = meas_delta_angles;
   outputs.total_delta_angle_error = total_delta_angle_error;
-  outputs.angle_biases            = rate_bias; // angle_bias;
+  outputs.rate_biases             = rate_bias;
   outputs.scale_factors           = scale_factors;
   outputs.misalignments           = misalignments;
   outputs.seed                    = random_seed;

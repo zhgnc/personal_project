@@ -47,7 +47,6 @@ private:
     vector<double, 3> misalignments;
     vector<double, 3> arw_error;
     vector<double, 3> rate_bias;
-    vector<double, 3> angle_bias;
 
     bool first_cycle;
     bool gyro_meas_valid;

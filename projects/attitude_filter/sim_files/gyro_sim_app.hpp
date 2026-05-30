@@ -28,7 +28,7 @@ public:
         bus.gyro_outputs.measurement_time        = gyro.outputs.measurement_time;
         bus.gyro_outputs.measured_delta_angles   = gyro.outputs.measured_delta_angles;
         bus.gyro_outputs.total_delta_angle_error = gyro.outputs.total_delta_angle_error;
-        bus.gyro_outputs.angle_biases            = gyro.outputs.angle_biases;
+        bus.gyro_outputs.rate_biases            = gyro.outputs.rate_biases;
         bus.gyro_outputs.scale_factors           = gyro.outputs.scale_factors;
         bus.gyro_outputs.misalignments           = gyro.outputs.misalignments;
         bus.gyro_outputs.seed                    = gyro.outputs.seed;

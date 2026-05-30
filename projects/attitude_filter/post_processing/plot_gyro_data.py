@@ -43,15 +43,15 @@ plt.savefig("gyro_meas_delta_angles")
 
 # Plot gyro biases
 fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
-axis_labels = ['X-Biases [deg]', 'Y-Biases [deg]', 'Z-Biases [deg]']
+axis_labels = ['X-Biases [deg/s]', 'Y-Biases [deg/s]', 'Z-Biases [deg/s]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        angle_biases     = f["/gyro/angle_biases"][:]
+        rate_biases     = f["/gyro/rate_biases"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
-        axs[i].plot(sim_time_sec[1:], angle_biases[1:, i] * rad2deg, linewidth=0.5)
+        axs[i].plot(sim_time_sec[1:], rate_biases[1:, i] * rad2deg, linewidth=0.5)
 
 
 for i in range(3):

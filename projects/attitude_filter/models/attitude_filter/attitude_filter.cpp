@@ -115,7 +115,7 @@ void AttitudeFilter::process_gyro_meas() {
          est_misalign(2), est_sf(1),      -est_misalign(0), 
         -est_misalign(1), est_misalign(0), est_sf(2)};
 
-    bias_corrected_delta_thetas = gyro_delta_thetas - est_biases * dt; // Added * dt
+    bias_corrected_delta_thetas = gyro_delta_thetas - est_biases * dt; 
     corrected_delta_thetas      = (I3 - S) * bias_corrected_delta_thetas;
     q_gyro                      = to_quat(corrected_delta_thetas).normalize();
 }

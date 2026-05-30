@@ -65,7 +65,7 @@ axis_labels = ['X Bias [deg]', 'Y Bias [deg]', 'Z Bias [deg]']
 
 with h5py.File(first_run_file, "r") as f:
     est_gyro_biases_deg  = f["/attitude_filter/est_gyro_biases_rad"][:] * rad2deg
-    true_gyro_biases_deg = f["/gyro/angle_biases"][:]  * rad2deg
+    true_gyro_biases_deg = f["/gyro/rate_biases"][:]  * rad2deg
     filter_time_sec       = f["/attitude_filter/current_time_sec"][:]
     sim_time_sec          = f["/sim/current_sim_time_sec"][:]
  
@@ -198,7 +198,7 @@ plt.savefig("filter_attitude_errors")
 
 # Plot gyro bias error
 fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
-axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
+axis_labels = ['X-Axis [deg/s]', 'Y-Axis [deg/s]', 'Z-Axis [deg/s]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
@@ -219,7 +219,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    # axs[i].set_ylim(-0.01, 0.01)
+    axs[i].set_ylim(-0.0001, 0.0001)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Bias Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
@@ -251,7 +251,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-1, 1)
+    axs[i].set_ylim(-0.0025, 0.0025)
 
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
@@ -284,7 +284,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-15000, 15000)
+    axs[i].set_ylim(-100, 100)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Scale Factor Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
