@@ -59,9 +59,9 @@ for i in range(3):
     axs[i].grid(True)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
-fig.suptitle(f"Gyro Angle Biases vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
+fig.suptitle(f"Gyro Rate Biases vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("gyro_angle_biases")
+plt.savefig("gyro_rate_biases")
 
 
 # Plot gyro misalignments

@@ -11,6 +11,8 @@ GyroModel::GyroModel(const std::string &config_file, uint64_t seed) {
   q_body_to_gyro         = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_gyro");
   random_seed            = seed;
 
+  q_body_to_gyro = q_body_to_gyro.normalize();
+  
   initialize();
 };
 

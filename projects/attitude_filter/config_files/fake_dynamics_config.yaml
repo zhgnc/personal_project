@@ -1,13 +1,13 @@
 initial_quaternion: [0.0, 0.0, 0.0, 1.0]
 
-x_axis_period_s: 60.0
-x_axis_amplitude_dps: 1.0
+x_axis_period_s: 30.0
+x_axis_amplitude_dps: 3.0
 x_axis_shift_deg: 0.0
 
-y_axis_period_s: 180.0
+y_axis_period_s: 30.0
 y_axis_amplitude_dps: 3.0
-y_axis_shift_deg: 90.0
+y_axis_shift_deg: 95.0
 
-z_axis_period_s: 300.0
-z_axis_amplitude_dps: 6.0
+z_axis_period_s: 30.0
+z_axis_amplitude_dps: 3.0
 z_axis_shift_deg: 0.0

@@ -3,4 +3,4 @@ turn_on_rate_bias_deg_1_sigma: 0.002777
 rate_random_walk_deg_1_sigma: 1.8e-8
 scale_factor_ppm_1_sigma: 1000.0
 misalignment_deg_1_sigma: 0.1
-q_body_to_gyro: [0.0, 0.0, 0.0, 1.0]
+q_body_to_gyro: [0.0, 0.7071, 0.0, 0.7071] # [0.0, 0.0, 0.0, 1.0] #

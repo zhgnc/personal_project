@@ -16,6 +16,7 @@ public:
 
     AttitudeFilterInputs inputs;
     AttitudeFilterOutputs outputs;
+    AttitudeFilterConfig config;
 
 private:
     void get_input_data();
@@ -26,9 +27,7 @@ private:
     void update_state();
     void populate_output_data();
 
-    // Config 
-    quat<double> q_body_to_star_tracker;
-    quat<double> q_body_to_gyro;
+    // Config
     quat<double> q_gyro_to_body;
     quat<double> q_st_to_body;
     matrix<double, 12,12> Q;

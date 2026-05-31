@@ -3,56 +3,59 @@
 AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     YAML::Node config_data = load_yaml_file(path_to_config);
     
-    q_body_to_star_tracker     = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_star_tracker");
-    q_body_to_gyro             = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_gyro");
-    double attitude_pn         = get_yaml_value<double>(config_data, "attitude_process_noise");
-    double gyro_bias_pn        = get_yaml_value<double>(config_data, "gyro_bias_process_noise");
-    double gyro_misalign_pn    = get_yaml_value<double>(config_data, "gyro_misalignment_process_noise");
-    double gyro_sf_pn          = get_yaml_value<double>(config_data, "gyro_scale_factor_process_noise");
-    double attitude_covar      = get_yaml_value<double>(config_data, "attitude_covariance");
-    double gyro_bias_covar     = get_yaml_value<double>(config_data, "gyro_bias_covariance");
-    double gyro_misalign_covar = get_yaml_value<double>(config_data, "gyro_misalignment_covariance");
-    double gyro_sf_covar       = get_yaml_value<double>(config_data, "gyro_scale_factor_covariance");
-    double st_x_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_x_noise_1_sigma_deg") * deg2rad;
-    double st_y_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_y_noise_1_sigma_deg") * deg2rad;
-    double st_z_meas_noise     = get_yaml_value<double>(config_data, "star_tracker_z_noise_1_sigma_deg") * deg2rad;
+    config.q_body_to_star_tracker = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_star_tracker");
+    config.q_body_to_gyro         = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_gyro");
+    config.attitude_pn            = get_yaml_value<double>(config_data, "attitude_process_noise");
+    config.gyro_bias_pn           = get_yaml_value<double>(config_data, "gyro_bias_process_noise");
+    config.gyro_misalign_pn       = get_yaml_value<double>(config_data, "gyro_misalignment_process_noise");
+    config.gyro_sf_pn             = get_yaml_value<double>(config_data, "gyro_scale_factor_process_noise");
+    config.attitude_covar         = get_yaml_value<double>(config_data, "attitude_covariance");
+    config.gyro_bias_covar        = get_yaml_value<double>(config_data, "gyro_bias_covariance");
+    config.gyro_misalign_covar    = get_yaml_value<double>(config_data, "gyro_misalignment_covariance");
+    config.gyro_sf_covar          = get_yaml_value<double>(config_data, "gyro_scale_factor_covariance");
+    config.st_x_meas_noise        = get_yaml_value<double>(config_data, "star_tracker_x_noise_1_sigma_deg") * deg2rad;
+    config.st_y_meas_noise        = get_yaml_value<double>(config_data, "star_tracker_y_noise_1_sigma_deg") * deg2rad;
+    config.st_z_meas_noise        = get_yaml_value<double>(config_data, "star_tracker_z_noise_1_sigma_deg") * deg2rad;
 
-    q_gyro_to_body = q_body_to_gyro.inv();
-    q_st_to_body   = q_body_to_star_tracker.inv();
+    q_gyro_to_body = (config.q_body_to_gyro.normalize()).inv();
+    q_st_to_body   = (config.q_body_to_star_tracker.normalize()).inv();
 
 
     Q.setIdentity();
-    Q(0,0)   = attitude_pn;
-    Q(1,1)   = attitude_pn;
-    Q(2,2)   = attitude_pn;
-    Q(3,3)   = gyro_bias_pn;
-    Q(4,4)   = gyro_bias_pn;
-    Q(5,5)   = gyro_bias_pn;
-    Q(6,6)   = gyro_misalign_pn;
-    Q(7,7)   = gyro_misalign_pn;
-    Q(8,8)   = gyro_misalign_pn;
-    Q(9,9)   = gyro_sf_pn;
-    Q(10,10) = gyro_sf_pn;
-    Q(11,11) = gyro_sf_pn;
+    Q(0,0)   = config.attitude_pn;
+    Q(1,1)   = config.attitude_pn;
+    Q(2,2)   = config.attitude_pn;
+    Q(3,3)   = config.gyro_bias_pn;
+    Q(4,4)   = config.gyro_bias_pn;
+    Q(5,5)   = config.gyro_bias_pn;
+    Q(6,6)   = config.gyro_misalign_pn;
+    Q(7,7)   = config.gyro_misalign_pn;
+    Q(8,8)   = config.gyro_misalign_pn;
+    Q(9,9)   = config.gyro_sf_pn;
+    Q(10,10) = config.gyro_sf_pn;
+    Q(11,11) = config.gyro_sf_pn;
 
     P.setIdentity();
-    P(0,0)   = attitude_covar;
-    P(1,1)   = attitude_covar;
-    P(2,2)   = attitude_covar;
-    P(3,3)   = gyro_bias_covar;
-    P(4,4)   = gyro_bias_covar;
-    P(5,5)   = gyro_bias_covar;
-    P(6,6)   = gyro_misalign_covar;
-    P(7,7)   = gyro_misalign_covar;
-    P(8,8)   = gyro_misalign_covar;
-    P(9,9)   = gyro_sf_covar;
-    P(10,10) = gyro_sf_covar;
-    P(11,11) = gyro_sf_covar;
+    P(0,0)   = config.attitude_covar;
+    P(1,1)   = config.attitude_covar;
+    P(2,2)   = config.attitude_covar;
+    P(3,3)   = config.gyro_bias_covar;
+    P(4,4)   = config.gyro_bias_covar;
+    P(5,5)   = config.gyro_bias_covar;
+    P(6,6)   = config.gyro_misalign_covar;
+    P(7,7)   = config.gyro_misalign_covar;
+    P(8,8)   = config.gyro_misalign_covar;
+    P(9,9)   = config.gyro_sf_covar;
+    P(10,10) = config.gyro_sf_covar;
+    P(11,11) = config.gyro_sf_covar;
 
     R.setIdentity();
-    R(0,0) = st_x_meas_noise * st_x_meas_noise;
-    R(1,1) = st_y_meas_noise * st_y_meas_noise;
-    R(2,2) = st_z_meas_noise * st_z_meas_noise;
+    R(0,0) = config.st_x_meas_noise * config.st_x_meas_noise;
+    R(1,1) = config.st_y_meas_noise * config.st_y_meas_noise;
+    R(2,2) = config.st_z_meas_noise * config.st_z_meas_noise;
+
+    matrix<double, 3,3> dcm_st_to_body = to_rotation_matrix(q_st_to_body);
+    R = dcm_st_to_body * R * dcm_st_to_body.transpose(); 
 
     H.setZeros();
     H(0,0) = 1.0;
@@ -116,7 +119,7 @@ void AttitudeFilter::process_gyro_meas() {
         -est_misalign(1), est_misalign(0), est_sf(2)};
 
     bias_corrected_delta_thetas = gyro_delta_thetas - est_biases * dt; 
-    corrected_delta_thetas      = (I3 - S) * bias_corrected_delta_thetas;
+    corrected_delta_thetas      = (I3 + S).inv() * bias_corrected_delta_thetas; // (I3 - S) is approximation of (I3 + S).inv()
     q_gyro                      = to_quat(corrected_delta_thetas).normalize();
 }
 
@@ -138,8 +141,8 @@ void AttitudeFilter::propagate_states() {
     stm(2,1) = -theta_hat(0);
 
     // Set second block for gyro biases 
-    matrix<double, 3,3> temp = -(I3 - S) * dt;
-    
+    matrix<double, 3,3> temp = -(I3 + S).inv() * dt; // (I3 - S) is approximation of (I3 + S).inv()
+
     stm(0,3) = temp(0,0); // It would be nice to have a block assign feature....
     stm(0,4) = temp(0,1);
     stm(0,5) = temp(0,2);

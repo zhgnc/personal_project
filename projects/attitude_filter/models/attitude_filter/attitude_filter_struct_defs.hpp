@@ -24,4 +24,20 @@ struct AttitudeFilterOutputs {
     double time_now_sec;
 };
 
+struct AttitudeFilterConfig {
+    quat<double> q_body_to_star_tracker; 
+    quat<double> q_body_to_gyro; 
+    double attitude_pn; 
+    double gyro_bias_pn; 
+    double gyro_misalign_pn; 
+    double gyro_sf_pn; 
+    double attitude_covar; 
+    double gyro_bias_covar; 
+    double gyro_misalign_covar; 
+    double gyro_sf_covar; 
+    double st_x_meas_noise; 
+    double st_y_meas_noise; 
+    double st_z_meas_noise; 
+};
+
 #endif

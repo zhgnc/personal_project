@@ -185,7 +185,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    # axs[i].set_ylim(-500, 500)
+    axs[i].set_ylim(-10, 10)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Rotation Vector Attitude Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
@@ -219,7 +219,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-0.0001, 0.0001)
+    axs[i].set_ylim(-0.00075, 0.00075)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Bias Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
@@ -251,7 +251,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-0.0025, 0.0025)
+    # axs[i].set_ylim(-0.005, 0.005)
 
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
@@ -284,7 +284,7 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-100, 100)
+    # axs[i].set_ylim(-250, 250)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Scale Factor Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)

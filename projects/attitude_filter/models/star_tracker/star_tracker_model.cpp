@@ -13,6 +13,8 @@ StarTrackerModel::StarTrackerModel(const std::string &config_file, uint64_t seed
   manual_outage_stop_sec   = get_yaml_value<double>(config_data, "outage_stop_sec");
   random_seed              = seed;
 
+  q_body_to_star_tracker = q_body_to_star_tracker.normalize();
+
   initialize();
 };
 
