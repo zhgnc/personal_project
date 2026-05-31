@@ -6,7 +6,7 @@ x_axis_shift_deg: 0.0
 
 y_axis_period_s: 30.0
 y_axis_amplitude_dps: 3.0
-y_axis_shift_deg: 95.0
+y_axis_shift_deg: 90.0
 
 z_axis_period_s: 30.0
 z_axis_amplitude_dps: 3.0
