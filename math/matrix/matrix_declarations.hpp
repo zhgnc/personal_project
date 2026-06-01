@@ -5,6 +5,7 @@
 #include <array>
 #include <limits>
 #include <cmath>
+#include <cassert>
 
 template <typename T, std::size_t rows, std::size_t columns>
 class matrix 
@@ -20,6 +21,10 @@ public:
     matrix();
     matrix(std::initializer_list<T> initial_matrix);
 
+    // In matrix_creators.hpp
+    // matrix<T, rows, columns> diag_matrix(const matrix<T, rows, 1>& diag_values);
+    // matrix<T, N, N> identity_matrix()
+
     // Utilities
     void print() const;
     void setZeros();
@@ -27,8 +32,16 @@ public:
     void set_row(std::size_t row_index, std::initializer_list<T> row_values);
     void set_column(std::size_t column_index, std::initializer_list<T> column_values);
     T trace() const;
+    matrix<T, rows, 1> get_diag() const;
+    void set_diag(const matrix<T, rows, 1>& diag_values);
     T& operator()(std::size_t desired_row, std::size_t desired_column);
     const T& operator()(std::size_t desired_row, std::size_t desired_column) const;
+
+    template <std::size_t block_rows, std::size_t block_columns> 
+    void set_block(std::size_t starting_row, std::size_t starting_column, const matrix<T, block_rows, block_columns>& block_to_insert);
+    
+    template <std::size_t block_rows, std::size_t block_columns> 
+    matrix<T, block_rows, block_columns> get_block(std::size_t starting_row, std::size_t starting_column) const;
     
     template <typename U>
     explicit operator matrix<U, rows, columns>() const; 

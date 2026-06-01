@@ -42,7 +42,7 @@ public:
         // Calculate error between true and estimated states
         quat<double> q_true_to_est = (af.outputs.q_j2000_to_body_est * bus.fake_dynamics_outputs.quat.inv()).normalize();
 
-        // This is required because the scale factors are not vectors they are diagonal elements of a matrix
+        // This is required because the scale factors are not vectors but diagonal elements of a matrix
         // These wolfram alpha links show the subtle difference
         // https://www.wolframalpha.com/input?i2d=true&i=%7B%7B1%2C0%2C0%7D%2C%7B0%2C0%2C-1%7D%2C%7B0%2C1%2C0%7D%7D%7B%7B0%7D%2C%7B0%7D%2C%7B1%7D%7D
         // https://www.wolframalpha.com/input?i2d=true&i=%7B%7B1%2C0%2C0%7D%2C%7B0%2C0%2C-1%7D%2C%7B0%2C1%2C0%7D%7D%7B%7B1%2C0%2C0%7D%2C%7B0%2C2%2C0%7D%2C%7B0%2C0%2C3%7D%7DPower%5B%7B%7B1%2C0%2C0%7D%2C%7B0%2C0%2C-1%7D%2C%7B0%2C1%2C0%7D%7D%2C-1%5D

@@ -6,5 +6,6 @@
 #include "matrix_utilities.hpp"
 #include "matrix_simple_math.hpp"
 #include "matrix_advanced_math.hpp"
+#include "matrix_creators.hpp"
 
 #endif

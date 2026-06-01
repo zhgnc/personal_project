@@ -108,6 +108,63 @@ T matrix<T, rows, columns>::trace() const {
 }
 
 template <typename T, std::size_t rows, std::size_t columns>
+matrix<T, rows, 1> matrix<T, rows, columns>::get_diag() const {
+    static_assert(rows == columns, "get_diag() only valid for square matrices");
+
+    matrix<T, rows, 1> result;
+
+    for (std::size_t i = 0; i < rows; i++) {
+        result(i,0) = data[i][i];
+    }
+
+    return result;
+}
+
+template <typename T, std::size_t rows, std::size_t columns>
+void matrix<T, rows, columns>::set_diag(const matrix<T, rows, 1>& diag_values) {
+    static_assert(rows == columns, "set_diag requires square matrix");
+
+    for (std::size_t i = 0; i < rows; i++) {
+        data[i][i] = diag_values(i,0);
+    }
+}
+
+
+template <typename T, std::size_t rows, std::size_t columns>
+template <std::size_t block_rows, std::size_t block_columns>
+void matrix<T, rows, columns>::set_block(std::size_t starting_row, std::size_t starting_column, const matrix<T, block_rows, block_columns>& block_to_insert) {
+
+    assert(starting_row    + block_rows    <= rows); 
+    assert(starting_column + block_columns <= columns);
+
+    for (std::size_t i = 0; i < block_rows; i++) {
+        for (std::size_t j = 0; j < block_columns; j++) {
+            data[starting_row + i][starting_column + j] = block_to_insert(i,j);
+        }
+    }
+}
+
+template <typename T, std::size_t rows, std::size_t columns>
+template <std::size_t block_rows, std::size_t block_columns>
+matrix<T, block_rows, block_columns> matrix<T, rows, columns>::get_block(std::size_t starting_row, std::size_t starting_column) const {
+    
+    assert(starting_row    + block_rows    <= rows);
+    assert(starting_column + block_columns <= columns);
+
+    matrix<T, block_rows, block_columns> result;
+
+    for (std::size_t i = 0; i < block_rows; ++i)
+    {
+        for (std::size_t j = 0; j < block_columns; ++j)
+        {
+            result(i, j) = data[starting_row + i][starting_column + j];
+        }
+    }
+
+    return result;
+}
+
+template <typename T, std::size_t rows, std::size_t columns>
 template <typename U>
 matrix<T, rows,columns>::operator matrix<U, rows, columns>() const {
     matrix<U, rows,columns> output;
