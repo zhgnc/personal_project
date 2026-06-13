@@ -21,46 +21,25 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     q_st_to_body   = (config.q_body_to_star_tracker.normalize()).inv();
 
 
-    Q.setIdentity();
-    Q(0,0)   = config.attitude_pn;
-    Q(1,1)   = config.attitude_pn;
-    Q(2,2)   = config.attitude_pn;
-    Q(3,3)   = config.gyro_bias_pn;
-    Q(4,4)   = config.gyro_bias_pn;
-    Q(5,5)   = config.gyro_bias_pn;
-    Q(6,6)   = config.gyro_misalign_pn;
-    Q(7,7)   = config.gyro_misalign_pn;
-    Q(8,8)   = config.gyro_misalign_pn;
-    Q(9,9)   = config.gyro_sf_pn;
-    Q(10,10) = config.gyro_sf_pn;
-    Q(11,11) = config.gyro_sf_pn;
+    Q.set_diag({config.attitude_pn,      config.attitude_pn,      config.attitude_pn, 
+                config.gyro_bias_pn,     config.gyro_bias_pn,     config.gyro_bias_pn, 
+                config.gyro_misalign_pn, config.gyro_misalign_pn, config.gyro_misalign_pn, 
+                config.gyro_sf_pn,       config.gyro_sf_pn,       config.gyro_sf_pn});
 
-    P.setIdentity();
-    P(0,0)   = config.attitude_covar;
-    P(1,1)   = config.attitude_covar;
-    P(2,2)   = config.attitude_covar;
-    P(3,3)   = config.gyro_bias_covar;
-    P(4,4)   = config.gyro_bias_covar;
-    P(5,5)   = config.gyro_bias_covar;
-    P(6,6)   = config.gyro_misalign_covar;
-    P(7,7)   = config.gyro_misalign_covar;
-    P(8,8)   = config.gyro_misalign_covar;
-    P(9,9)   = config.gyro_sf_covar;
-    P(10,10) = config.gyro_sf_covar;
-    P(11,11) = config.gyro_sf_covar;
+    P.set_diag({config.attitude_covar,      config.attitude_covar,      config.attitude_covar, 
+                config.gyro_bias_covar,     config.gyro_bias_covar,     config.gyro_bias_covar, 
+                config.gyro_misalign_covar, config.gyro_misalign_covar, config.gyro_misalign_covar, 
+                config.gyro_sf_covar,       config.gyro_sf_covar,       config.gyro_sf_covar});
 
-    R.setIdentity();
-    R(0,0) = config.st_x_meas_noise * config.st_x_meas_noise;
-    R(1,1) = config.st_y_meas_noise * config.st_y_meas_noise;
-    R(2,2) = config.st_z_meas_noise * config.st_z_meas_noise;
+    R.set_diag({std::pow(config.st_x_meas_noise, 2), 
+                std::pow(config.st_y_meas_noise, 2), 
+                std::pow(config.st_z_meas_noise, 2)});
 
     matrix<double, 3,3> dcm_st_to_body = to_rotation_matrix(q_st_to_body);
     R = dcm_st_to_body * R * dcm_st_to_body.transpose(); 
 
     H.setZeros();
-    H(0,0) = 1.0;
-    H(1,1) = 1.0;
-    H(2,2) = 1.0;
+    H.set_block<3,3>(0,0, identity_matrix<double, 3>());
 
     H_T = H.transpose();
 
@@ -142,16 +121,7 @@ void AttitudeFilter::propagate_states() {
 
     // Set second block for gyro biases 
     matrix<double, 3,3> temp = -(I3 + S).inv() * dt; // (I3 - S) is approximation of (I3 + S).inv()
-
-    stm(0,3) = temp(0,0); // It would be nice to have a block assign feature....
-    stm(0,4) = temp(0,1);
-    stm(0,5) = temp(0,2);
-    stm(1,3) = temp(1,0);
-    stm(1,4) = temp(1,1);
-    stm(1,5) = temp(1,2);
-    stm(2,3) = temp(2,0);
-    stm(2,4) = temp(2,1);
-    stm(2,5) = temp(2,2);
+    stm.set_block<3,3>(0,3, temp);
 
     // Set third block for gyro to star tracker misalignments
     stm(0,7) = -theta_bar(2);

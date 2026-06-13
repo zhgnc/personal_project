@@ -2,6 +2,7 @@
 #define ATTITUDE_FILTER_HPP
 
 #include "string"
+#include <cmath>
 
 #include "attitude_filter_struct_defs.hpp"
 #include "utilities/yaml_utilities.hpp"
