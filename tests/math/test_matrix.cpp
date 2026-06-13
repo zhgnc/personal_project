@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "../src/math/matrix/matrix.hpp"
+#include "../math/matrix/matrix.hpp"
+#include "../math/vector/vector.hpp"
 #include <Eigen/Dense>
 #include <random>
 #include <limits> 
@@ -270,6 +271,221 @@ TEST(matrixTest, MatrixSetColumn) {
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
         for (size_t columns = 0; columns < expected.num_columns; columns++) {
             EXPECT_DOUBLE_EQ(expected(rows, columns), test_matrix(rows, columns));
+        }
+    }
+}
+
+TEST(matrixTest, MatrixTraceTest) {   
+    matrix<int, 1, 1> test_matrix_1 = {5};  
+    int output_1   = test_matrix_1.trace();
+    int expected_1 = 5;
+
+    EXPECT_EQ(expected_1, output_1);
+
+    
+    matrix<float, 2, 2> test_matrix_2 = {12, 9, 4, 17};  
+    float output_2   = test_matrix_2.trace();
+    float expected_2 = 29;
+
+    EXPECT_FLOAT_EQ(expected_2, output_2);
+    
+    matrix<double, 3, 3> test_matrix_3 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
+    double output_3   = test_matrix_3.trace();
+    double expected_3 = 15;
+
+    EXPECT_DOUBLE_EQ(expected_3, output_3);
+}
+
+
+TEST(matrixTest, MatrixGetDiagonalElemsTest) {   
+    matrix<double, 2, 2> test_matrix_1 = {9, 12, 17, 4};  
+    matrix<double, 2, 1> output_1      = test_matrix_1.get_diag();
+    vector<double, 2>    output_2      = test_matrix_1.get_diag();
+    vector<double, 2>    expected_1    = {9, 4};
+
+    for(size_t i = 0; i < test_matrix_1.num_rows; i++) {
+        EXPECT_DOUBLE_EQ(output_1(i,0), output_2(i));
+        EXPECT_DOUBLE_EQ(expected_1(i), output_2(i));
+    }
+
+    matrix<double, 3, 3> test_matrix_2 = {1, 2, 3, 4, 5, 6, 7, 8, 9};    
+    vector<double, 3>    output_3      = test_matrix_2.get_diag();
+    vector<double, 3>    expected_2    = {1, 5, 9};
+
+    for(size_t i = 0; i < test_matrix_2.num_rows; i++) {
+        EXPECT_DOUBLE_EQ(expected_2(i), output_3(i));
+    }
+}
+
+TEST(matrixTest, MatrixSetDiagonalElemsTest) {   
+    matrix<double, 2, 2> original_mat_values_1 = {9, 12, 17, 4};
+    matrix<double, 2, 2> test_matrix_1         = original_mat_values_1;
+    matrix<double, 2, 1> new_diag_values_1     = {1, 2};  
+    test_matrix_1.set_diag(new_diag_values_1);
+
+    for(size_t i = 0; i < test_matrix_1.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_1.num_columns; j++) {
+            if (i == j) {
+                EXPECT_DOUBLE_EQ(test_matrix_1(i,i), new_diag_values_1(i,0));
+            } else {
+                EXPECT_DOUBLE_EQ(original_mat_values_1(i,j), test_matrix_1(i,j));
+            }
+        }
+    }
+
+    matrix<double, 3, 3> original_mat_values_2 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    matrix<double, 3, 3> test_matrix_2         = original_mat_values_2;
+    vector<double, 3> new_diag_values_2        = {10, 11, 12};  
+    test_matrix_2.set_diag(new_diag_values_2);
+
+    for(size_t i = 0; i < test_matrix_2.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_2.num_columns; j++) {
+            if (i == j) {
+                EXPECT_DOUBLE_EQ(test_matrix_2(i,i), new_diag_values_2(i));
+            } else {
+                EXPECT_DOUBLE_EQ(original_mat_values_2(i,j), test_matrix_2(i,j));
+            }
+        }
+    }
+}
+
+TEST(matrixTest, MatrixCreateDiagonalMatrixTest) {   
+    matrix<int, 2, 1> diag_elements_1 = {100, 101};
+    matrix<int, 2, 2> test_matrix_1   = diag_matrix(diag_elements_1);
+    matrix<int, 2, 2> expected_mat_1  = {100, 0, 0, 101};
+
+    for(size_t i = 0; i < test_matrix_1.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_1.num_columns; j++) {
+            EXPECT_EQ(expected_mat_1(i,j), test_matrix_1(i,j));
+        }
+    }
+
+    vector<double, 3> diag_elements_2 = {11, 22, 33};
+    matrix<double, 3, 3> test_matrix_2   = diag_matrix(diag_elements_2);
+    matrix<double, 3, 3> expected_mat_2  = {11, 0, 0, 0, 22, 0, 0, 0, 33};
+
+    for(size_t i = 0; i < test_matrix_2.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_2.num_columns; j++) {
+            EXPECT_EQ(expected_mat_2(i,j), test_matrix_2(i,j));
+        }
+    }
+}
+
+TEST(matrixTest, MatrixCreateIdentityMatrixTest) {   
+    matrix<int, 2, 2> I2 = identity_matrix<int, 2>();
+    matrix<int, 2, 2> expected_I2 = {1,0,0,1};
+
+    for(size_t i = 0; i < I2.num_rows; i++) {
+        for(size_t j = 0; j < I2.num_columns; j++) {
+            EXPECT_EQ(expected_I2(i,j), I2(i,j));
+        }
+    }
+
+    matrix<double, 3, 3> I3 = identity_matrix<double, 3>();
+    matrix<double, 3, 3> expected_I3 = {1,0,0, 0,1,0, 0,0,1};
+
+    for(size_t i = 0; i < I3.num_rows; i++) {
+        for(size_t j = 0; j < I3.num_columns; j++) {
+            EXPECT_DOUBLE_EQ(expected_I3(i,j), I3(i,j));
+        }
+    }
+
+    matrix<float, 4, 4> I4 = identity_matrix<float, 4>();
+    matrix<float, 4, 4> expected_I4 = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+
+    for(size_t i = 0; i < I4.num_rows; i++) {
+        for(size_t j = 0; j < I4.num_columns; j++) {
+            EXPECT_DOUBLE_EQ(expected_I4(i,j), I4(i,j));
+        }
+    }
+}
+
+TEST(matrixTest, MatrixBlockSetTest) {   
+    matrix<int, 3, 3> test_matrix_1     = {1,2,3,4,5,6,7,8,9};
+    matrix<int, 2, 2> block_to_insert_1 = {10,11,12,13};
+    matrix<int, 3, 3> expected_mat_1    = {1,2,3,10,11,6,12,13,9};
+
+    test_matrix_1.set_block(1,0,block_to_insert_1);
+
+    for(size_t i = 0; i < test_matrix_1.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_1.num_columns; j++) {
+            EXPECT_EQ(expected_mat_1(i,j), test_matrix_1(i,j));
+        }
+    }
+
+    matrix<int, 4, 4> test_matrix_2     = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    matrix<int, 3, 3> block_to_insert_2 = {101,102,103,104,105,106,107,108,109};
+    matrix<int, 4, 4> expected_mat_2    = {1,101,102,103,5,104,105,106,9,107,108,109,13,14,15,16};
+
+    test_matrix_2.set_block(0,1,block_to_insert_2);
+
+    for(size_t i = 0; i < test_matrix_2.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_2.num_columns; j++) {
+            EXPECT_EQ(expected_mat_2(i,j), test_matrix_2(i,j));
+        }
+    }
+
+    matrix<double, 2, 2> test_matrix_3  = {1,2,3,4};
+    vector<double, 2> block_to_insert_3 = {10,11};
+    matrix<double, 2, 2> expected_mat_3 = {1,10,3,11};
+
+    test_matrix_3.set_block(0,1,block_to_insert_3);
+
+    for(size_t i = 0; i < test_matrix_3.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_3.num_columns; j++) {
+            EXPECT_DOUBLE_EQ(expected_mat_3(i,j), test_matrix_3(i,j));
+        }
+    }
+
+    matrix<double, 2, 2> test_matrix_4     = {1,2,3,4};
+    matrix<double, 1, 2> block_to_insert_4 = {10,11};
+    matrix<double, 2, 2> expected_mat_4    = {1,2,10,11};
+
+    test_matrix_4.set_block(1,0,block_to_insert_4);
+
+    for(size_t i = 0; i < test_matrix_4.num_rows; i++) {
+        for(size_t j = 0; j < test_matrix_4.num_columns; j++) {
+            EXPECT_DOUBLE_EQ(expected_mat_4(i,j), test_matrix_4(i,j));
+        }
+    }
+}
+
+TEST(matrixTest, MatrixBlockGetTest) {   
+    matrix<int, 3, 3> test_matrix_1  = {1,2,3,4,5,6,7,8,9};
+    matrix<int, 2, 2> block_got_1    = test_matrix_1.get_block<2,2>(0,1);
+    matrix<int, 2, 2> expected_mat_1 = {2,3,5,6}; 
+
+    for(size_t i = 0; i < block_got_1.num_rows; i++) {
+        for(size_t j = 0; j < block_got_1.num_columns; j++) {
+            EXPECT_EQ(expected_mat_1(i,j), block_got_1(i,j));
+        }
+    }
+
+    matrix<int, 4, 4> test_matrix_2  = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    matrix<int, 3, 3> block_got_2    = test_matrix_2.get_block<3,3>(1,0);
+    matrix<int, 3, 3> expected_mat_2 = {5,6,7,9,10,11,13,14,15};
+
+    for(size_t i = 0; i < block_got_2.num_rows; i++) {
+        for(size_t j = 0; j < block_got_2.num_columns; j++) {
+            EXPECT_EQ(expected_mat_2(i,j), block_got_2(i,j));
+        }
+    }
+
+    matrix<double, 2, 2> test_matrix_3 = {1,2,3,4};
+    vector<double, 2> block_got_3      = test_matrix_3.get_block<2,1>(0,1);
+    vector<double, 2> expected_mat_3   = {2,4};
+
+    for(size_t i = 0; i < block_got_3.num_rows; i++) {
+            EXPECT_DOUBLE_EQ(expected_mat_3(i), block_got_3(i));
+    }
+
+    matrix<double, 2, 2> test_matrix_4  = {1,2,3,4};
+    matrix<double, 1, 2> block_got_4    = test_matrix_4.get_block<1,2>(1,0);
+    matrix<double, 1, 2> expected_mat_4 = {3,4};
+
+    for(size_t i = 0; i < block_got_4.num_rows; i++) {
+        for(size_t j = 0; j < block_got_4.num_columns; j++) {
+            EXPECT_EQ(expected_mat_4(i,j), block_got_4(i,j));
         }
     }
 }

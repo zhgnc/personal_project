@@ -18,9 +18,23 @@ add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 # Build main executable only if tests are not enabled
 if(NOT ENABLE_TESTING)
-  file(GLOB_RECURSE SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
-  add_executable(${PROJECT_NAME} ${SRC_FILES})
-  target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+  file(GLOB_RECURSE FRAMEWORK_SRC "${PROJECT_SOURCE_DIR}/sim_framework/**/*.cpp")
+  file(GLOB_RECURSE PROJECT_SRC   "${PROJECT_SOURCE_DIR}/projects/**/*.cpp")
+  set(MAIN_SRC "${PROJECT_SOURCE_DIR}/main.cpp") 
+  
+  
+  add_executable(${PROJECT_NAME}
+    ${MAIN_SRC}
+    ${FRAMEWORK_SRC}
+    ${PROJECT_SRC}
+  ) 
+
+  target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}
+        ${PROJECT_SOURCE_DIR}/sim_framework
+        ${PROJECT_SOURCE_DIR}/examples
+  )
 
   target_link_libraries(${PROJECT_NAME} 
     yaml-cpp
