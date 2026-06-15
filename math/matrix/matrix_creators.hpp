@@ -26,4 +26,11 @@ matrix<T, rows, rows> diag_matrix(const matrix<T, rows, 1>& diag_values) {
     return result;
 }
 
+template <typename T, std::size_t N>
+matrix<T, N, N> skew_matrix(const matrix<T, (N * (N - 1)) / 2, 1>& skew_vec) {
+    matrix<T, N, N> result;
+    result.set_skew(skew_vec);
+    return result;
+}
+
 #endif

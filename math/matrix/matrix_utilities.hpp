@@ -178,5 +178,43 @@ matrix<T, rows,columns>::operator matrix<U, rows, columns>() const {
     return output;
 }
 
+// set_skew returns a matrix that meets the following definition A^T = -A.
+// The function sets the upper right part of the matrix to the positive of 
+// the vector passed and the bottom left part of the matrix to the negative
+// of the vector passed. The vector is placed into the matrix in row major 
+// order
+
+// 3x3 example:         
+//     [  0,   v0,  v1; 
+//      -v0,    0,  v2; 
+//      -v1,  -v2,   0];
+
+// 4x4 example: 
+//     [  0,   v0,   v1,  v2; 
+//      -v0,    0,   v3,  v4; 
+//      -v1,  -v3,    0,  v5; 
+//      -v2,  -v4,  -v5,   0];
+
+template <typename T, std::size_t rows, std::size_t columns>
+template <std::size_t skew_vec_length>
+void matrix<T, rows, columns>::set_skew(const matrix<T, skew_vec_length, 1>& skew_vector) {
+    
+    static_assert(rows == columns, "set_skew() requires a square matrix");
+    static_assert(skew_vec_length == (rows * (rows - 1)) / 2, "Incorrect skew vector length in set_skew()");
+
+    setZeros();
+
+    std::size_t k = 0;
+
+    // Fill upper triangle and mirror to lower triangle
+    for (std::size_t row = 0; row < rows; row++) {
+        for (std::size_t column = row + 1; column < columns; column++) {
+            data[row][column] =  skew_vector(k,0);
+            data[column][row] = -skew_vector(k,0);
+            k++;
+        }
+    }
+}
+
 
 #endif

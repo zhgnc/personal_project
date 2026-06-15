@@ -42,6 +42,10 @@ public:
     
     template <std::size_t block_rows, std::size_t block_columns> 
     matrix<T, block_rows, block_columns> get_block(std::size_t starting_row, std::size_t starting_column) const;
+
+    template <std::size_t skew_vec_length>
+    void set_skew(const matrix<T, skew_vec_length, 1>& skew_vector);
+
     
     template <typename U>
     explicit operator matrix<U, rows, columns>() const; 
