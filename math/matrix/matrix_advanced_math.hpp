@@ -4,7 +4,7 @@
 #include "matrix.hpp"
 
 template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::elementWiseMultiply(const matrix<T, rows, columns>& right_hand_side) const {
+matrix<T, rows, columns> matrix<T, rows, columns>::element_wise_multiply(const matrix<T, rows, columns>& right_hand_side) const {
     matrix<T, rows, columns> new_matrix{}; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
@@ -17,7 +17,7 @@ matrix<T, rows, columns> matrix<T, rows, columns>::elementWiseMultiply(const mat
 }
 
 template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::elementWiseDivision(const matrix<T, rows, columns>& right_hand_side) const {
+matrix<T, rows, columns> matrix<T, rows, columns>::element_wise_division(const matrix<T, rows, columns>& right_hand_side) const {
     matrix<T, rows, columns> new_matrix{}; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
@@ -47,7 +47,7 @@ matrix<T, columns, rows> matrix<T, rows, columns>::transpose() const {
 // In-place transpose can simply swap the current rows and columns and the output is 
 // the same type (i.e size)
 template <typename T, std::size_t rows, std::size_t columns>
-void matrix<T, rows, columns>::inPlaceTranspose() {
+void matrix<T, rows, columns>::in_place_transpose() {
     static_assert(rows == columns, "In-place transpose only valid for square matrices.");
 
     for (std::size_t i = 0; i < rows; ++i) {
@@ -142,9 +142,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::inv() const {
     matrix<T, rows, columns> U(*this);
     matrix<T, rows, columns> inverse_matrix;
 
-    P.setIdentity();
-    L.setIdentity();
-    inverse_matrix.setZeros();
+    P.set_identity();
+    L.set_identity();
+    inverse_matrix.set_zeros();
 
 
     std::array<T, rows> row_scale; 
@@ -249,7 +249,7 @@ matrix<T, rows, columns> matrix<T, rows, columns>::pow(int exponent) const {
 
     matrix<T, rows, columns> new_matrix;
     matrix<T, rows, columns> matrix_copy(*this);
-    new_matrix.setIdentity();
+    new_matrix.set_identity();
 
     if (exponent == 0) {
         return new_matrix;

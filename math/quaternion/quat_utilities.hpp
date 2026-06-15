@@ -44,7 +44,7 @@ void quat<T>::print() const {
 }
 
 template <typename T>
-void quat<T>::setIdentity() {
+void quat<T>::set_identity() {
     data = {0, 0, 0, 1};
 }
 

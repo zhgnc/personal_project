@@ -38,18 +38,18 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
     matrix<double, 3,3> dcm_st_to_body = to_rotation_matrix(q_st_to_body);
     R = dcm_st_to_body * R * dcm_st_to_body.transpose(); 
 
-    H.setZeros();
+    H.set_zeros();
     H.set_block<3,3>(0,0, identity_matrix<double, 3>());
 
     H_T = H.transpose();
 
-    q_j2000_to_body_est.setIdentity();
-    est_biases.setZeros();
-    est_sf.setZeros();
-    est_misalign.setZeros();
+    q_j2000_to_body_est.set_identity();
+    est_biases.set_zeros();
+    est_sf.set_zeros();
+    est_misalign.set_zeros();
 
-    I3.setIdentity();
-    I12.setIdentity();
+    I3.set_identity();
+    I12.set_identity();
 
     first_cycle = true;
 }
@@ -106,17 +106,11 @@ void AttitudeFilter::propagate_states() {
     rot_vec<double> theta_hat = corrected_delta_thetas;
     rot_vec<double> theta_bar = bias_corrected_delta_thetas;
     
-    stm.setIdentity();
+    stm.set_identity();
 
     // Set first block for attitude
     matrix<double, 3,3> block_1 = identity_matrix<double, 3>() - skew_matrix<double, 3>({-theta_hat(2), theta_hat(1), -theta_hat(0)});
     stm.set_block<3,3>(0,0, block_1);
-    // stm(0,1) =  theta_hat(2);
-    // stm(0,2) = -theta_hat(1);
-    // stm(1,2) =  theta_hat(0);
-    // stm(1,0) = -theta_hat(2);
-    // stm(2,0) =  theta_hat(1);
-    // stm(2,1) = -theta_hat(0);
 
     // Set second block for gyro biases 
     matrix<double, 3,3> block_2 = -(I3 + S).inv() * dt; // (I3 - S) is approximation of (I3 + S).inv()
@@ -125,19 +119,10 @@ void AttitudeFilter::propagate_states() {
     // Set third block for gyro to star tracker misalignments
     matrix<double, 3,3> block_3 = skew_matrix<double, 3>({-theta_bar(2), theta_bar(1), -theta_bar(0)});
     stm.set_block<3,3>(0,6, block_3);
-    // stm(0,7) = -theta_bar(2);
-    // stm(0,8) =  theta_bar(1);
-    // stm(1,8) = -theta_bar(0);
-    // stm(1,6) =  theta_bar(2);
-    // stm(2,6) = -theta_bar(1);
-    // stm(2,7) =  theta_bar(0);
 
     // Set fourth block for gyro scale factors
     matrix<double, 3,3> block_4 = diag_matrix(-theta_bar);
     stm.set_block<3,3>(0,9, block_4);
-    // stm(0,9)  = -theta_bar(0);
-    // stm(1,10) = -theta_bar(1);
-    // stm(2,11) = -theta_bar(2);
 
     P = stm * P * stm.transpose() + Q * dt;
 }

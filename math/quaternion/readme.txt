@@ -19,7 +19,7 @@ To only use the quaternion library, #include "quaternion.hpp" and here is a tabl
 | operator() const    | std::size_t element_to_return           | const T&     | Access element by index for reading                                | double scalar = q(3);                   |
 | operator=           | const quat<T>& another_quaternion       | quat&        | Assignment operator                                                | q1 = q2;                                |
 | print()             | None                                    | void         | Prints quaternion to terminal                                      | q.print();                              |
-| setIdentity()       | None                                    | void         | Sets quaternion to identity (0,0,0,1)                              | q.setIdentity();                        |
+| set_identity()       | None                                    | void         | Sets quaternion to identity (0,0,0,1)                              | q.set_identity();                        |
 | scalar()            | None                                    | T            | Returns the scalar (real) part                                     | double scalar = q.scalar();             |
 | vec()               | None                                    | vector<T,3>  | Returns the vector (imaginary) part                                | vector<double,3> v = q.vec();           |
 | setVector()         | vector<T,3> vector                      | void         | Sets the vector (imaginary) part                                   | q.setVector(v);                         |

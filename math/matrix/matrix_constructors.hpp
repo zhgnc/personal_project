@@ -7,7 +7,7 @@
 
 template <typename T, std::size_t rows, std::size_t columns>
 matrix<T, rows, columns>::matrix() {
-    setZeros();
+    set_zeros();
 }; 
 
 template <typename T, std::size_t rows, std::size_t columns>

@@ -59,7 +59,7 @@ void matrix<T, rows, columns>::set_column(std::size_t column_index, std::initial
 }
 
 template <typename T, std::size_t rows, std::size_t columns>
-void matrix<T, rows, columns>::setZeros() {
+void matrix<T, rows, columns>::set_zeros() {
     for (std::size_t row = 0; row < rows; row++) {
         for (std::size_t column = 0; column < columns; column++) {
             data[row][column] = T{0};
@@ -68,9 +68,9 @@ void matrix<T, rows, columns>::setZeros() {
 }
 
 template <typename T, std::size_t rows, std::size_t columns>
-void matrix<T, rows, columns>::setIdentity() {
+void matrix<T, rows, columns>::set_identity() {
     static_assert(rows == columns, "Identity requires square matrix.");
-    setZeros();
+    set_zeros();
 
     for (std::size_t diag_index = 0; diag_index < rows; diag_index++) {
         data[diag_index][diag_index] = T{1};
@@ -84,14 +84,14 @@ void matrix<T, rows, columns>::setIdentity() {
 template<typename T, std::size_t square_matrix_size>
 matrix<T, square_matrix_size, square_matrix_size> identityMatrix() {
     matrix<T, square_matrix_size, square_matrix_size> identityMat;
-    identityMat.setIdentity();
+    identityMat.set_identity();
     return identityMat;
 }
 
 template<typename T, std::size_t num_rows, std::size_t num_columns>
 matrix<T, num_rows, num_columns> zerosMatrix() {
     matrix<T, num_rows, num_columns> zerosMat;
-    zerosMat.setZeros();
+    zerosMat.set_zeros();
     return zerosMat;
 }
 
@@ -202,7 +202,7 @@ void matrix<T, rows, columns>::set_skew(const matrix<T, skew_vec_length, 1>& ske
     static_assert(rows == columns, "set_skew() requires a square matrix");
     static_assert(skew_vec_length == (rows * (rows - 1)) / 2, "Incorrect skew vector length in set_skew()");
 
-    setZeros();
+    set_zeros();
 
     std::size_t k = 0;
 

@@ -32,7 +32,7 @@ void GyroModel::initialize() {
   sf_misalign_matrix = {scale_factors(0), -misalignments(2),  misalignments(1),
                         misalignments(2),  scale_factors(1), -misalignments(0),
                        -misalignments(1),  misalignments(0),  scale_factors(2)};
-  I3.setIdentity();
+  I3.set_identity();
 
   gyro_meas_valid = false;
   first_cycle     = true;
@@ -55,7 +55,7 @@ void GyroModel::execute() {
     q_j2000_to_body_prev = q_j2000_to_body_now;
     time_prev_sec        = time_now_sec;
 
-    meas_delta_angles.setZeros();
+    meas_delta_angles.set_zeros();
     return;
   };
 

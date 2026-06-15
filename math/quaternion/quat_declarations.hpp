@@ -25,7 +25,7 @@ public:
     quat<T>& operator=(const std::array<T,4>& std_array_quat);
 
     void print() const;
-    void setIdentity();
+    void set_identity();
     T scalar() const;
     vector<T,3> vec() const;
     void setVector(vector<T, 3> vector);

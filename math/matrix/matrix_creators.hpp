@@ -7,7 +7,7 @@ template <typename T, std::size_t N>
 matrix<T, N, N> identity_matrix() {
     
     matrix<T, N, N> result;
-    result.setIdentity();
+    result.set_identity();
     
     return result;
 }
@@ -17,7 +17,7 @@ template <typename T, std::size_t rows>
 matrix<T, rows, rows> diag_matrix(const matrix<T, rows, 1>& diag_values) {
 
     matrix<T, rows, rows> result; // <rows, rows> forces the returned matrix to be square
-    result.setZeros();
+    result.set_zeros();
 
     for (std::size_t i = 0; i < rows; i++) {
         result(i, i) = diag_values(i,0);

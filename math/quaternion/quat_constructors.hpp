@@ -5,7 +5,7 @@
 
 template <typename T>
 quat<T>::quat() {
-    setIdentity();
+    set_identity();
 }
 
 template <typename T>

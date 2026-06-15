@@ -162,7 +162,7 @@ TEST(matrixTest, MatrixElementWiseMultiplication) {
     matrix<double, 3, 3> test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
     matrix<double, 3, 3> test_matrix_2 = test_matrix_1;  
 
-    matrix<double, 3, 3> output      = test_matrix_1.elementWiseMultiply(test_matrix_2);
+    matrix<double, 3, 3> output      = test_matrix_1.element_wise_multiply(test_matrix_2);
     matrix<double, 3, 3> expected    = {1, 4, 9, 16, 25, 36, 49, 64, 81};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -176,7 +176,7 @@ TEST(matrixTest, MatrixElementWiseDivision) {
     matrix<double, 3, 3> test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
     matrix<double, 3, 3> test_matrix_2 = test_matrix_1;  
 
-    matrix<double, 3, 3> output      = test_matrix_1.elementWiseDivision(test_matrix_2);
+    matrix<double, 3, 3> output      = test_matrix_1.element_wise_division(test_matrix_2);
     matrix<double, 3, 3> expected    = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -492,7 +492,7 @@ TEST(matrixTest, MatrixBlockGetTest) {
 
 TEST(matrixTest, MatrixSetIdentity) {   
     matrix<int, 3, 3> test_matrix = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    test_matrix.setIdentity();
+    test_matrix.set_identity();
     matrix<int, 3, 3> expected    = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -504,7 +504,7 @@ TEST(matrixTest, MatrixSetIdentity) {
 
 TEST(matrixTest, MatrixSetZeros) {   
     matrix<int, 3, 2> test_matrix = {1, 2, 3, 4, 5, 6};
-    test_matrix.setZeros();  
+    test_matrix.set_zeros();  
     matrix<int, 3, 2> expected;
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -548,7 +548,7 @@ TEST(matrixTest, MatrixTranspose) {
     }
     
     matrix<int, 3, 3> test_matrix_2 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    test_matrix_2.inPlaceTranspose();
+    test_matrix_2.in_place_transpose();
     matrix<int, 3, 3> expected_2    = {1, 4, 7, 2, 5, 8, 3, 6, 9};
 
     for (size_t rows = 0; rows < expected_2.num_rows; rows++) {
@@ -1009,7 +1009,7 @@ void runRandomInverseCheck(std::mt19937& rng) {
     std::uniform_int_distribution<int> random_power(-5, 5);
 
     matrix<double, N, N> A, A_pow, A_expected;
-    A_expected.setIdentity();
+    A_expected.set_identity();
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {

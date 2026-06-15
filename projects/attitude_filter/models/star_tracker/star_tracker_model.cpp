@@ -46,8 +46,8 @@ void StarTrackerModel::execute() {
   bool manual_outage_active = time_now_sec > manual_outage_start_sec && time_now_sec < manual_outage_stop_sec;
   
   if (max_rate_exceeded || manual_outage_active) {
-    q_j2000_to_star_tracker_meas.setIdentity();
-    noise.setZeros();
+    q_j2000_to_star_tracker_meas.set_identity();
+    noise.set_zeros();
     star_tracker_meas_valid = false;
     return;
   }
