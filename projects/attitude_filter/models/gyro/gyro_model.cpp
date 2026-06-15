@@ -29,9 +29,8 @@ void GyroModel::initialize() {
     misalignments(i) = misalign_1_sigma       * normal_distribution(rng);
   }
 
-  sf_misalign_matrix = {scale_factors(0), -misalignments(2),  misalignments(1),
-                        misalignments(2),  scale_factors(1), -misalignments(0),
-                       -misalignments(1),  misalignments(0),  scale_factors(2)};
+  sf_misalign_matrix = diag_matrix<double, 3>(scale_factors) + skew_matrix<double, 3>({-misalignments(2), misalignments(1), -misalignments(0)});
+ 
   I3.set_identity();
 
   gyro_meas_valid = false;
