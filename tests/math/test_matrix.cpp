@@ -558,6 +558,58 @@ TEST(matrixTest, MatrixTranspose) {
     }
 }
 
+TEST(matrixTest, SkewMatrixTest) {   
+    matrix<int, 2, 2> test_matrix_1     = skew_matrix<int, 2>({1});
+    matrix<int, 2, 2> expected_matrix_1 = {0,1, -1,0};
+    
+    for (std::size_t row = 0; row < test_matrix_1.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_1.num_columns; column++) {
+            EXPECT_EQ(expected_matrix_1(row, column), test_matrix_1(row, column));
+        }
+    }
+
+
+    matrix<float, 3, 3> test_matrix_2     = skew_matrix<float, 3>({10,11,12});
+    matrix<float, 3, 3> expected_matrix_2 = {0,10,11, -10,0,12, -11,-12,0};
+    
+    for (std::size_t row = 0; row < test_matrix_2.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_2.num_columns; column++) {
+            EXPECT_FLOAT_EQ(expected_matrix_2(row, column), test_matrix_2(row, column));
+        }
+    }
+
+
+    matrix<double, 4, 4> test_matrix_3     = skew_matrix<double, 4>({100,-101,102, -103,104, -105});
+    matrix<double, 4, 4> expected_matrix_3 = {0,  100, -101,  102, 
+                                           -100,    0, -103,  104, 
+                                            101,  103,    0, -105, 
+                                           -102, -104,  105,    0};
+    
+    for (std::size_t row = 0; row < test_matrix_3.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_3.num_columns; column++) {
+            EXPECT_DOUBLE_EQ(expected_matrix_3(row, column), test_matrix_3(row, column));
+        }
+    }
+    
+
+    matrix<double, 5, 5> test_matrix_4 = skew_matrix<double, 5>({200, -201, 202, -203,
+                                                                 204, -205, 206,
+                                                                -207, 208,
+                                                                -209});
+
+    matrix<double, 5, 5> expected_matrix_4 = {0,   200, -201,  202, -203,
+                                            -200,    0,  204, -205,  206,
+                                             201, -204,    0, -207,  208,
+                                            -202,  205,  207,    0, -209,
+                                             203, -206, -208,  209,    0};
+
+    for (std::size_t row = 0; row < test_matrix_4.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_4.num_columns; column++) {
+            EXPECT_EQ(expected_matrix_4(row, column), test_matrix_4(row, column));
+        }
+    }
+}
+
 TEST(matrixTest, EasyMatrixDeterminate) {
       matrix<double, 10, 10> I_10 = identityMatrix<double, 10>();
       EXPECT_DOUBLE_EQ(1, I_10.det());
