@@ -4,10 +4,10 @@
 #include "matrix.hpp"
 
 // A = B * C
-template <typename T, std::size_t rows, std::size_t columns>
+template <typename type, std::size_t rows, std::size_t columns>
 template <std::size_t other_columns>
-matrix<T, rows, other_columns> matrix<T, rows, columns>::operator*(const matrix<T, columns, other_columns>& right_hand_side) const {
-    matrix<T, rows, other_columns> new_matrix; 
+matrix<type, rows, other_columns> matrix<type, rows, columns>::operator*(const matrix<type, columns, other_columns>& right_hand_side) const {
+    matrix<type, rows, other_columns> new_matrix; 
     
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < other_columns; new_column++) {
@@ -21,9 +21,9 @@ matrix<T, rows, other_columns> matrix<T, rows, columns>::operator*(const matrix<
 }
 
 // A = B * scalar
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::operator*(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::operator*(const type& scalar) const {
+    matrix<type, rows, columns> new_matrix; 
     
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -34,8 +34,8 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator*(const T& scalar) co
     return new_matrix; 
 }
 
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns>& matrix<T, rows, columns>::operator*=(const matrix<T, rows, columns>& rhs) {
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns>& matrix<type, rows, columns>::operator*=(const matrix<type, rows, columns>& rhs) {
     static_assert(rows == columns, "In-place multiplication only valid for square matrices.");
     
     *this = (*this) * rhs;
@@ -43,9 +43,9 @@ matrix<T, rows, columns>& matrix<T, rows, columns>::operator*=(const matrix<T, r
 }
 
 // A = B + C
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const matrix<T, rows, columns>& right_hand_side) const {
-    matrix<T, rows, columns> new_matrix; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::operator+(const matrix<type, rows, columns>& right_hand_side) const {
+    matrix<type, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -57,9 +57,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const matrix<T, row
 }
 
 // A = B + scalar
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::operator+(const type& scalar) const {
+    matrix<type, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -71,9 +71,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator+(const T& scalar) co
 }
 
 // A = B - C
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const matrix<T, rows, columns>& right_hand_side) const {
-    matrix<T, rows, columns> new_matrix; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::operator-(const matrix<type, rows, columns>& right_hand_side) const {
+    matrix<type, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -85,9 +85,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const matrix<T, row
 }
 
 // A = B - scalar
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::operator-(const type& scalar) const {
+    matrix<type, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -99,9 +99,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator-(const T& scalar) co
 }
 
 // A = -B
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::operator-() const {
-    matrix<T, rows, columns> new_matrix; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::operator-() const {
+    matrix<type, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -113,9 +113,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator-() const {
 }
 
 // A = B / scalar
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::operator/(const T& scalar) const {
-    matrix<T, rows, columns> new_matrix; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::operator/(const type& scalar) const {
+    matrix<type, rows, columns> new_matrix; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -129,14 +129,14 @@ matrix<T, rows, columns> matrix<T, rows, columns>::operator/(const T& scalar) co
 // Enables scalar * matrix (e.g. 5 * matrix), which not supported by member functions.
 // Member functions can only handle matrix * scalar because they cannot accept two input arguments.
 // That is why these last two functions do not have the same scope as the others
-template<typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> operator*(const T& scalar, const matrix<T, rows, columns>& matrix) {
+template<typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> operator*(const type& scalar, const matrix<type, rows, columns>& matrix) {
     return matrix * scalar;
 }
 
 // A = scalar + B
-template<typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> operator+(const T& scalar, const matrix<T, rows, columns>& matrix) {
+template<typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> operator+(const type& scalar, const matrix<type, rows, columns>& matrix) {
     return matrix + scalar;
 }
 

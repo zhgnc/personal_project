@@ -3,12 +3,12 @@
 
 #include "transforms.hpp"
 
-template<typename T>
-quat<T> to_quat(const rot_vec<T>& rotation_vector) {
-    vector<T,3> unit_axis = rotation_vector.axis(); 
-    T angle               = rotation_vector.angle();
+template<typename type>
+quat<type> to_quat(const rot_vec<type>& rotation_vector) {
+    vector<type,3> unit_axis = rotation_vector.axis(); 
+    type angle               = rotation_vector.angle();
     
-    quat<T> output;
+    quat<type> output;
     output.setScalar(std::cos(angle/2.0));
     output.setVector(unit_axis * std::sin(angle/2.0));
 
@@ -17,16 +17,16 @@ quat<T> to_quat(const rot_vec<T>& rotation_vector) {
 
 // Matrix can be either a rotation or transformation matrix 
 // but the quaternion will be active
-template<typename T>
-quat<T> to_quat(const matrix<T,3,3>& matrix) {
-    quat<T> output;
-    const T numerical_limits = 100.0 * std::numeric_limits<T>::epsilon();
+template<typename type>
+quat<type> to_quat(const matrix<type,3,3>& matrix) {
+    quat<type> output;
+    const type numerical_limits = 100.0 * std::numeric_limits<type>::epsilon();
 
-    T radicand = std::max(1.0 + matrix.trace(), 0.0); // trace of matrix should always be > -1
+    type radicand = std::max(1.0 + matrix.trace(), 0.0); // trace of matrix should always be > -1
     output(3)  = 0.5 * std::sqrt(radicand);
 
     if (output(3) > numerical_limits) {
-        T constant = 1.0 / (4.0*output(3));
+        type constant = 1.0 / (4.0*output(3));
         output(0)  = constant * (matrix(1,2) - matrix(2,1));
         output(1)  = constant * (matrix(2,0) - matrix(0,2));
         output(2)  = constant * (matrix(0,1) - matrix(1,0));
@@ -34,15 +34,15 @@ quat<T> to_quat(const matrix<T,3,3>& matrix) {
         return output.inv();
     }
 
-    T sqrt_1 = std::sqrt(std::max(1.0 + matrix(0,0) - matrix(1,1) - matrix(2,2), 0.0));
-    T sqrt_2 = std::sqrt(std::max(1.0 - matrix(0,0) + matrix(1,1) - matrix(2,2), 0.0));
-    T sqrt_3 = std::sqrt(std::max(1.0 - matrix(0,0) - matrix(1,1) + matrix(2,2), 0.0));
+    type sqrt_1 = std::sqrt(std::max(1.0 + matrix(0,0) - matrix(1,1) - matrix(2,2), 0.0));
+    type sqrt_2 = std::sqrt(std::max(1.0 - matrix(0,0) + matrix(1,1) - matrix(2,2), 0.0));
+    type sqrt_3 = std::sqrt(std::max(1.0 - matrix(0,0) - matrix(1,1) + matrix(2,2), 0.0));
 
     int largest_index = 0;
     if (sqrt_2 > sqrt_1 + numerical_limits)                   largest_index = 1;
     if (sqrt_3 > std::max(sqrt_1, sqrt_2) + numerical_limits) largest_index = 2;
 
-    T constant = 0;
+    type constant = 0;
 
     switch (largest_index) {
         case 0:

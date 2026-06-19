@@ -2,10 +2,10 @@ The "transforms" library provides functions for converting between different rep
 transformations of the same template type 'T'. Currently the library includes rotations between the following 
 types and the conventions used follow Zanetti’s paper: "Rotations, Transformations, Left Quaternions, Right Quaternions?".
 
-- Rotation Vectors (`rot_vec<T>`)
-- Quaternions (`quat<T>`)
-- Rotation Matrices ('matrix<T,3,3>')
-- Transformation Matrices ('matrix<T,3,3>')
+- Rotation Vectors (`rot_vec<type>`)
+- Quaternions (`quat<type>`)
+- Rotation Matrices ('matrix<type,3,3>')
+- Transformation Matrices ('matrix<type,3,3>')
 
 Note, the term rotation matrix is used to denote an active rotation where as a transformation matrix representes a passive
 rotation. This distinction follows the convention in Zanetti's paper. When transforming a matrix into a quaternion, it is
@@ -27,11 +27,11 @@ Here are the conversions currently implemented.
 
 | Function Name                 | Parameters                        | Return Type  | Description                                            | Example Usage                                          |
 |:------------------------------|:----------------------------------|:------------ |:-------------------------------------------------------|:-------------------------------------------------------|
-| `to_quat()`                   | `const rot_vec<T>& rotation_vec`  | `quat`       | Converts a rotation vector to a quaternion             | `q = to_quat(rotation_vector);`                        |
-| `to_quat()`                   | `const matrix<T,3,3>& mat'        | `quat`       | Converts a rotation matrix to a quaternion             | `q = to_quat(rotation_matrix);`                        |
-| `to_rotation_matrix()`        | `const rot_vec<T>& rotation_vec`  | `matrix`     | Converts a rotation vector to an rotation matrix       | `rot_mat = to_rotation_matrix(rotation_vec);`          |
-| `to_rotation_matrix()`        | `const quat<T>& quaternion`       | `matrix`     | Converts a quaternion to an rotation matrix            | `rot_mat = to_rotation_matrix(q);`                     |
-| `to_transformation_matrix()`  | `const rot_vec<T>& rotation_vec`  | `matrix`     | Converts a rotation vector to a transformation matrix  | `trans_mat = to_transformation_matrix(rotation_vec);`  |
-| `to_transformation_matrix()`  | `const quat<T>& quaternion`       | `matrix`     | Converts a quaternion to a transformation matrix       | `trans_mat = to_transformation_matrix(q);`             |
-| `to_rot_vec()`                | `const quat<T>& quaternion`       | `rot_vec`    | Converts a quaternion to a rotation vector             | `rotation_vec = to_rot_vec(quaternion);`               |
-| `to_rot_vec()`                | `const matrix<T,3,3>& mat'        | `rot_vec`    | Converts a rotation matrix to a rotation vector        | `rotation_vec = to_rot_vec(matrix);`                   |
+| `to_quat()`                   | `const rot_vec<type>& rotation_vec`  | `quat`       | Converts a rotation vector to a quaternion             | `q = to_quat(rotation_vector);`                        |
+| `to_quat()`                   | `const matrix<type,3,3>& mat'        | `quat`       | Converts a rotation matrix to a quaternion             | `q = to_quat(rotation_matrix);`                        |
+| `to_rotation_matrix()`        | `const rot_vec<type>& rotation_vec`  | `matrix`     | Converts a rotation vector to an rotation matrix       | `rot_mat = to_rotation_matrix(rotation_vec);`          |
+| `to_rotation_matrix()`        | `const quat<type>& quaternion`       | `matrix`     | Converts a quaternion to an rotation matrix            | `rot_mat = to_rotation_matrix(q);`                     |
+| `to_transformation_matrix()`  | `const rot_vec<type>& rotation_vec`  | `matrix`     | Converts a rotation vector to a transformation matrix  | `trans_mat = to_transformation_matrix(rotation_vec);`  |
+| `to_transformation_matrix()`  | `const quat<type>& quaternion`       | `matrix`     | Converts a quaternion to a transformation matrix       | `trans_mat = to_transformation_matrix(q);`             |
+| `to_rot_vec()`                | `const quat<type>& quaternion`       | `rot_vec`    | Converts a quaternion to a rotation vector             | `rotation_vec = to_rot_vec(quaternion);`               |
+| `to_rot_vec()`                | `const matrix<type,3,3>& mat'        | `rot_vec`    | Converts a rotation matrix to a rotation vector        | `rotation_vec = to_rot_vec(matrix);`                   |

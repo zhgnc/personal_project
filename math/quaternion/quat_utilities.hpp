@@ -5,8 +5,8 @@
 #include "quat.hpp"
 #include "../vector/vector.hpp"
 
-template <typename T>
-T& quat<T>::operator()(std::size_t element_to_return) {
+template <typename type>
+type& quat<type>::operator()(std::size_t element_to_return) {
     if (element_to_return >= 4) {
         throw std::out_of_range("Cannot return quaternion element greater than 4!");
     }
@@ -14,8 +14,8 @@ T& quat<T>::operator()(std::size_t element_to_return) {
     return data[element_to_return];
 }
 
-template <typename T>
-const T& quat<T>::operator()(std::size_t element_to_return) const {
+template <typename type>
+const type& quat<type>::operator()(std::size_t element_to_return) const {
     if (element_to_return >= 4) {
         throw std::out_of_range("Cannot return quaternion element greater than 4!");
     }
@@ -23,39 +23,39 @@ const T& quat<T>::operator()(std::size_t element_to_return) const {
     return data[element_to_return];
 }
 
-template <typename T>
-quat<T>& quat<T>::operator=(const quat<T>& another_quaternion) {
+template <typename type>
+quat<type>& quat<type>::operator=(const quat<type>& another_quaternion) {
     data = another_quaternion.data;
     return (*this);
 }
 
-template <typename T>
-quat<T>& quat<T>::operator=(const std::array<T,4>& std_array_quat) {
+template <typename type>
+quat<type>& quat<type>::operator=(const std::array<type,4>& std_array_quat) {
     data = std_array_quat;
     return (*this);
 }
 
-template <typename T>
-void quat<T>::print() const {
+template <typename type>
+void quat<type>::print() const {
     for (std::size_t row = 0; row < 4; row++) {
         std::cout << data[row] << "\n"; 
     }
     std::cout << "\n";
 }
 
-template <typename T>
-void quat<T>::set_identity() {
+template <typename type>
+void quat<type>::set_identity() {
     data = {0, 0, 0, 1};
 }
 
-template <typename T>
-T quat<T>::scalar() const {
+template <typename type>
+type quat<type>::scalar() const {
     return data[3];
 }
 
-template <typename T>
-vector<T,3> quat<T>::vec() const {
-    vector<T, 3> v;
+template <typename type>
+vector<type,3> quat<type>::vec() const {
+    vector<type, 3> v;
     
     v(0) = data[0]; 
     v(1) = data[1];
@@ -64,26 +64,26 @@ vector<T,3> quat<T>::vec() const {
     return v;
 }
 
-template <typename T>
-void quat<T>::setVector(vector<T, 3> vector) {
+template <typename type>
+void quat<type>::setVector(vector<type, 3> vector) {
     data[0] = vector(0);
     data[1] = vector(1);
     data[2] = vector(2);
 }
 
-template <typename T>
-void quat<T>::setScalar(T scalar) {
+template <typename type>
+void quat<type>::setScalar(type scalar) {
     data[3] = scalar;
 }
 
-template <typename T>
-quat<T> quat<T>::neg() const{
-    return quat<T>({-data[0], -data[1], -data[2], -data[3]});
+template <typename type>
+quat<type> quat<type>::neg() const{
+    return quat<type>({-data[0], -data[1], -data[2], -data[3]});
 }
 
-template <typename T>
+template <typename type>
 template <typename U>
-quat<T>::operator quat<U>() const {
+quat<type>::operator quat<U>() const {
     quat<U> output;
 
     for (std::size_t row = 0; row < 4; row++) {
@@ -93,8 +93,8 @@ quat<T>::operator quat<U>() const {
     return output;
 }
 
-template <typename T>
-quat<T>::operator std::array<T,4>() const {
+template <typename type>
+quat<type>::operator std::array<type,4>() const {
     return data;
 }
 

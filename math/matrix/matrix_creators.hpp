@@ -3,20 +3,20 @@
 
 #include "matrix.hpp"
 
-template <typename T, std::size_t N>
-matrix<T, N, N> identity_matrix() {
+template <typename type, std::size_t N>
+matrix<type, N, N> identity_matrix() {
     
-    matrix<T, N, N> result;
+    matrix<type, N, N> result;
     result.set_identity();
     
     return result;
 }
 
 
-template <typename T, std::size_t rows>
-matrix<T, rows, rows> diag_matrix(const matrix<T, rows, 1>& diag_values) {
+template <typename type, std::size_t rows>
+matrix<type, rows, rows> diag_matrix(const matrix<type, rows, 1>& diag_values) {
 
-    matrix<T, rows, rows> result; // <rows, rows> forces the returned matrix to be square
+    matrix<type, rows, rows> result; // <rows, rows> forces the returned matrix to be square
     result.set_zeros();
 
     for (std::size_t i = 0; i < rows; i++) {
@@ -26,9 +26,9 @@ matrix<T, rows, rows> diag_matrix(const matrix<T, rows, 1>& diag_values) {
     return result;
 }
 
-template <typename T, std::size_t N>
-matrix<T, N, N> skew_matrix(const matrix<T, (N * (N - 1)) / 2, 1>& skew_vec) {
-    matrix<T, N, N> result;
+template <typename type, std::size_t N>
+matrix<type, N, N> skew_matrix(const matrix<type, (N * (N - 1)) / 2, 1>& skew_vec) {
+    matrix<type, N, N> result;
     result.set_skew(skew_vec);
     return result;
 }

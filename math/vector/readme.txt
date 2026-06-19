@@ -12,13 +12,13 @@ Here is a table of the current functionality unique to the templated vector libr
 | Function Name       | Parameters                                        | Return Type | Description                                      | Example Usage                            |
 |:--------------------|:--------------------------------------------------|:------------|:-------------------------------------------------|:-----------------------------------------|
 | vector()            | None                                              | vector      | Construct an all zero column vector              | vector<double,3> v(m);                   |
-| vector()            | std::initializer_list<T> initial_vector           | vector      | Construct a vector from an initializer list      | vector<int,3> v(m) = {1, 2, 3};          |
-| operator()          | std::size_t row_index                             | T&          | Access element at row for modification           | v(0) = 5;                                |
-| operator() const    | std::size_t row_index                             | const T&    | Access element at row for reading                | double val = v(1);                       |
-| dot()               | const vector<T, length>& v2                       | T           | Computes the dot product of two vectors          | double d = v1.dot(v2);                   |
-| cross()             | const vector<T, length>& v2                       | vector      | Computes the cross product                       | vector<double,3> c = v1.cross(v2);       |
-| mag()               | None                                              | T           | Returns the magnitude (Euclidean norm)           | double m = v.mag();                      |
+| vector()            | std::initializer_list<type> initial_vector           | vector      | Construct a vector from an initializer list      | vector<int,3> v(m) = {1, 2, 3};          |
+| operator()          | std::size_t row_index                             | type&          | Access element at row for modification           | v(0) = 5;                                |
+| operator() const    | std::size_t row_index                             | const type&    | Access element at row for reading                | double val = v(1);                       |
+| dot()               | const vector<type, length>& v2                       | type           | Computes the dot product of two vectors          | double d = v1.dot(v2);                   |
+| cross()             | const vector<type, length>& v2                       | vector      | Computes the cross product                       | vector<double,3> c = v1.cross(v2);       |
+| mag()               | None                                              | type           | Returns the magnitude (Euclidean norm)           | double m = v.mag();                      |
 | norm()              | None                                              | vector      | Returns the normalized (unit) vector             | vector<double,3> u = v.norm();           |
-| angle_between()     | const vector<T, length>& v2                       | T           | Computes the angle between two vectors (radians) | double angle = v1.angle_between(v2);     |
+| angle_between()     | const vector<type, length>& v2                       | type           | Computes the angle between two vectors (radians) | double angle = v1.angle_between(v2);     |
 | explicit operator   | template<typename U> operator vector<U, length>() | vector<U>   | Converts vector to a new type of same size       | v = static_cast<vector<float,3>(v_int);  |
 
