@@ -57,6 +57,9 @@ void matrix<type, rows, columns>::in_place_transpose() {
     }
 }
 
+// Computes determinant using Gaussian elimination with scaled partial pivoting.
+// Transforms matrix to upper-triangular form while tracking row swaps for sign.
+// Uses log-domain accumulation of diagonal entries for numerical stability.
 template <typename type, std::size_t rows, std::size_t columns>
 type matrix<type, rows, columns>::det() const {
     static_assert(rows == columns, "Determinant only valid for square matrices.");
@@ -66,10 +69,9 @@ type matrix<type, rows, columns>::det() const {
 
     long double log_of_determinant = 0.0;
     int determinant_sign           = 1; 
-    type determinant                  = static_cast<type>(0);
     std::array<type, rows> row_scale;
 
-    // Step 1: Compute row scale factors to increase numerical precision
+    // Step 1: Compute row scale factors for scaled partial pivoting (increases numerical precision)
     for (std::size_t row = 0; row < rows; row++) {
         type row_max = static_cast<type>(0);
 
@@ -108,7 +110,7 @@ type matrix<type, rows, columns>::det() const {
         // Treat the pivot as zero if it is smaller than machine epsilon relative to its row scale
         type pivot_value = matrix_copy(pivot_index, pivot_index);
         if (std::abs(pivot_value) < row_scale[pivot_index] * std::numeric_limits<type>::epsilon()) {
-            return determinant = static_cast<type>(0); 
+            return static_cast<type>(0); 
         }
 
         // Step 5: Eliminate matrix cells below pivot
@@ -129,12 +131,18 @@ type matrix<type, rows, columns>::det() const {
         log_of_determinant += std::log(std::abs(matrix_copy(i,i)));
     }
     
-    return determinant = determinant_sign * std::exp(log_of_determinant);
+    return determinant_sign * std::exp(log_of_determinant);
 } 
 
+// Computes matrix inverse using LU decomposition with scaled partial pivoting.
+// Factorizes A into P*A = L*U, then solves LUX = P*I column-by-column. Uses 
+// forward and backward substitution to build inverse matrix. Need to use 
+// hardcoded inverse equations for 2x2 and 3x3 sized matrixes because it is faster. 
+// May also want to use Cholesky decomposition for symmetric positive definite 
+// matrixes for ~2x speed improvement
 template <typename type, std::size_t rows, std::size_t columns>
 matrix<type, rows, columns> matrix<type, rows, columns>::inv() const {
-    static_assert(rows == columns, "Determinant only valid for square matrices.");
+    static_assert(rows == columns, "Determinant only valid for square matrixes.");
     static_assert(std::is_floating_point<type>::value, "Gaussian elimination in determinant function requires double/float matrix type");
 
     matrix<type, rows, columns> P;

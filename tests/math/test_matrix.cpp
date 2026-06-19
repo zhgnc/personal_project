@@ -615,32 +615,36 @@ TEST(matrixTest, EasyMatrixDeterminate) {
       EXPECT_DOUBLE_EQ(1, I_10.det());
 
       matrix<double, 3, 3> test_matrix_1 = {2, 0, 0,
-                                              0, 3, 0,
-                                              0, 0, 4};
+                                            0, 3, 0,
+                                            0, 0, 4};
       EXPECT_DOUBLE_EQ(24, test_matrix_1.det());
 
       matrix<double, 3, 3> test_matrix_2 = {1, 2, 3,
-                                              0, 4, 5,
-                                              0, 0, 6};
+                                            0, 4, 5,
+                                            0, 0, 6};
       EXPECT_DOUBLE_EQ(24, test_matrix_2.det());
 
       matrix<double, 2, 2> test_matrix_3 = {2, 4,
-                                              1, 2};
+                                            1, 2};
       EXPECT_DOUBLE_EQ(0, test_matrix_3.det());
 
       matrix<double, 2, 2> test_matrix_4 = {0, 1,
-                                              1, 0};
+                                            1, 0};
       EXPECT_DOUBLE_EQ(-1, test_matrix_4.det());
 
       matrix<double, 3, 3> test_matrix_5 = {0, 1, 0,
-                                              0, 0, 1,
-                                              1, 0, 0};
+                                            0, 0, 1,
+                                            1, 0, 0};
       EXPECT_DOUBLE_EQ(1.0, test_matrix_5.det());
 
       matrix<double, 3, 3> test_matrix_6 = {1,2,3,
-                                              4,5,6,
-                                              1,2,3};
+                                            4,5,6,
+                                            1,2,3};
       EXPECT_DOUBLE_EQ(0.0, test_matrix_6.det());
+
+      matrix<double, 2, 2> test_matrix_7 = {1,0,
+                                            0,0};
+      EXPECT_DOUBLE_EQ(0.0, test_matrix_7.det());
 }
 
 TEST(matrixTest, MediumMatrixDeterminate) {
