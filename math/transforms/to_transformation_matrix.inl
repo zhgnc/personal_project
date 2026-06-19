@@ -9,7 +9,7 @@ matrix<type,3,3> to_transformation_matrix(const rot_vec<type>& rotation_vector) 
 
 template<typename type>
 matrix<type,3,3> to_transformation_matrix(const quat<type>& quaternion) {
-    return to_rotation_matrix(quaternion).transpose();
+    return to_rotation_matrix(quaternion).T();
 };
 
 #endif

@@ -10,7 +10,7 @@
 #include <initializer_list>
 
 template <typename type, std::size_t rows, std::size_t columns>
-class matrix 
+class matrix
 {
 public:
     static_assert(std::is_arithmetic_v<type>, "matrix requires numeric types.");
@@ -72,7 +72,7 @@ public:
     // Advanced Math
     matrix<type, rows, columns> element_wise_multiply(const matrix<type, rows, columns>& right_hand_side) const;
     matrix<type, rows, columns> element_wise_division(const matrix<type, rows, columns>& right_hand_side) const;
-    matrix<type, columns, rows> transpose() const;
+    matrix<type, columns, rows> T() const;
     void in_place_transpose();
     type det() const;
     matrix<type, rows, columns> inv() const;

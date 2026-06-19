@@ -36,12 +36,12 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
                 std::pow(config.st_z_meas_noise, 2)});
 
     matrix<double, 3,3> dcm_st_to_body = to_rotation_matrix(q_st_to_body);
-    R = dcm_st_to_body * R * dcm_st_to_body.transpose(); 
+    R = dcm_st_to_body * R * dcm_st_to_body.T(); 
 
     H.set_zeros();
     H.set_block<3,3>(0,0, identity_matrix<double, 3>());
 
-    H_T = H.transpose();
+    H_T = H.T();
 
     q_j2000_to_body_est.set_identity();
     est_biases.set_zeros();
@@ -124,7 +124,7 @@ void AttitudeFilter::propagate_states() {
     matrix<double, 3,3> block_4 = diag_matrix(-theta_bar);
     stm.set_block<3,3>(0,9, block_4);
 
-    P = stm * P * stm.transpose() + Q * dt;
+    P = stm * P * stm.T() + Q * dt;
 }
 
 void AttitudeFilter::process_star_tracker_meas() {
@@ -139,7 +139,7 @@ void AttitudeFilter::compute_residual() {
 void AttitudeFilter::update_state() {
     matrix<double, 12,3> K = P * H_T * (H * P * H_T + R).inv();
     vector<double, 12> estimated_error = K * rot_vec_residual;
-    P = (I12 - K*H) * P * (I12 - K*H).transpose() + K*R*K.transpose();
+    P = (I12 - K*H) * P * (I12 - K*H).T() + K*R*K.T();
 
     // It would be great to be able to access a certain amount of the vector elements
     rot_vec<double> rot_vec_error = {estimated_error(0), estimated_error(1), estimated_error(2)};

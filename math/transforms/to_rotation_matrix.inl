@@ -3,7 +3,7 @@
 
 template<typename type>
 matrix<type,3,3> to_rotation_matrix(const rot_vec<type>& rotation_vector) {
-    return to_transformation_matrix(rotation_vector).transpose();
+    return to_transformation_matrix(rotation_vector).T();
 }
 
 template<typename type>

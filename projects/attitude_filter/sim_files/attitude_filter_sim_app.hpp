@@ -51,7 +51,7 @@ public:
                                       0.0, 0.0,  af.outputs.est_gyro_scale_factors(2)};
 
         matrix<double, 3,3> dcm_body_2_gyro   = to_rotation_matrix(af.config.q_body_to_gyro);
-        matrix<double, 3,3> S_gyro            = dcm_body_2_gyro * S_body * dcm_body_2_gyro.transpose();
+        matrix<double, 3,3> S_gyro            = dcm_body_2_gyro * S_body * dcm_body_2_gyro.T();
         vector<double, 3>   filter_sf_in_gyro = {S_gyro(0,0), S_gyro(1,1), S_gyro(2,2)};
 
         bus.attitude_filter_performance.rot_vec_error      = to_rot_vec(q_true_to_est);

@@ -11,7 +11,7 @@ TEST(transformsTest, SimpleRotationTest) {
   matrix<double,3,3> dcm_1_to_2 = {0,1,0, -1,0,0, 0,0,1};
   vector<double,3>   vec        = {1,0,0};
   vector<double,3>   vec_2      = dcm_1_to_2 * vec;
-  vector<double,3>   vec_1      = dcm_1_to_2.transpose() * vec;
+  vector<double,3>   vec_1      = dcm_1_to_2.T() * vec;
 
   EXPECT_NEAR(vec_2(0),  0, 1e-9);
   EXPECT_NEAR(vec_2(1), -1, 1e-9);
@@ -66,7 +66,7 @@ TEST(transformsTest, QuatToRotationAndTransformationMatrix) {
         matrix<double, 3, 3> trans_mat_me = to_transformation_matrix(q_me);
         Eigen::Matrix3d rot_vec_eigen     = q_eigen.toRotationMatrix();
 
-        trans_mat_me = trans_mat_me.transpose();
+        trans_mat_me = trans_mat_me.T();
 
         for (std::size_t row = 0; row < 3; row++) {
             for (std::size_t column = 0; column < 3; column++) {

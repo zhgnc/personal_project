@@ -32,7 +32,7 @@ matrix<type, rows, columns> matrix<type, rows, columns>::element_wise_division(c
 // Generic transpose must return another matrix if the transposed matrix is 
 // not square because the outputted matrix would be of a different type (i.e. size) 
 template <typename type, std::size_t rows, std::size_t columns>
-matrix<type, columns, rows> matrix<type, rows, columns>::transpose() const {
+matrix<type, columns, rows> matrix<type, rows, columns>::T() const {
     matrix<type, columns, rows> output;
 
     for (std::size_t row = 0; row < rows; row++) {

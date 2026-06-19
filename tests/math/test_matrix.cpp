@@ -538,7 +538,7 @@ TEST(matrixTest, MatrixInitZeros) {
 
 TEST(matrixTest, MatrixTranspose) {   
     matrix<int, 3, 2> test_matrix_1 = {1, 2, 3, 4, 5, 6};
-    matrix<int, 2, 3> output_1      = test_matrix_1.transpose();
+    matrix<int, 2, 3> output_1      = test_matrix_1.T();
     matrix<int, 2, 3> expected_1    = {1, 3, 5, 2, 4, 6};
 
     for (size_t rows = 0; rows < expected_1.num_rows; rows++) {
@@ -856,10 +856,10 @@ TEST(matrix, SimpleOrderOfOperation) {
     matrix<double, 2,2> output_3 = (B*A).pow(2);
     matrix<double, 2,2> expected_output_3 = {1583,2346, 2139,3170};
 
-    matrix<double, 2,2> output_4 = A.transpose() + A.inv() + A.pow(2);
+    matrix<double, 2,2> output_4 = A.T() + A.inv() + A.pow(2);
     matrix<double, 2,2> expected_output_4 = {6,14, 18.5,25.5};
 
-    matrix<double, 2,2> output_5 = A.transpose() * A.inv() * A.pow(2);
+    matrix<double, 2,2> output_5 = A.T() * A.inv() * A.pow(2);
     matrix<double, 2,2> expected_output_5 = {10,14, 14,20};
 
     matrix<double, 2,2> output_6 = A * B + C;
