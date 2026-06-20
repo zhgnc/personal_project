@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 #include "../../../sim_framework/sim_includes.hpp"
 #include "../../../projects/attitude_filter/models/attitude_filter/attitude_filter.hpp"
@@ -16,7 +17,8 @@ public:
     void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
         (void)sim_ctrl;
 
-        af = AttitudeFilter(path_to_config);
+        AttitudeFilterConfig cfg = AttitudeFilter::create_config_from_yaml(path_to_config);
+        af = AttitudeFilter(cfg);
     }
 
     void step(DataBus& bus, SimControl& sim_ctrl) override {
