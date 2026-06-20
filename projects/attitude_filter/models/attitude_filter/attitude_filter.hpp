@@ -12,7 +12,7 @@ class AttitudeFilter
 public:
     // No default constructor so object is only created with valid config 
     AttitudeFilter() = delete; 
-    AttitudeFilter(const AttitudeFilterConfig& cfg);
+    AttitudeFilter(const AttitudeFilterConfig& config_data);
 
     // create_config_from_yaml generates valid config for constructor 
     static AttitudeFilterConfig create_config_from_yaml(const std::string& config_file_path);
