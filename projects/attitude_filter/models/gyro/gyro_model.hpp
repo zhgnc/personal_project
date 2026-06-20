@@ -11,26 +11,18 @@ class GyroModel
 {
 public:
     GyroModel() = default;
-    GyroModel(const std::string& config_file, uint64_t seed);
+    GyroModel(const gyro_config& config_data);
 
     void run();
 
-    gyro_inputs  inputs; 
+    gyro_inputs inputs; 
     gyro_outputs outputs;
+    gyro_config config;
 
 private:
-    void initialize();
     void copy_inputs_to_class(); 
     void execute(); 
     void set_outputs();
-
-    double init_rate_bias_1_sigma;
-    double arw_1_sigma; 
-    double rrw_1_sigma; 
-    double sf_1_sigma; 
-    double misalign_1_sigma;
-    quat<double> q_body_to_gyro;
-    uint64_t random_seed;
 
     quat<double> q_j2000_to_body_now; 
     quat<double> q_j2000_to_body_prev;
@@ -51,7 +43,7 @@ private:
     bool first_cycle;
     bool gyro_meas_valid;
         
-    matrix<double, 3,3> I3;
+    matrix<double, 3,3> I3 = identity_matrix<double, 3>();
     matrix<double, 3,3> sf_misalign_matrix;
 
     static constexpr double deg2rad = M_PI / 180.0;

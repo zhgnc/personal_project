@@ -19,4 +19,14 @@ struct gyro_outputs {
     uint64_t seed;
 };
 
+struct gyro_config {
+    double arw_1_sigma;            
+    vector<double, 3> init_bias_rps; 
+    double rrw_1_sigma;            
+    vector<double, 3> scale_factors;             
+    vector<double, 3> misalignments_rad;       
+    quat<double> q_body_to_gyro;         
+    uint64_t random_seed;            
+};
+
 #endif

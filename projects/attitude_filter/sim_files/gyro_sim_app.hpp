@@ -7,6 +7,7 @@
 
 #include "../../../sim_framework/sim_includes.hpp"
 #include "../../../projects/attitude_filter/models/gyro/gyro_model.hpp"
+#include "../../../projects/attitude_filter/models/gyro/gyro_model_config_loader.hpp"
 #include "../../../projects/attitude_filter/sim_files/data_bus.hpp"
 
 class GyroSimApp : public SimAppBase<DataBus> {
@@ -14,8 +15,12 @@ public:
     using SimAppBase::SimAppBase;
 
     void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
-        uint64_t seed = sim_ctrl.get_seed();  
-        gyro          = GyroModel(path_to_config, seed);
+        uint64_t dispersion_seed = sim_ctrl.get_seed();
+        uint64_t model_seed      = sim_ctrl.get_seed();
+
+        gyro_config config = load_gyro_config(path_to_config, dispersion_seed, model_seed);
+        
+        gyro = GyroModel(config);
     }
 
     void step(DataBus& bus, SimControl& sim_ctrl) override {
