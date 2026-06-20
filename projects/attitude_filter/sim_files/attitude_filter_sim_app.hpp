@@ -8,6 +8,7 @@
 
 #include "../../../sim_framework/sim_includes.hpp"
 #include "../../../projects/attitude_filter/models/attitude_filter/attitude_filter.hpp"
+#include "../../../projects/attitude_filter/models/attitude_filter/attitude_filter_config_loader.hpp"
 #include "../../../projects/attitude_filter/sim_files/data_bus.hpp"
 
 class AttitudeFilterSimApp : public SimAppBase<DataBus> {
@@ -17,7 +18,7 @@ public:
     void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
         (void)sim_ctrl;
 
-        AttitudeFilterConfig cfg = AttitudeFilter::create_config_from_yaml(path_to_config);
+        AttitudeFilterConfig cfg = load_attitude_filter_config(path_to_config);
         af = AttitudeFilter(cfg);
     }
 
