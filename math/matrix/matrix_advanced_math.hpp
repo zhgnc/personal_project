@@ -134,6 +134,69 @@ type matrix<type, rows, columns>::det() const {
     return determinant_sign * std::exp(log_of_determinant);
 } 
 
+
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::inv_2x2() const {
+    static_assert(rows == 2 && columns == 2, "inv_2x2() called by .inv() requires 2x2 matrix");
+
+    const type a = data[0][0];
+    const type b = data[0][1];
+    const type c = data[1][0];
+    const type d = data[1][1];
+
+    const type det = a*d - b*c;
+
+    assert(std::isfinite(det) && "Matrix is singular in inv_2x2()");
+
+    matrix<type, 2,2> result;
+
+    result(0,0) =  d / det;
+    result(0,1) = -b / det;
+    result(1,0) = -c / det;
+    result(1,1) =  a / det;
+
+    return result;
+}
+
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::inv_3x3() const {
+    static_assert(rows == 3 && columns == 3, "inv_3x3() called by .inv() requires 3x3 matrix");
+
+    const type& a = data[0][0];
+    const type& b = data[0][1];
+    const type& c = data[0][2];
+
+    const type& d = data[1][0];
+    const type& e = data[1][1];
+    const type& f = data[1][2];
+
+    const type& g = data[2][0];
+    const type& h = data[2][1];
+    const type& i = data[2][2];
+
+    const type det = a * (e * i - f * h)
+                   - b * (d * i - f * g)
+                   + c * (d * h - e * g);
+
+    assert(std::isfinite(det) && "Matrix is singular in inv_3x3()");
+
+    matrix<type, 3, 3> result;
+
+    result.data[0][0] =  (e * i - f * h) / det;
+    result.data[0][1] = -(b * i - c * h) / det;
+    result.data[0][2] =  (b * f - c * e) / det;
+
+    result.data[1][0] = -(d * i - f * g) / det;
+    result.data[1][1] =  (a * i - c * g) / det;
+    result.data[1][2] = -(a * f - c * d) / det;
+
+    result.data[2][0] =  (d * h - e * g) / det;
+    result.data[2][1] = -(a * h - b * g) / det;
+    result.data[2][2] =  (a * e - b * d) / det;
+
+    return result;
+}
+
 // Computes matrix inverse using LU decomposition with scaled partial pivoting.
 // Factorizes A into P*A = L*U, then solves LUX = P*I column-by-column. Uses 
 // forward and backward substitution to build inverse matrix. Need to use 
@@ -145,6 +208,12 @@ matrix<type, rows, columns> matrix<type, rows, columns>::inv() const {
     static_assert(rows == columns, "Determinant only valid for square matrixes.");
     static_assert(std::is_floating_point<type>::value, "Gaussian elimination in determinant function requires double/float matrix type");
 
+    if constexpr (rows == 2) {
+        return inv_2x2();
+    } else if constexpr (rows == 3) {
+        return inv_3x3();
+    }
+    
     matrix<type, rows, columns> P;
     matrix<type, rows, columns> L;
     matrix<type, rows, columns> U(*this);

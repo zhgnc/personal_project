@@ -77,6 +77,11 @@ public:
     type det() const;
     matrix<type, rows, columns> inv() const;
     matrix<type, rows, columns> pow(int exponent) const;
+
+private:
+    // Helper functions for the public methods
+    matrix<type, rows, columns> inv_2x2() const; 
+    matrix<type, rows, columns> inv_3x3() const;
 };
 
 #endif
