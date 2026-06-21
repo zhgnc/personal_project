@@ -11,27 +11,18 @@ class StarTrackerModel
 {
 public:
     StarTrackerModel() = default;
-    StarTrackerModel(const std::string& config_file, uint64_t seed);
+    StarTrackerModel(const star_tracker_config& config_data);
 
     void run();
 
-    star_tracker_inputs  inputs; 
+    star_tracker_inputs inputs; 
     star_tracker_outputs outputs;
+    star_tracker_config config;
 
 private:
-    void initialize();
     void copy_inputs_to_class(); 
     void execute(); 
     void set_outputs();
-
-    double x_axis_noise_rad_1_sigma;
-    double y_axis_noise_rad_1_sigma;
-    double z_axis_noise_rad_1_sigma;
-    quat<double> q_body_to_star_tracker;
-    double max_rate_rps;
-    double manual_outage_start_sec;
-    double manual_outage_stop_sec;
-    uint64_t random_seed;
 
     quat<double> true_q_j2000_to_body;
     vector<double, 3> true_body_rates_rps;

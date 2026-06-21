@@ -10,8 +10,13 @@ GyroModel::GyroModel(const gyro_config& config_data) {
   
   gyro_meas_valid = false;
   first_cycle     = true;
+
+  const double mean = 0.0;
+  const double std  = 1.0;
   
   rng.seed(config.random_seed);
+  normal_distribution = std::normal_distribution<>(mean, std);
+
 };
 
 void GyroModel::run() {
