@@ -28,7 +28,7 @@ private:
     void update_state();
     void populate_output_data();
 
-    // Config
+    // Constants
     quat<double> q_gyro_to_body;
     quat<double> q_st_to_body;
     matrix<double, 12,12> Q;
