@@ -150,6 +150,5 @@ void AttitudeFilter::populate_output_data() {
     outputs.q_j2000_to_body_est              = q_j2000_to_body_est; 
     outputs.rot_vec_residual                 = rot_vec_residual;
     outputs.time_now_sec                     = time_now_sec;
-    
-    outputs.covariance_diagonals = P.get_diag();
+    outputs.covariance_diagonals             = P.get_diag();
 }
