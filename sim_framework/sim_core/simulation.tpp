@@ -277,5 +277,6 @@ SimControl Simulation<DataBusType>::make_sim_control() {
   return SimControl(accessible_sim_data,
                     [this](StopType t, StopReason r, const std::string& m) { end_sim(t, r, m); },
                     [this]() { return get_seed(); },
-                    *logger);
+                    *logger,
+                    current_mc_run); // seed in sim_ctrl is equal to the current run number
 }

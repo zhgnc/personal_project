@@ -29,18 +29,10 @@ public:
         double sf_1_sigma_ppm       = get_yaml_value<double>(config_file, "scale_factor_1_sigma_ppm");
         double misalign_1_sigma_rad = get_yaml_value<double>(config_file, "misalignments_1_sigma_rad");
 
-        uint64_t dispersion_seed = sim_ctrl.get_seed(); // Use different seed than model to disperse gyro error states
-        std::mt19937_64 rng(dispersion_seed);
-
-        const double mean = 0.0;
-        const double std  = 1.0;
-
-        std::normal_distribution<> normal_distribution(mean, std);
-
         for (std::size_t i = 0; i < config_data.init_bias_rps.num_rows; i++) {
-            config_data.init_bias_rps(i)     = init_bias_1_sigma       * normal_distribution(rng);
-            config_data.scale_factors(i)     = sf_1_sigma_ppm * (1e-6) * normal_distribution(rng);
-            config_data.misalignments_rad(i) = misalign_1_sigma_rad    * normal_distribution(rng);
+            config_data.init_bias_rps(i)     = init_bias_1_sigma       * sim_ctrl.sample_normal(0.0, 1.0);
+            config_data.scale_factors(i)     = sf_1_sigma_ppm * (1e-6) * sim_ctrl.sample_uniform(-1.0, 1.0);
+            config_data.misalignments_rad(i) = misalign_1_sigma_rad    * sim_ctrl.sample_normal(0.0, 1.0);
         }
         
         // Construct gyro model with configuration data
