@@ -105,7 +105,6 @@ void Simulation<DataBusType>::update_accessible_sim_data() {
 template<typename DataBusType>
 uint64_t Simulation<DataBusType>::get_seed() {
   return current_seed++; // Returns value of `current_seed` and then increments by 1
-  
 }
 
 template<typename DataBusType>
