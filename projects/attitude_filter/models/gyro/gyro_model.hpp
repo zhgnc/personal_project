@@ -48,7 +48,7 @@ private:
 
     static constexpr double deg2rad = M_PI / 180.0;
 
-    std::mt19937 rng;
+    std::mt19937_64 rng;
     std::normal_distribution<> normal_distribution;
 };
 

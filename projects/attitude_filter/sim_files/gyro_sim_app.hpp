@@ -30,7 +30,7 @@ public:
         double misalign_1_sigma_rad = get_yaml_value<double>(config_file, "misalignments_1_sigma_rad");
 
         uint64_t dispersion_seed = sim_ctrl.get_seed(); // Use different seed than model to disperse gyro error states
-        std::mt19937 rng(dispersion_seed);
+        std::mt19937_64 rng(dispersion_seed);
 
         const double mean = 0.0;
         const double std  = 1.0;
