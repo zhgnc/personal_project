@@ -3,7 +3,7 @@
 template<typename DataBusType>
 SimSingleRun<DataBusType>::SimSingleRun(const SimSingleRunConfig<DataBusType>& config_data) {
     
-    config = config_data;
+    config = std::move(config_data);
 
     stop_time_usec = static_cast<uint64_t>(config.stop_time_sec * sec2usec);
     sim_dt_usec    = static_cast<uint64_t>((1.0 / config.sim_rate_hz) * sec2usec);
@@ -12,15 +12,13 @@ SimSingleRun<DataBusType>::SimSingleRun(const SimSingleRunConfig<DataBusType>& c
     current_sim_time_usec = static_cast<uint64_t>(config.start_time_sec * sec2usec);
     sim_step_count        = 0;
 
-    // Construct runtime app instances for this simulation run. Each function 
-    // returns a new unique_ptr instance of a SimAppBase-derived type that creates 
-    // a fresh SimApp instance, ensuring full independence between Monte Carlo runs.
+    // Copy unique apps and logging apps into the sim_single_run
     for (std::size_t i = 0; i < config.app_count; i++) {
-        apps[i] = config.apps[i]();
+        apps[i] = std::move(config.apps[i]);
     }
 
     for (std::size_t i = 0; i < config.logging_app_count; i++) {
-        logging_apps[i] = config.logging_apps[i]();
+        logging_apps[i] = std::move(config.logging_apps[i]);
     }
 }
 

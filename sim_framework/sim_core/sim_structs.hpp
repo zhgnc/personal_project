@@ -11,16 +11,41 @@
 #include "sim_config.hpp"
 #include "sim_control.hpp"
 
+// Stores a unique pointer to the original sim app (called `prototype`) and contains 
+// a function used to create independent copies of that app for each simulation run.
+template<typename DataBusType>
+struct SimAppPrototype {
+    // Master copy of the app. This object is never executed directly and is
+    // only used as the source for creating runtime instances.
+    std::unique_ptr<SimAppBase<DataBusType>> prototype;
+
+    std::unique_ptr<SimAppBase<DataBusType>>(*copy)(const SimAppBase<DataBusType>&);
+
+    std::unique_ptr<SimAppBase<DataBusType>> create() const {
+        return copy(*prototype);
+    }
+};
+
+// Serves same function as `SimAppPrototype` execpt for the original logging apps 
+template<typename DataBusType>
+struct LoggingAppPrototype {
+    std::unique_ptr<LoggingAppBase<DataBusType>> prototype;
+
+    std::unique_ptr<LoggingAppBase<DataBusType>>(*copy)(const LoggingAppBase<DataBusType>&);
+
+    std::unique_ptr<LoggingAppBase<DataBusType>> create() const {
+        return copy(*prototype);
+    }
+};
+
 template<typename DataBusType>
 struct SimSingleRunConfig {
     DataBusType data_bus;
 
-    // Array of factory functions that create simulation apps. Each function returns a new unique_ptr 
-    // instance of a SimAppBase-derived type.
-    std::array<std::function<std::unique_ptr<SimAppBase<DataBusType>>()>, SimConfig::max_app_number> apps;
+    std::array<std::unique_ptr<SimAppBase<DataBusType>>, SimConfig::max_app_number> apps;
     std::size_t app_count;
 
-    std::array<std::function<std::unique_ptr<LoggingAppBase<DataBusType>>()>, SimConfig::max_logging_app_number> logging_apps;
+    std::array<std::unique_ptr<LoggingAppBase<DataBusType>>, SimConfig::max_logging_app_number> logging_apps;
     std::size_t logging_app_count;
 
     AppLoggingRates logging_rates;
