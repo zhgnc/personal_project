@@ -55,12 +55,16 @@ void SimManager<DataBusType>::add_logging_app(LoggingAppType&& new_logging_app) 
 template<typename DataBusType>
 void SimManager<DataBusType>::run() {
     // TODO: Need to add back in sort apps by priority
+    std::cout << "[SimManager] Configuring Simulation\n";
+
+    // TODO: Make for loop run in parallel
 
     // For loop configured so that run_num starts at 1
     for (std::size_t run_num = 1; run_num < num_mc_runs + 1; run_num++) {
         SimSingleRunConfig<DataBusType> single_run_config = build_single_run_config(run_num);
 
-        SimSingleRun<DataBusType> single_run(std::move(single_run_config));
+        // SimSingleRun<DataBusType> single_run(std::move(single_run_config));
+        SimSingleRun<DataBusType> single_run(single_run_config); // TODO: Verify if std::move is required
 
         single_run.run();
     }
@@ -77,6 +81,7 @@ SimSingleRunConfig<DataBusType> SimManager<DataBusType>::build_single_run_config
     run_config.base_file_name   = base_file_name;
     run_config.output_directory = output_directory;
     run_config.run_number       = run_number;
+    // TODO: Need to add logging rates here for AppLoggingRates logging_rates
 
     run_config.app_count = app_count;
 

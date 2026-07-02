@@ -29,7 +29,6 @@ private:
     std::array<std::unique_ptr<SimAppBase<DataBusType>>, SimConfig::max_app_number> apps;
     std::array<std::unique_ptr<LoggingAppBase<DataBusType>>, SimConfig::max_logging_app_number> logging_apps;
 
-    // ---------------- Runtime state ----------------
     uint64_t current_sim_time_usec;
     double current_sim_time_sec;
     uint64_t sim_step_count;
@@ -37,17 +36,16 @@ private:
     uint64_t sim_dt_usec;
     SimControl::AccessibleSimData accessible_sim_data;
 
-    // ---------------- Stop state ----------------
     StopType stop_type;
     StopReason stop_reason;
     std::string stop_message;
     uint64_t stop_time_usec;
 
-    // ---------------- Runtime objects ----------------
     std::unique_ptr<Logger> logger;
     std::unique_ptr<SimDataLogger> sim_data_logger;
 
-    SimControl make_ctrl();
+    SimControl make_ctrl(); // TODO: Refactor SimControl
+    // TODO: Add in get_seed() function
 
     static constexpr double sec2usec = 1e6;
 };

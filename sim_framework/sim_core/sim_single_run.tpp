@@ -10,9 +10,9 @@ SimSingleRun<DataBusType>::SimSingleRun(const SimSingleRunConfig<DataBusType>& c
 
     current_sim_time_sec  = config.start_time_sec;
     current_sim_time_usec = static_cast<uint64_t>(config.start_time_sec * sec2usec);
-    sim_step_count        = 0;
+    sim_step_count        = 1;
 
-    // Copy unique apps and logging apps into the sim_single_run
+    // Copy unique apps and logging apps into the sim_single_run for future readability
     for (std::size_t i = 0; i < config.app_count; i++) {
         apps[i] = std::move(config.apps[i]);
     }
@@ -20,6 +20,8 @@ SimSingleRun<DataBusType>::SimSingleRun(const SimSingleRunConfig<DataBusType>& c
     for (std::size_t i = 0; i < config.logging_app_count; i++) {
         logging_apps[i] = std::move(config.logging_apps[i]);
     }
+
+    // TODO: Need to initialize stop tpes, reason, and message and add end_sim() and print_stop_diagnostics()
 }
 
 template<typename DataBusType>
@@ -37,15 +39,17 @@ void SimSingleRun<DataBusType>::run() {
 
 template<typename DataBusType>
 void SimSingleRun<DataBusType>::setup() {
+    std::cout << "[SimSingleRun] Starting Simulation Run #" << config.run_number << std::endl;
 
     std::string file_name = std::format("{}_RUN_{:05}.hdf5", config.base_file_name, config.run_number);
     std::string full_path = config.output_directory + "/" + file_name;
 
     logger = std::make_unique<Logger>(full_path);
-    LoggerFacade facade(*logger);
+    LoggerFacade logging_interface(*logger);
 
     for (std::size_t i = 0; i < config.logging_app_count; i++) {
-        logging_apps[i]->configure_hdf5_logging(facade, config.data_bus, config.logging_rates);
+        // TODO: config.logging_rates does not get passed into class yet
+        logging_apps[i]->configure_hdf5_logging(logging_interface, config.data_bus, config.logging_rates);
     }
 
     sim_data_logger = std::make_unique<SimDataLogger>(*logger);
@@ -53,12 +57,16 @@ void SimSingleRun<DataBusType>::setup() {
                                                   current_sim_time_usec,
                                                   config.sim_rate_hz,
                                                   sim_step_count);
-
+    // TODO: Refactor sim_ctrl
     SimControl sim_ctrl = make_ctrl();
 
     for (std::size_t i = 0; i < config.app_count; i++) {
         apps[i]->initialize(sim_ctrl);
     }
+
+    // TODO: Add in wall clock stats like start, stop. and elapsed time
+    // TODO: Need to add in log_run_meta_data 
+    // computer_start_time = std::chrono::high_resolution_clock::now();
 }
 
 
@@ -85,7 +93,7 @@ void SimSingleRun<DataBusType>::step() {
 
     current_sim_time_usec += sim_dt_usec;
     current_sim_time_sec   = current_sim_time_usec / sec2usec;
-    sim_step_count++;
+    sim_step_count         = sim_step_count + 1;
 }
 
 
@@ -99,6 +107,10 @@ void SimSingleRun<DataBusType>::teardown() {
         apps[i]->teardown(config.data_bus, sim_ctrl);
     }
 
+    // TODO: Calculate wall time stats and print results
+    // std::cout << "[SimSingleRun] Run #" << config.run_number << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
+
+    // TODO: Replace if statement with log_run_meta_data
     if (sim_data_logger) {
         sim_data_logger->log_sim_meta_data({
             config.start_time_sec,
@@ -109,6 +121,8 @@ void SimSingleRun<DataBusType>::teardown() {
             config.sim_rate_hz,
             config.run_number});
     }
+
+    // Add sim_teardown()
 
     logger.reset();
     sim_data_logger.reset();
