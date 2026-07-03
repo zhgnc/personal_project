@@ -15,7 +15,10 @@
 template<typename DataBusType>
 class SimSingleRun {
 public:
-    SimSingleRun(const SimSingleRunConfig<DataBusType>& config_data);
+    // Takes ownership of the config object and moves its resources into the
+    // sim run. An rvalue reference (`&&`) is used because the configuration
+    // contains move-only objects like std::unique_ptr's
+    SimSingleRun(SimSingleRunConfig<DataBusType>&& config_data);
 
     void run();
 
@@ -24,28 +27,49 @@ private:
     void step();
     void teardown();
 
-    SimSingleRunConfig<DataBusType> config;
+    void sim_teardown();
+    SimControl make_ctrl(); // TODO: Refactor SimControl
+    uint64_t get_seed();
+
+    // Config data
+    DataBusType data_bus;
 
     std::array<std::unique_ptr<SimAppBase<DataBusType>>, SimConfig::max_app_number> apps;
-    std::array<std::unique_ptr<LoggingAppBase<DataBusType>>, SimConfig::max_logging_app_number> logging_apps;
+    std::size_t app_count;
 
+    std::array<std::unique_ptr<LoggingAppBase<DataBusType>>, SimConfig::max_logging_app_number> logging_apps;
+    std::size_t logging_app_count;
+
+    AppLoggingRates logging_rates;
+    bool print_hdf5_file_tree;
+    bool print_file_attributes;
+
+    std::string output_directory;
+    std::string base_file_name;
+
+    double start_time_sec;
+    double stop_time_sec;
+    uint64_t stop_time_usec;
+    double sim_rate_hz;
+    uint64_t sim_dt_usec;
+
+    std::size_t run_number;
+    std::size_t total_mc_runs;
+    
+    uint64_t current_seed;
+
+    // Runtime data
     uint64_t current_sim_time_usec;
     double current_sim_time_sec;
     uint64_t sim_step_count;
-    uint64_t current_seed;
-    uint64_t sim_dt_usec;
     SimControl::AccessibleSimData accessible_sim_data;
 
     StopType stop_type;
     StopReason stop_reason;
     std::string stop_message;
-    uint64_t stop_time_usec;
 
     std::unique_ptr<Logger> logger;
     std::unique_ptr<SimDataLogger> sim_data_logger;
-
-    SimControl make_ctrl(); // TODO: Refactor SimControl
-    // TODO: Add in get_seed() function
 
     static constexpr double sec2usec = 1e6;
 };

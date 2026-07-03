@@ -28,7 +28,7 @@ public:
         logger.add_dataset("gyro_meas_valid_flag",    "gyro", data_bus.gyro_outputs.measurement_valid,       rates.rate_B_hz);
         logger.add_dataset("meas_delta_angles",       "gyro", data_bus.gyro_outputs.measured_delta_angles,   rates.rate_B_hz);
         logger.add_dataset("total_delta_angle_error", "gyro", data_bus.gyro_outputs.total_delta_angle_error, rates.rate_B_hz);
-        logger.add_dataset("rate_biases",             "gyro", data_bus.gyro_outputs.rate_biases,            rates.rate_B_hz);
+        logger.add_dataset("rate_biases",             "gyro", data_bus.gyro_outputs.rate_biases,             rates.rate_B_hz);
         logger.add_dataset("scale_factors",           "gyro", data_bus.gyro_outputs.scale_factors,           rates.rate_B_hz);
         logger.add_dataset("misalignments",           "gyro", data_bus.gyro_outputs.misalignments,           rates.rate_B_hz);
         logger.add_dataset("seed",                    "gyro", data_bus.gyro_outputs.seed,                    rates.rate_B_hz);

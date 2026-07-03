@@ -49,6 +49,8 @@ struct SimSingleRunConfig {
     std::size_t logging_app_count;
 
     AppLoggingRates logging_rates;
+    bool print_hdf5_file_tree;
+    bool print_file_attributes;
 
     std::string output_directory;
     std::string base_file_name;
@@ -58,6 +60,7 @@ struct SimSingleRunConfig {
     double sim_rate_hz;
 
     std::size_t run_number;
+    std::size_t total_mc_runs;
 };
 
 #endif

@@ -27,6 +27,12 @@ public:
 
 private:
     uint64_t get_seed(); // TODO: Delete
+    void sort_apps_by_priority();
+    bool compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>> &app_A, 
+                             const std::shared_ptr<SimAppBase<DataBusType>> &app_B);
+    void display_sorted_app_info();
+
+
     SimSingleRunConfig<DataBusType> build_single_run_config(const std::size_t& run_number);
     
     // ---------------- App and logger prototype storage ----------------
@@ -46,6 +52,9 @@ private:
     std::string base_file_name;
     std::string output_directory;
     AppLoggingRates logging_rates;
+
+    bool print_hdf5_file_tree; 
+    bool print_file_attributes;
 
     DataBusType& data_bus;
 };
