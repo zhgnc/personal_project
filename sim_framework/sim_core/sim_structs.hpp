@@ -61,6 +61,7 @@ struct SimSingleRunConfig {
 
     std::size_t run_number;
     std::size_t total_mc_runs;
+    uint64_t initial_random_seed;
 };
 
 #endif

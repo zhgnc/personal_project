@@ -29,6 +29,10 @@ private:
 
     void sim_teardown();
     SimControl make_ctrl(); // TODO: Refactor SimControl
+    void end_sim(const StopType& type, const StopReason& reason, const std::string& message);
+    void print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message);
+    void log_run_meta_data();
+
     uint64_t get_seed();
 
     // Config data
@@ -57,6 +61,7 @@ private:
     std::size_t total_mc_runs;
     
     uint64_t current_seed;
+    uint64_t initial_seed;
 
     // Runtime data
     uint64_t current_sim_time_usec;
@@ -64,6 +69,11 @@ private:
     uint64_t sim_step_count;
     SimControl::AccessibleSimData accessible_sim_data;
 
+    double actual_stop_time_sec;
+    std::chrono::high_resolution_clock::time_point computer_start_time;
+    std::chrono::high_resolution_clock::time_point computer_stop_time;
+    std::chrono::duration<double> computer_elapsed_seconds;
+    double sim_to_real_time_ratio;
     StopType stop_type;
     StopReason stop_reason;
     std::string stop_message;

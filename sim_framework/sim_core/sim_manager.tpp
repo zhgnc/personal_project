@@ -128,6 +128,7 @@ SimSingleRunConfig<DataBusType> SimManager<DataBusType>::build_single_run_config
     run_config.print_hdf5_file_tree  = print_hdf5_file_tree;
     run_config.print_file_attributes = print_file_attributes;
     run_config.total_mc_runs         = num_mc_runs;
+    run_config.initial_random_seed   = init_seed;
 
     run_config.app_count = app_count;
 
