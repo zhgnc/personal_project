@@ -6,35 +6,63 @@
 #include <string>
 #include <cstddef>
 
-#include "sim_app_base.hpp"
-#include "logging_app_base.hpp"
+#include "../generic_apps/sim_app_base.hpp"
+#include "../generic_apps/logging_app_base.hpp"
 #include "sim_config.hpp"
-#include "sim_control.hpp"
 
-// Stores a unique pointer to the original sim app (called `prototype`) and contains 
-// a function used to create independent copies of that app for each simulation run.
+// Stores a unique pointer to the original sim app (called `prototype`) and
+// contains a function used to create independent copies of that app for each
+// simulation run.
 template<typename DataBusType>
 struct SimAppPrototype {
-    // Master copy of the app. This object is never executed directly and is
-    // only used as the source for creating runtime instances.
+    SimAppPrototype() = default;
+
+    // Store original app instance
     std::unique_ptr<SimAppBase<DataBusType>> prototype;
 
-    std::unique_ptr<SimAppBase<DataBusType>>(*copy)(const SimAppBase<DataBusType>&);
+    // Function that knows how to clone this specific type
+    std::function<std::unique_ptr<SimAppBase<DataBusType>>(const SimAppBase<DataBusType>&)> copy_function;
 
+    // Constructor saved the prototype object and builds a type-specific clone function
+    template<typename AppType>
+    SimAppPrototype(AppType&& original_app) {
+        prototype = std::make_unique<std::decay_t<AppType>>(std::forward<AppType>(original_app));
+
+        copy_function = [](const SimAppBase<DataBusType>& base_app) -> std::unique_ptr<SimAppBase<DataBusType>> {
+            const std::decay_t<AppType>& derived_app = static_cast<const std::decay_t<AppType>&>(base_app);
+            
+            return std::make_unique<std::decay_t<AppType>>(derived_app);
+        };
+    }
+
+    // Method used to create aunique copy of the derived app
     std::unique_ptr<SimAppBase<DataBusType>> create() const {
-        return copy(*prototype);
+        return copy_function(*prototype);
     }
 };
 
-// Serves same function as `SimAppPrototype` execpt for the original logging apps 
+// Serves same function as `SimAppPrototype` but for logging apps derived from LoggingAppType
 template<typename DataBusType>
 struct LoggingAppPrototype {
+    LoggingAppPrototype() = default;
+
     std::unique_ptr<LoggingAppBase<DataBusType>> prototype;
 
-    std::unique_ptr<LoggingAppBase<DataBusType>>(*copy)(const LoggingAppBase<DataBusType>&);
+    std::function<std::unique_ptr<LoggingAppBase<DataBusType>>(const LoggingAppBase<DataBusType>&)> copy_function;
+
+    template<typename LoggingAppType>
+    LoggingAppPrototype(LoggingAppType&& original_app) {
+        prototype = std::make_unique<std::decay_t<LoggingAppType>>(std::forward<LoggingAppType>(original_app));
+
+        copy_function = [](const LoggingAppBase<DataBusType>& base_app) -> std::unique_ptr<LoggingAppBase<DataBusType>> {
+            const std::decay_t<LoggingAppType>& derived_app = static_cast<const std::decay_t<LoggingAppType>&>(base_app);
+
+            return std::make_unique<std::decay_t<LoggingAppType>>(derived_app);
+        };
+    }
 
     std::unique_ptr<LoggingAppBase<DataBusType>> create() const {
-        return copy(*prototype);
+        return copy_function(*prototype);
     }
 };
 

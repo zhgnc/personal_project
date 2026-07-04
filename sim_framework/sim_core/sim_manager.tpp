@@ -10,8 +10,8 @@ SimManager<DataBusType>::SimManager(const std::string& path_to_sim_config, DataB
     num_mc_runs          = get_yaml_value<size_t>(config, "number_of_monte_carlo_runs");
     init_seed            = get_yaml_value<uint64_t>(config, "initial_random_seed");
     
-    print_hdf5_file_tree  = get_yaml_value<bool>(config_data, "print_hdf5_file_format");
-    print_file_attributes = get_yaml_value<bool>(config_data, "print_hdf5_attributes_in_file_format");
+    print_hdf5_file_tree  = get_yaml_value<bool>(config, "print_hdf5_file_format");
+    print_file_attributes = get_yaml_value<bool>(config, "print_hdf5_attributes_in_file_format");
 
     base_file_name       = get_yaml_value<std::string>(config, "base_file_name");
     output_directory     = get_yaml_value<std::string>(config, "logging_file_save_directory");
@@ -19,16 +19,16 @@ SimManager<DataBusType>::SimManager(const std::string& path_to_sim_config, DataB
     app_count         = 0;
     logging_app_count = 0;
 
-    logging_rates.rate_A_hz = get_yaml_value<double>(config_data, "logging_rate_A_hz");
-    logging_rates.rate_B_hz = get_yaml_value<double>(config_data, "logging_rate_B_hz");
-    logging_rates.rate_C_hz = get_yaml_value<double>(config_data, "logging_rate_C_hz");
-    logging_rates.rate_D_hz = get_yaml_value<double>(config_data, "logging_rate_D_hz");
-    logging_rates.rate_E_hz = get_yaml_value<double>(config_data, "logging_rate_E_hz");
+    logging_rates.rate_A_hz = get_yaml_value<double>(config, "logging_rate_A_hz");
+    logging_rates.rate_B_hz = get_yaml_value<double>(config, "logging_rate_B_hz");
+    logging_rates.rate_C_hz = get_yaml_value<double>(config, "logging_rate_C_hz");
+    logging_rates.rate_D_hz = get_yaml_value<double>(config, "logging_rate_D_hz");
+    logging_rates.rate_E_hz = get_yaml_value<double>(config, "logging_rate_E_hz");
 }
 
 // This function accepts any object derived from `SimAppBase<DataBusType>` and 
-// adds it to the `app_list`. The template parameter `AppType` preserves the 
-// derived type so the sim can later create copies of the derived type for
+// adds it to the `app_prototypes`. The template parameter `AppType` preserves 
+// the derived type so the sim can later create copies of the derived type for
 // each simulation run.
 template<typename DataBusType>
 template<typename AppType>
@@ -88,16 +88,16 @@ void SimManager<DataBusType>::run() {
 template<typename DataBusType>
 void SimManager<DataBusType>::sort_apps_by_priority() {
   std::cout << "[SimManager] Configuring Simulation\n";
-  std::sort(app_list.begin(), app_list.begin() + app_count, Simulation::compare_by_priority);
+  std::sort(app_prototypes.begin(), app_prototypes.begin() + app_count, SimManager<DataBusType>::compare_by_priority);
   
   display_sorted_app_info();
 };
 
 template<typename DataBusType>
-bool SimManager<DataBusType>::compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>> &app_A,
-                                     const std::shared_ptr<SimAppBase<DataBusType>> &app_B) {
+bool SimManager<DataBusType>::compare_by_priority(const SimAppPrototype<DataBusType>& app_A, 
+                                                  const SimAppPrototype<DataBusType>& app_B) {
   // `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
-  return app_A->priority() < app_B->priority();
+  return app_A.prototype->priority() < app_B.prototype->priority();
 };
 
 template<typename DataBusType>
@@ -105,9 +105,9 @@ void SimManager<DataBusType>::display_sorted_app_info() {
   std::cout << "[SimManager] Sorted Application List\n";
 
   for (std::size_t i = 0; i < app_count; i++) {
-    std::cout << "App Name: " << app_list[i]->name()
-              << " | Priority: " << app_list[i]->priority()
-              << " | Time Step (s): " << app_list[i]->dt_sec() << '\n';
+    std::cout << "App Name: " << app_prototypes[i].prototype->name()
+              << " | Priority: " << app_prototypes[i].prototype->priority()
+              << " | Time Step (s): " << app_prototypes[i].prototype->dt_sec() << '\n';
   }
 
   std::cout << "\n";

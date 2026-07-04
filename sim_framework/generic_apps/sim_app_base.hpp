@@ -7,12 +7,12 @@
 
 #include "../sim_core/sim_control.hpp"
 
-// Forward declare template Simulation so that it can be a friend class. This 
-// allows the `simulation` class to access the `initialize` and `check_step` 
+// Forward declare template SimSingleRun so that it can be a friend class. This 
+// allows the `SimSingleRun` class to access the `initialize` and `check_step` 
 // functions without exposing the methods to the user when creating their own 
 // apps by inheriting from the `SimAppBase` class  
 template<typename DataBusType>
-class Simulation;
+class SimSingleRun;
 
 
 template<typename DataBusType>
@@ -34,7 +34,7 @@ public:
     double dt_sec() const { return app_dt_sec; }
     
 private:   
-    friend class Simulation<DataBusType>;
+    friend class SimSingleRun<DataBusType>;
     
     void initialize(SimControl& sim_ctrl);
     void check_step(const uint64_t& sim_time_usec, DataBusType& bus, SimControl& sim_ctrl);

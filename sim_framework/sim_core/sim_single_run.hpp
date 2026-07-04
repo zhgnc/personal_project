@@ -32,6 +32,7 @@ private:
     void end_sim(const StopType& type, const StopReason& reason, const std::string& message);
     void print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message);
     void log_run_meta_data();
+    void update_accessible_sim_data();
 
     uint64_t get_seed();
 
@@ -55,6 +56,7 @@ private:
     double stop_time_sec;
     uint64_t stop_time_usec;
     double sim_rate_hz;
+    double sim_dt_sec;
     uint64_t sim_dt_usec;
 
     std::size_t run_number;
@@ -80,6 +82,8 @@ private:
 
     std::unique_ptr<Logger> logger;
     std::unique_ptr<SimDataLogger> sim_data_logger;
+    
+    SimMetaData meta_data;
 
     static constexpr double sec2usec = 1e6;
 };

@@ -11,6 +11,7 @@
 
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
+#include "../../utilities/yaml_utilities.hpp"
 
 template<typename DataBusType>
 class SimManager {
@@ -28,8 +29,7 @@ public:
 private:
     uint64_t get_seed(); // TODO: Delete
     void sort_apps_by_priority();
-    bool compare_by_priority(const std::shared_ptr<SimAppBase<DataBusType>> &app_A, 
-                             const std::shared_ptr<SimAppBase<DataBusType>> &app_B);
+    static bool compare_by_priority(const SimAppPrototype<DataBusType>& app_A, const SimAppPrototype<DataBusType>& app_B);
     void display_sorted_app_info();
 
 

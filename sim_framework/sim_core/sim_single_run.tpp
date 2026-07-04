@@ -18,6 +18,7 @@ SimSingleRun<DataBusType>::SimSingleRun(SimSingleRunConfig<DataBusType>&& config
     logging_app_count     = config_data.logging_app_count;
 
     stop_time_usec        = static_cast<uint64_t>(stop_time_sec * sec2usec);
+    sim_dt_sec            = 1.0 / sim_rate_hz;
     sim_dt_usec           = static_cast<uint64_t>((1.0 / sim_rate_hz) * sec2usec);
     current_sim_time_sec  = start_time_sec;
     current_sim_time_usec = static_cast<uint64_t>(start_time_sec * sec2usec);
@@ -69,6 +70,7 @@ void SimSingleRun<DataBusType>::setup() {
                                                   sim_rate_hz,
                                                   sim_step_count);
     // TODO: Refactor sim_ctrl
+    update_accessible_sim_data();
     SimControl sim_ctrl = make_ctrl();
 
     for (std::size_t i = 0; i < app_count; i++) {
@@ -83,11 +85,7 @@ void SimSingleRun<DataBusType>::setup() {
 template<typename DataBusType>
 void SimSingleRun<DataBusType>::step() {
 
-    accessible_sim_data = {current_sim_time_sec,
-                           start_time_sec,
-                           sim_rate_hz,
-                           sim_step_count};
-
+    update_accessible_sim_data();
     SimControl sim_ctrl = make_ctrl();
 
     for (std::size_t i = 0; i < app_count; i++) {
@@ -109,7 +107,7 @@ void SimSingleRun<DataBusType>::step() {
 
 template<typename DataBusType>
 void SimSingleRun<DataBusType>::teardown() {
-
+    update_accessible_sim_data();
     SimControl sim_ctrl = make_ctrl();
 
     for (std::size_t i = 0; i < app_count; i++) {
@@ -144,8 +142,16 @@ SimControl SimSingleRun<DataBusType>::make_ctrl() {
 }
 
 template<typename DataBusType>
+void SimSingleRun<DataBusType>::update_accessible_sim_data() {
+    accessible_sim_data = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
+}
+
+template<typename DataBusType>
 uint64_t SimSingleRun<DataBusType>::get_seed() {
-  return current_seed++; // Returns value of `current_seed` and then increments by 1
+    uint64_t seed_output = run_number + current_seed;
+    current_seed = current_seed + 1;
+
+    return seed_output; // Returns value of `current_seed` and then increments by 1
 }
 
 template<typename DataBusType>
