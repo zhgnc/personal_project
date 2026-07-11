@@ -14,6 +14,7 @@
 #include <array>
 #include <memory>
 #include <filesystem>
+#include <mutex>
 
 class Logger {
 public:
@@ -48,6 +49,8 @@ private:
     
     template<typename H5ObjType, typename T>
     void write_attribute_to_generic_object(H5ObjType& obj, const std::string& attribute_name, const T& value);
+
+    static std::recursive_mutex hdf5_mutex; // Global mutex to prevent parallel sim runs from calling non-thread safe hdf5 library at the same time
 
     std::array<std::shared_ptr<DatasetBase>, LoggerConfig::max_dataset_number> datasets;
     std::size_t dataset_count = 0;

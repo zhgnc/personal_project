@@ -52,7 +52,11 @@ void SimSingleRun<DataBusType>::run() {
 
 template<typename DataBusType>
 void SimSingleRun<DataBusType>::setup() {
-    std::cout << "[SimSingleRun] Starting Simulation Run #" << run_number << std::endl;
+    {
+        std::lock_guard<std::mutex> lock(console_mutex);
+        std::cout << "[SimSingleRun] Starting run " << run_number << " of " << total_mc_runs << "\n";
+
+    }
 
     std::string file_name = std::format("{}_RUN_{:05}.hdf5", base_file_name, run_number);
     std::string full_path = output_directory + "/" + file_name;
@@ -65,10 +69,12 @@ void SimSingleRun<DataBusType>::setup() {
     }
 
     sim_data_logger = std::make_unique<SimDataLogger>(*logger);
+
     sim_data_logger->configure_file_with_sim_data(current_sim_time_sec,
                                                   current_sim_time_usec,
                                                   sim_rate_hz,
                                                   sim_step_count);
+
     // TODO: Refactor sim_ctrl
     update_accessible_sim_data();
     SimControl sim_ctrl = make_ctrl();
@@ -95,7 +101,6 @@ void SimSingleRun<DataBusType>::step() {
             return;
         }
     }
-
     logger->log_data(current_sim_time_usec);
 
     current_sim_time_usec += sim_dt_usec;
@@ -117,9 +122,13 @@ void SimSingleRun<DataBusType>::teardown() {
     computer_stop_time       = std::chrono::high_resolution_clock::now();
     computer_elapsed_seconds = computer_stop_time - computer_start_time;
     sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();
-    std::cout << "[Simulation] Run #" << run_number << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
-  
-    log_run_meta_data();  
+
+    {
+        std::lock_guard<std::mutex> lock(console_mutex);
+        std::cout << "[Simulation] Run #" << run_number << " ended after " << computer_elapsed_seconds.count() << "seconds (x" << sim_to_real_time_ratio << "faster than real time)\n";
+    }
+
+    log_run_meta_data();
 
     // If this is the last run I want to print the file tree for reference if enabled
     // which must be done before `.reset()` is called below
@@ -176,7 +185,9 @@ void SimSingleRun<DataBusType>::print_stop_diagnostics(const StopType& type, con
   std::string reason_string = stop_reason_to_string(reason);
   int reason_int            = static_cast<int>(reason);
 
-  std::cout << "               | - Sim stop commanded\n"; 
+  std::lock_guard<std::mutex> lock(console_mutex);
+
+  std::cout << "               | - Sim stop commanded\n";
   std::cout << "                   |- Type (enum): "   << type_string   << " || " << type_int   << std::endl;
   std::cout << "                   |- Reason (enum): " << reason_string << " || " << reason_int << std::endl;
   std::cout << "                   |- Message: " << message << std::endl;
@@ -184,30 +195,32 @@ void SimSingleRun<DataBusType>::print_stop_diagnostics(const StopType& type, con
 
 template<typename DataBusType>
 void SimSingleRun<DataBusType>::log_run_meta_data() {
-  meta_data.start_time_sec           = start_time_sec; 
-  meta_data.config_stop_time_sec     = stop_time_sec;
-  meta_data.actual_stop_time_sec     = actual_stop_time_sec; 
-  meta_data.stop_type                = stop_type;
-  meta_data.stop_reason              = stop_reason;
-  meta_data.stop_message             = stop_message;
-  meta_data.sim_rate_hz              = sim_rate_hz; 
-  meta_data.num_total_mc_runs        = total_mc_runs; 
-  meta_data.current_mc_run           = run_number; 
-  meta_data.initial_random_seed      = initial_seed;
-  meta_data.computer_start_time      = computer_start_time; 
-  meta_data.computer_stop_time       = computer_stop_time; 
-  meta_data.computer_elapsed_seconds = computer_elapsed_seconds; 
-  meta_data.sim_to_real_time_ratio   = sim_to_real_time_ratio;
-  meta_data.app_count                = app_count;
-  meta_data.logging_app_count        = logging_app_count;  
-  
-  sim_data_logger->log_sim_meta_data(meta_data);
+    meta_data.start_time_sec           = start_time_sec; 
+    meta_data.config_stop_time_sec     = stop_time_sec;
+    meta_data.actual_stop_time_sec     = actual_stop_time_sec; 
+    meta_data.stop_type                = stop_type;
+    meta_data.stop_reason              = stop_reason;
+    meta_data.stop_message             = stop_message;
+    meta_data.sim_rate_hz              = sim_rate_hz; 
+    meta_data.num_total_mc_runs        = total_mc_runs; 
+    meta_data.current_mc_run           = run_number; 
+    meta_data.initial_random_seed      = initial_seed;
+    meta_data.computer_start_time      = computer_start_time; 
+    meta_data.computer_stop_time       = computer_stop_time; 
+    meta_data.computer_elapsed_seconds = computer_elapsed_seconds; 
+    meta_data.sim_to_real_time_ratio   = sim_to_real_time_ratio;
+    meta_data.app_count                = app_count;
+    meta_data.logging_app_count        = logging_app_count;
+
+    sim_data_logger->log_sim_meta_data(meta_data);
 }
 
 template<typename DataBusType>
 void SimSingleRun<DataBusType>::sim_teardown() {
+  std::lock_guard<std::mutex> lock(console_mutex);
+
   std::cout << "\n[Simulation] ALL RUNS FINISHED!!!\n\n";
-    
+
   std::cout << "[Simulation] HDF5 output files will have the following data\n";
   logger->print_file_tree(print_file_attributes);
 }

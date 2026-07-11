@@ -1,5 +1,17 @@
 #include "../../sim_framework/sim_core/sim_data_logger.hpp"
 
+std::mutex SimDataLogger::time_format_mutex;
+
+std::string SimDataLogger::format_time(const std::time_t& time) {
+    std::lock_guard<std::mutex> lock(time_format_mutex);
+
+    std::tm* tm_ptr = std::localtime(&time);
+    char buffer[64];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm_ptr);
+
+    return std::string(buffer);
+}
+
 SimDataLogger::SimDataLogger(Logger& shared_sim_logger)
     : logger(shared_sim_logger)  // Reference members cannot be assigned in the constructor body
 {};
@@ -35,8 +47,8 @@ void SimDataLogger::log_sim_meta_data(const SimMetaData& meta_data) const {
     std::time_t start_sec_since_epoch = std::chrono::system_clock::to_time_t(meta_data.computer_start_time);
     std::time_t stop_sec_since_epoch  = std::chrono::system_clock::to_time_t(meta_data.computer_stop_time);
 
-    logger.write_attribute("/sim", "computer_start_time",       std::ctime(&start_sec_since_epoch));
-    logger.write_attribute("/sim", "computer_stop_time",        std::ctime(&stop_sec_since_epoch));
+    logger.write_attribute("/sim", "computer_start_time",       format_time(start_sec_since_epoch));
+    logger.write_attribute("/sim", "computer_stop_time",        format_time(stop_sec_since_epoch));
     logger.write_attribute("/sim", "computer_elapsed_time_sec", meta_data.computer_elapsed_seconds.count());
     logger.write_attribute("/sim", "sim_to_real_time_ratio",    meta_data.sim_to_real_time_ratio);
     logger.write_attribute("/sim", "app_count",                 meta_data.app_count);

@@ -11,6 +11,7 @@
 #include "sim_data_logger.hpp"
 #include "sim_structs.hpp"
 #include "../data_logging/logger.hpp"
+#include "console_mutex.hpp"
 
 template<typename DataBusType>
 class SimSingleRun {

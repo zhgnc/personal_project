@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <thread>
+#include <mutex>
 
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
@@ -27,13 +29,12 @@ public:
     void run();
 
 private:
-    uint64_t get_seed(); // TODO: Delete
     void sort_apps_by_priority();
     static bool compare_by_priority(const SimAppPrototype<DataBusType>& app_A, const SimAppPrototype<DataBusType>& app_B);
+    void thread_job();
+    void get_run_number();
     void display_sorted_app_info();
-
-
-    SimSingleRunConfig<DataBusType> build_single_run_config(const std::size_t& run_number);
+    SimSingleRunConfig<DataBusType> build_single_run_config(std::size_t run_number);
     
     // ---------------- App and logger prototype storage ----------------
     std::array<SimAppPrototype<DataBusType>, SimConfig::max_app_number> app_prototypes;
@@ -41,12 +42,15 @@ private:
 
     std::size_t app_count;
     std::size_t logging_app_count;
+    std::size_t num_threads;
+    std::mutex mutex;
 
     // ---------------- Simulation config ----------------
     double start_time_sec;
     double stop_time_sec;
     double sim_rate_hz;
     std::size_t num_mc_runs;
+    std::size_t current_run_number;
     uint64_t init_seed;
 
     std::string base_file_name;

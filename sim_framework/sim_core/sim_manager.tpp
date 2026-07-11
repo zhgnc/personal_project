@@ -8,6 +8,7 @@ SimManager<DataBusType>::SimManager(const std::string& path_to_sim_config, DataB
     stop_time_sec        = get_yaml_value<double>(config, "sim_stop_time_sec");
     sim_rate_hz          = get_yaml_value<double>(config, "simulation_rate_hz");
     num_mc_runs          = get_yaml_value<size_t>(config, "number_of_monte_carlo_runs");
+    num_threads          = get_yaml_value<size_t>(config, "number_of_threads");
     init_seed            = get_yaml_value<uint64_t>(config, "initial_random_seed");
     
     print_hdf5_file_tree  = get_yaml_value<bool>(config, "print_hdf5_file_format");
@@ -24,6 +25,11 @@ SimManager<DataBusType>::SimManager(const std::string& path_to_sim_config, DataB
     logging_rates.rate_C_hz = get_yaml_value<double>(config, "logging_rate_C_hz");
     logging_rates.rate_D_hz = get_yaml_value<double>(config, "logging_rate_D_hz");
     logging_rates.rate_E_hz = get_yaml_value<double>(config, "logging_rate_E_hz");
+
+    if (num_threads >= SimConfig::max_thread_number) {
+        throw std::runtime_error("[sim_manager.tpp] `number_of_threads` must not exceeded value of `max_thread_number` in sim_config.hpp which is"
+                                + std::to_string(SimConfig::max_thread_number));
+    }
 }
 
 // This function accepts any object derived from `SimAppBase<DataBusType>` and 
@@ -37,7 +43,7 @@ void SimManager<DataBusType>::add_app(AppType&& new_app) {
                  "AppType must derive from SimAppBase<DataBusType>");
     
     if (app_count >= SimConfig::max_app_number) {
-        throw std::runtime_error("[Simulation.tpp] Number of apps exceeded value of `max_app_number` in sim_config.hpp which is "
+        throw std::runtime_error("[sim_manager.tpp] Number of apps exceeded value of `max_app_number` in sim_config.hpp which is "
                                 + std::to_string(SimConfig::max_app_number));
     }
 
@@ -60,7 +66,7 @@ void SimManager<DataBusType>::add_logging_app(LoggingAppType&& new_logging_app) 
                  "LoggingAppType must derive from LoggingAppBase<DataBusType>");
 
     if (logging_app_count >= SimConfig::max_logging_app_number) {
-        throw std::runtime_error("[Simulation.tpp] Number of logging apps exceeded value of `max_logging_app_number` in sim_config.hpp which is"
+        throw std::runtime_error("[sim_manager.tpp] Number of logging apps exceeded value of `max_logging_app_number` in sim_config.hpp which is"
                                 + std::to_string(SimConfig::max_logging_app_number));
     }
 
@@ -70,19 +76,25 @@ void SimManager<DataBusType>::add_logging_app(LoggingAppType&& new_logging_app) 
 
 template<typename DataBusType>
 void SimManager<DataBusType>::run() {
-    sort_apps_by_priority();
+    sort_apps_by_priority(); // SimSingleRun expects the apps to be in the proper order when received in the config struct
 
-    // TODO: Make for loop run in parallel
+    std::array<std::jthread, SimConfig::max_thread_number> thread_pool;
 
-    // For loop configured so that run_num starts at 1
-    for (std::size_t run_num = 1; run_num < num_mc_runs + 1; run_num++) {
-        SimSingleRunConfig<DataBusType> single_run_config = build_single_run_config(run_num);
+    std::size_t max_cpu_threads  = std::thread::hardware_concurrency();
+    max_cpu_threads              = std::max({max_cpu_threads, std::size_t{1}}); // Protects against `hardware_concurrency()` returning 0
+    std::size_t num_threads_used = std::min({num_threads, max_cpu_threads});    // Protects against user inputting more threads than possible
 
-        // Using `std::move()` to transfer ownership of `single_run_config` to `single_run`
-        SimSingleRun<DataBusType> single_run(std::move(single_run_config)); 
+    current_run_number = 1; // SimManager configured to use 1 based indexing for run numbers
 
-        single_run.run();
+    for (std::size_t i = 0; i < num_threads_used; i++) {
+        thread_pool[i] = std::jthread(&SimManager::thread_job, this);
     }
+
+    for (std::size_t i = 0; i < num_threads_used; i++) {
+        thread_pool[i].join();
+    }
+
+    std::cout << "\n[SimManager] Simulation complete!!!\n\n";
 }
 
 template<typename DataBusType>
@@ -113,11 +125,36 @@ void SimManager<DataBusType>::display_sorted_app_info() {
   std::cout << "\n";
 }
 
+// Worker function executed by each thread in the pool. Each worker claims 
+// the next available Monte Carlo run, builds an independent SimSingleRun, 
+// executes it, and then returns for another run until no work remains.
 template<typename DataBusType>
-SimSingleRunConfig<DataBusType> SimManager<DataBusType>::build_single_run_config(const std::size_t& run_number) {    
+void SimManager<DataBusType>::thread_job() {
+    while (true) {
+        SimSingleRunConfig<DataBusType> single_run_config;
+
+        { // Used to scope std::lock_guard
+        std::lock_guard<std::mutex> lock(mutex);
+
+        if (current_run_number > num_mc_runs ) {
+            return;
+        }
+
+        single_run_config  = build_single_run_config(current_run_number);
+        current_run_number = current_run_number + 1;
+
+        } // mutex is automatically unlocked here because std::lock_guard goes out of scope
+        
+        SimSingleRun<DataBusType> single_run(std::move(single_run_config));
+        single_run.run();
+    }
+}
+
+template<typename DataBusType>
+SimSingleRunConfig<DataBusType> SimManager<DataBusType>::build_single_run_config(std::size_t run_number) {    
     SimSingleRunConfig<DataBusType> run_config;
     
-    run_config.data_bus              = data_bus;
+    run_config.data_bus              = DataBusType(data_bus);
     run_config.start_time_sec        = start_time_sec;
     run_config.stop_time_sec         = stop_time_sec;
     run_config.sim_rate_hz           = sim_rate_hz;
