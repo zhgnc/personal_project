@@ -16,6 +16,10 @@ quat<type> quat<type>::normalize() const {
 
     type magnitude = std::sqrt(sum_of_squares);
 
+    if (magnitude < 10.0 * std::numeric_limits<type>::epsilon()) {
+        throw std::runtime_error("Cannot normalize a zero-magnitude quaternion!");
+    }
+
     for (std::size_t row = 0; row < 4; row++) {
         output(row) = q_copy(row) / magnitude;
     }

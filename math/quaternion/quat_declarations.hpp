@@ -3,6 +3,9 @@
 
 #include <array>
 #include <iostream>
+#include <stdexcept>
+#include <limits>
+
 #include "quat.hpp"
 #include "../vector/vector.hpp"
 

@@ -45,11 +45,14 @@ type vector<type,length>::mag() const {
 template <typename type, std::size_t length>
 vector<type, length> vector<type,length>::norm() const {
     type magnitude = mag();
+
     if (magnitude == 0) {
-        return {0.0, 0.0, 0.0};
+        vector<type, length> zero_output;
+        zero_output.set_zeros();
+        return zero_output;
     };
 
-    vector<type,length> output;
+    vector<type, length> output;
     for (std::size_t row = 0; row < length; row++) {
         output(row) = (*this)(row) / magnitude;
     }

@@ -146,7 +146,16 @@ matrix<type, rows, columns> matrix<type, rows, columns>::inv_2x2() const {
 
     const type det = a*d - b*c;
 
-    assert(std::isfinite(det) && "Matrix is singular in inv_2x2()");
+    // Row-scaled singularity check matching the NxN inv() path: comparing |det| against
+    // epsilon times the product of each row's largest element is scale-invariant, so rows
+    // living at wildly different magnitudes (e.g. diag(1e-12, 1e12)) don't false-trigger.
+    // Rows are clamped at epsilon so an all-zero row still counts as singular.
+    const type row_0_scale = std::max({std::abs(a), std::abs(b), std::numeric_limits<type>::epsilon()});
+    const type row_1_scale = std::max({std::abs(c), std::abs(d), std::numeric_limits<type>::epsilon()});
+
+    if (std::abs(det) < std::numeric_limits<type>::epsilon() * row_0_scale * row_1_scale) {
+        throw std::runtime_error("Matrix is singular to working precision in inv_2x2()");
+    }
 
     matrix<type, 2,2> result;
 
@@ -178,7 +187,14 @@ matrix<type, rows, columns> matrix<type, rows, columns>::inv_3x3() const {
                    - b * (d * i - f * g)
                    + c * (d * h - e * g);
 
-    assert(std::isfinite(det) && "Matrix is singular in inv_3x3()");
+    // See comment in inv_2x2() for justification
+    const type row_0_scale = std::max({std::abs(a), std::abs(b), std::abs(c), std::numeric_limits<type>::epsilon()});
+    const type row_1_scale = std::max({std::abs(d), std::abs(e), std::abs(f), std::numeric_limits<type>::epsilon()});
+    const type row_2_scale = std::max({std::abs(g), std::abs(h), std::abs(i), std::numeric_limits<type>::epsilon()});
+
+    if (std::abs(det) < std::numeric_limits<type>::epsilon() * row_0_scale * row_1_scale * row_2_scale) {
+        throw std::runtime_error("Matrix is singular to working precision in inv_3x3()");
+    }
 
     matrix<type, 3, 3> result;
 
