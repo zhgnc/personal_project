@@ -3,6 +3,7 @@
 
 #include "../../sim_framework/data_logging/dataset_overrides.hpp"
 #include "../../sim_framework/data_logging/dataset_base.hpp"
+#include "../../sim_framework/data_logging/hdf5_mutex.hpp"
 #include "../../sim_framework/data_logging/hdf5_to_cpp_type_mapping.hpp"
 #include "../../sim_framework/data_logging/logger_config.hpp"
 #include "../../math//math.hpp"
@@ -49,8 +50,6 @@ private:
     
     template<typename H5ObjType, typename T>
     void write_attribute_to_generic_object(H5ObjType& obj, const std::string& attribute_name, const T& value);
-
-    static std::recursive_mutex hdf5_mutex; // Global mutex to prevent parallel sim runs from calling non-thread safe hdf5 library at the same time
 
     std::array<std::shared_ptr<DatasetBase>, LoggerConfig::max_dataset_number> datasets;
     std::size_t dataset_count = 0;

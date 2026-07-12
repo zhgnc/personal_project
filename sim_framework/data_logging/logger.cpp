@@ -1,6 +1,4 @@
-#include "../../sim_framework/data_logging/logger.hpp" 
-
-std::recursive_mutex Logger::hdf5_mutex;
+#include "../../sim_framework/data_logging/logger.hpp"
 
 Logger::Logger(const std::string& path_to_file) {
     std::lock_guard<std::recursive_mutex> lock(hdf5_mutex);
@@ -99,9 +97,11 @@ void Logger::add_group(const std::string& path_to_group) {
     }
 }
 
+// Intentionally NOT locked: log_if_needed() only copies data into this Logger's own
+// RAM buffers, which no other thread touches, so taking the global hdf5_mutex here
+// would stall every sim thread's step loop whenever one thread is doing file I/O.
+// When a buffer fills, flush_buffer() takes the lock itself for the actual HDF5 write.
 void Logger::log_data(const uint64_t &sim_time_usec) {
-    std::lock_guard<std::recursive_mutex> lock(hdf5_mutex);
-
     for (std::size_t i = 0; i < dataset_count; i++) {
         datasets[i]->log_if_needed(sim_time_usec);
     }
@@ -214,17 +214,15 @@ void Logger::print_attributes(const H5::H5Object& object, std::size_t level_to_p
     }
 }
 
+// Not locked: only touches std::filesystem, which is thread-safe, never the HDF5 API
 void Logger::verify_file_exists() const {
-    std::lock_guard<std::recursive_mutex> lock(hdf5_mutex);
-
     if (std::filesystem::exists(file_path) == false) {
         throw std::runtime_error("[logger.cpp] File does not exist here: " + file_path);
     }
 }
 
+// Not locked: only touches std::filesystem, which is thread-safe, never the HDF5 API
 void Logger::verify_file_path(const std::string& directory_path) const {
-    std::lock_guard<std::recursive_mutex> lock(hdf5_mutex);
-
     if (std::filesystem::exists(directory_path) == false) {
         throw std::runtime_error("[>logger.cpp] Path to directory does not exist: " + directory_path);
     }
