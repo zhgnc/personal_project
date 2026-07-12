@@ -27,7 +27,7 @@ SimManager<DataBusType>::SimManager(const std::string& path_to_sim_config, DataB
     num_threads_used           = 0;
     total_sim_time_sec         = 0.0;
     total_run_wall_clock_sec   = 0.0;
-    total_ratio_sum            = 0.0;
+    sim_to_real_time_ratio_sum = 0.0;
     fastest_run_wall_clock_sec = std::numeric_limits<double>::max();
     slowest_run_wall_clock_sec = 0.0;
     fastest_run_number         = 0;
@@ -173,10 +173,10 @@ template<typename DataBusType>
 void SimManager<DataBusType>::record_run_stats(const SimRunStats& run_stats) {
     std::lock_guard<std::mutex> lock(mutex);
 
-    completed_run_count      = completed_run_count      + 1;
-    total_sim_time_sec       = total_sim_time_sec       + run_stats.sim_time_sec;
-    total_run_wall_clock_sec = total_run_wall_clock_sec + run_stats.wall_clock_sec;
-    total_ratio_sum          = total_ratio_sum          + run_stats.sim_to_real_time_ratio;
+    completed_run_count        = completed_run_count        + 1;
+    total_sim_time_sec         = total_sim_time_sec         + run_stats.sim_time_sec;
+    total_run_wall_clock_sec   = total_run_wall_clock_sec   + run_stats.wall_clock_sec;
+    sim_to_real_time_ratio_sum = sim_to_real_time_ratio_sum + run_stats.sim_to_real_time_ratio;
 
     if (run_stats.stop_type == StopType::NoStop) {
         reached_stop_time_count += 1;
@@ -184,7 +184,7 @@ void SimManager<DataBusType>::record_run_stats(const SimRunStats& run_stats) {
         early_stop_reports[early_stop_report_count] = "Run #" + std::to_string(run_stats.run_number)
                                                     + " stopped early: " + stop_reason_to_string(run_stats.stop_reason)
                                                     + " (" + run_stats.stop_message + ")";
-        early_stop_report_count += 1;
+        early_stop_report_count = early_stop_report_count + 1;
     }
 
     if (run_stats.wall_clock_sec < fastest_run_wall_clock_sec) {
@@ -204,29 +204,30 @@ void SimManager<DataBusType>::record_run_stats(const SimRunStats& run_stats) {
 //      Level 3 or greater adds the run outcome breakdown and other details
 template<typename DataBusType>
 void SimManager<DataBusType>::display_run_summary(double parallel_wall_clock_sec) {
+    if (completed_run_count < 1) {
+        std::cout << "\n\n[SimManager] Simulation completed but no runs were completed!!!\n";
+        return;
+    }
+
     std::cout << "\n[SimManager] Simulation complete!!!\n";
     std::cout << "  |- Results save here: " << output_directory << "\n\n";
 
     if (sim_stats_report_level <= 1) {
-        std::cout << "\n";
         return;
     }
 
+    double average_run_speed = sim_to_real_time_ratio_sum / completed_run_count;
+
     double time_saved_sec     = 0.0;
-    double average_run_speed  = 0.0;
     double parallel_run_speed = 0.0;
     double parallel_speedup   = 0.0;
-
-    if (completed_run_count > 0) {
-        average_run_speed = total_ratio_sum / completed_run_count;
-    }
 
     if (num_threads == 1) {
         total_run_wall_clock_sec = parallel_wall_clock_sec;
     }
 
     if (parallel_wall_clock_sec > 0.0 && num_threads > 1) {
-        parallel_run_speed = total_sim_time_sec / parallel_wall_clock_sec;
+        parallel_run_speed = total_sim_time_sec       / parallel_wall_clock_sec;
         parallel_speedup   = total_run_wall_clock_sec / parallel_wall_clock_sec;
         time_saved_sec     = total_run_wall_clock_sec - parallel_wall_clock_sec;
     }
@@ -241,7 +242,6 @@ void SimManager<DataBusType>::display_run_summary(double parallel_wall_clock_sec
     std::cout << "  |- Time saved by parallelization:     "  << time_saved_sec << " sec (x" << parallel_speedup << " faster) on " << num_threads_used << " threads\n\n";
 
     if (sim_stats_report_level <= 2) {
-        std::cout << "\n";
         return;
     }
 

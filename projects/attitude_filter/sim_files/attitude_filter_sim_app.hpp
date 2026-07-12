@@ -42,7 +42,7 @@ public:
         af = AttitudeFilter(config_data);
     }
 
-    void step(DataBus& bus, SimControl& sim_ctrl) override {
+    void step(DataBus& bus, SimControl& sim_ctrl) override {        
         af.inputs.q_j2000_to_star_tracker_meas = bus.star_tracker_outputs.q_j2000_to_star_tracker_meas;
         af.inputs.star_tracker_meas_valid      = bus.star_tracker_outputs.measurement_valid;
         af.inputs.star_tracker_meas_time       = bus.star_tracker_outputs.measurement_time;

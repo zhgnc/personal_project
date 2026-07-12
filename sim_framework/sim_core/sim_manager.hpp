@@ -77,7 +77,7 @@ private:
 
     double total_sim_time_sec;
     double total_run_wall_clock_sec;
-    double total_ratio_sum;
+    double sim_to_real_time_ratio_sum;
 
     double fastest_run_wall_clock_sec;
     double slowest_run_wall_clock_sec;
