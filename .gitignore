@@ -4,16 +4,14 @@
 /build/*
 !/build/.gitkeep
 
-##################################
-# Ignore all results directories #
-##################################
-**/results/
-
-######################################################
-# Ignore generated figures except .gitkeep in folder #
-######################################################
-projects/attitude_filter/post_processing/figures/*
-!projects/attitude_filter/post_processing/figures/.gitkeep
+#############################################################
+# Ignore results/figures contents but keep the directories  #
+# themselves in the repo via their .gitkeep files           #
+#############################################################
+**/results/*
+!**/results/.gitkeep
+**/figures/*
+!**/figures/.gitkeep
 
 ###############
 # CMake Files #
