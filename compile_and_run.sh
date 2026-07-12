@@ -38,7 +38,7 @@ fi
 
 # Run the executable and check its exit status
 echo && echo
-EXECUTABLE="$BUILD_DIR/MyCode"
+EXECUTABLE="$BUILD_DIR/MyCode.exe"
 
 if [ ! -f "$EXECUTABLE" ]; then
   error "Executable Not Found. Cannot Run ❌"

@@ -9,6 +9,12 @@
 ##################################
 **/results/
 
+######################################################
+# Ignore generated figures except .gitkeep in folder #
+######################################################
+projects/attitude_filter/post_processing/figures/*
+!projects/attitude_filter/post_processing/figures/.gitkeep
+
 ###############
 # CMake Files #
 ###############

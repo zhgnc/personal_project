@@ -8,7 +8,9 @@ import os
 rad2deg  = 180.0 / math.pi
 deg2asec = 3600.0 
 
-hdf5_folder = "C:/git/personal_project/projects/attitude_filter/results/"
+hdf5_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+figures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
+os.makedirs(figures_dir, exist_ok=True)
 hdf5_files  = sorted(glob.glob(os.path.join(hdf5_folder, "*.hdf5")))
 
 num_mc_runs = len(hdf5_files)
@@ -39,7 +41,7 @@ for i in range(4):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Star Tracker Measured Quaternion vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("star_tracker_meas_quats")
+plt.savefig(figures_dir + "/star_tracker_meas_quats")
 
 
 # Plot measurement error
@@ -62,7 +64,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Star Tracker Measurement Error Per Axis vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("star_tracker_meas_error")
+plt.savefig(figures_dir + "/star_tracker_meas_error")
 
 
 # Plot star tracker valid flags
@@ -83,4 +85,4 @@ axs.grid(True)
 axs.set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Star Tracker Measurement Valid Flag vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("star_tracker_meas_flag")
+plt.savefig(figures_dir + "/star_tracker_meas_flag")
