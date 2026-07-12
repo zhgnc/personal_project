@@ -38,7 +38,7 @@ SimSingleRun<DataBusType>::SimSingleRun(SimSingleRunConfig<DataBusType>&& config
 }         
 
 template<typename DataBusType>
-void SimSingleRun<DataBusType>::run() {
+SimRunStats SimSingleRun<DataBusType>::run() {
     setup();
 
     while (current_sim_time_usec <= stop_time_usec && stop_type == StopType::NoStop) {
@@ -46,6 +46,23 @@ void SimSingleRun<DataBusType>::run() {
     }
 
     teardown();
+
+    return create_run_stats();
+}
+
+template<typename DataBusType>
+SimRunStats SimSingleRun<DataBusType>::create_run_stats() {
+    SimRunStats run_stats;
+
+    run_stats.run_number             = run_number;
+    run_stats.sim_time_sec           = actual_stop_time_sec - start_time_sec;
+    run_stats.wall_clock_sec         = computer_elapsed_seconds.count();
+    run_stats.sim_to_real_time_ratio = sim_to_real_time_ratio;
+    run_stats.stop_type              = stop_type;
+    run_stats.stop_reason            = stop_reason;
+    run_stats.stop_message           = stop_message;
+
+    return run_stats;
 }
 
 

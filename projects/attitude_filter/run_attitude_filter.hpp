@@ -31,7 +31,6 @@ int run_attitude_filter() {
   YAML::Node app_priority_and_rate_data = load_yaml_file(priority_and_rate_config_path);
 
   DataBus data_bus;
-  // Simulation sim(sim_and_logger_config_path, data_bus);
   SimManager sim(sim_and_logger_config_path, data_bus);
 
   std::string dynamics_app_name = "Fake Dynamics App";

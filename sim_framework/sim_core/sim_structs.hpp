@@ -66,6 +66,16 @@ struct LoggingAppPrototype {
     }
 };
 
+struct SimRunStats {
+    std::size_t run_number;
+    double sim_time_sec;            
+    double wall_clock_sec;          
+    double sim_to_real_time_ratio;
+    StopType stop_type;             
+    StopReason stop_reason;
+    std::string stop_message;
+};
+
 template<typename DataBusType>
 struct SimSingleRunConfig {
     DataBusType data_bus;

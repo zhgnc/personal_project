@@ -21,12 +21,13 @@ public:
     // contains move-only objects like std::unique_ptr's
     SimSingleRun(SimSingleRunConfig<DataBusType>&& config_data);
 
-    void run();
+    SimRunStats run();
 
 private:
-    void setup(); 
+    void setup();
     void step();
     void teardown();
+    SimRunStats create_run_stats();
 
     void sim_teardown();
     SimControl make_ctrl(); // TODO: Refactor SimControl

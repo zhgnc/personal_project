@@ -10,6 +10,7 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <limits>
 
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
@@ -34,6 +35,8 @@ private:
     void thread_job();
     void get_run_number();
     void display_sorted_app_info();
+    void record_run_stats(const SimRunStats& run_stats);
+    void display_run_summary(double parallel_wall_clock_sec);
     SimSingleRunConfig<DataBusType> build_single_run_config(std::size_t run_number);
     
     // ---------------- App and logger prototype storage ----------------
@@ -57,8 +60,32 @@ private:
     std::string output_directory;
     AppLoggingRates logging_rates;
 
-    bool print_hdf5_file_tree; 
+    bool print_hdf5_file_tree;
     bool print_file_attributes;
+
+    // Controls how much detail display_run_summary() prints after the batch:
+    // 1 = completion message only, 2 = adds performance stats, >=3 = adds run
+    // outcome breakdown, fastest/slowest runs, and output details
+    uint8_t sim_stats_report_level;
+
+    // ---------------- Batch summary statistics ----------------
+    // Written by worker threads under `mutex` in record_run_stats(),
+    // read without locking only after every worker has been joined
+    std::size_t completed_run_count;
+    std::size_t reached_stop_time_count;
+    std::size_t num_threads_used;
+
+    double total_sim_time_sec;
+    double total_run_wall_clock_sec;
+    double total_ratio_sum;
+
+    double fastest_run_wall_clock_sec;
+    double slowest_run_wall_clock_sec;
+    std::size_t fastest_run_number;
+    std::size_t slowest_run_number;
+
+    std::array<std::string, SimConfig::max_app_number> early_stop_reports;
+    std::size_t early_stop_report_count;
 
     DataBusType& data_bus;
 };
