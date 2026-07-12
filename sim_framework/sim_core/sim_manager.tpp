@@ -13,8 +13,6 @@ SimManager<DataBusType>::SimManager(const std::string& path_to_sim_config, DataB
     
     print_hdf5_file_tree   = get_yaml_value<bool>(config, "print_hdf5_file_format");
     print_file_attributes  = get_yaml_value<bool>(config, "print_hdf5_attributes_in_file_format");
-    // Read as int then narrow: yaml-cpp decodes uint8_t as a character, so reading
-    // uint8_t directly would turn a config value of 3 into ASCII '3' (51)
     sim_stats_report_level = static_cast<uint8_t>(get_yaml_value<int>(config, "sim_stats_report_level"));
 
     base_file_name       = get_yaml_value<std::string>(config, "base_file_name");
@@ -214,7 +212,7 @@ void SimManager<DataBusType>::display_run_summary(double parallel_wall_clock_sec
         return;
     }
 
-    double time_saved_sec     = total_run_wall_clock_sec - parallel_wall_clock_sec;
+    double time_saved_sec     = 0.0;
     double average_run_speed  = 0.0;
     double parallel_run_speed = 0.0;
     double parallel_speedup   = 0.0;
@@ -223,9 +221,14 @@ void SimManager<DataBusType>::display_run_summary(double parallel_wall_clock_sec
         average_run_speed = total_ratio_sum / completed_run_count;
     }
 
-    if (parallel_wall_clock_sec > 0.0) {
+    if (num_threads == 1) {
+        total_run_wall_clock_sec = parallel_wall_clock_sec;
+    }
+
+    if (parallel_wall_clock_sec > 0.0 && num_threads > 1) {
         parallel_run_speed = total_sim_time_sec / parallel_wall_clock_sec;
-        parallel_speedup         = total_run_wall_clock_sec / parallel_wall_clock_sec;
+        parallel_speedup   = total_run_wall_clock_sec / parallel_wall_clock_sec;
+        time_saved_sec     = total_run_wall_clock_sec - parallel_wall_clock_sec;
     }
 
     std::cout << "[SimManager] Summary Info\n";
