@@ -1,7 +1,8 @@
 x_axis_noise_deg_1_sigma: 0.000278 # 0.000278 deg = 1.0 arcsec
 y_axis_noise_deg_1_sigma: 0.000278 # 0.000278 deg = 1.0 arcsec
 z_axis_noise_deg_1_sigma: 0.000833 # 0.000833 deg = 1.0 arcsec
-max_rate_dps: 100.0
+max_rate_dps: 3.0
 q_body_to_star_tracker: [0.5, 0.5, 0.5, 0.5]
-outage_start_sec: 900.0
-outage_stop_sec: 1201.0
+manual_outage_start_sec: 900.0
+manual_outage_stop_sec: 1201.0
+outages_enabled: false

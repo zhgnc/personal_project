@@ -1,32 +1,20 @@
 #include "star_tracker_model.hpp"
 
-StarTrackerModel::StarTrackerModel(const std::string &config_file, uint64_t seed) {
-  YAML::Node config_data = load_yaml_file(config_file);
-  
-  x_axis_noise_rad_1_sigma = get_yaml_value<double>(config_data, "x_axis_noise_deg_1_sigma") * deg2rad;
-  y_axis_noise_rad_1_sigma = get_yaml_value<double>(config_data, "y_axis_noise_deg_1_sigma") * deg2rad;
-  z_axis_noise_rad_1_sigma = get_yaml_value<double>(config_data, "z_axis_noise_deg_1_sigma") * deg2rad;
-  max_rate_rps             = get_yaml_value<double>(config_data, "max_rate_dps")             * deg2rad;
+StarTrackerModel::StarTrackerModel(const star_tracker_config& config_data) {
+  config = config_data;
 
-  q_body_to_star_tracker   = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_star_tracker");
-  manual_outage_start_sec  = get_yaml_value<double>(config_data, "outage_start_sec");
-  manual_outage_stop_sec   = get_yaml_value<double>(config_data, "outage_stop_sec");
-  random_seed              = seed;
+  config.q_body_to_star_tracker = config.q_body_to_star_tracker.normalize();
 
-  q_body_to_star_tracker = q_body_to_star_tracker.normalize();
-
-  initialize();
-};
-
-void StarTrackerModel::initialize() {
   const double mean = 0.0;
   const double std  = 1.0;
 
-  rng.seed(random_seed);
+  rng.seed(config.random_seed);
   normal_distribution = std::normal_distribution<>(mean, std);
 
   star_tracker_meas_valid    = false;
-  per_axis_noise_rad_1_sigma = {x_axis_noise_rad_1_sigma, y_axis_noise_rad_1_sigma, z_axis_noise_rad_1_sigma};
+  per_axis_noise_rad_1_sigma = {config.x_axis_noise_rad_1_sigma, 
+                                config.y_axis_noise_rad_1_sigma, 
+                                config.z_axis_noise_rad_1_sigma};
 };
 
 void StarTrackerModel::run() {
@@ -42,12 +30,12 @@ void StarTrackerModel::copy_inputs_to_class() {
 };
 
 void StarTrackerModel::execute() {
-  bool max_rate_exceeded    = true_body_rates_rps.mag() > max_rate_rps;
-  bool manual_outage_active = time_now_sec > manual_outage_start_sec && time_now_sec < manual_outage_stop_sec;
+  bool max_rate_exceeded    = true_body_rates_rps.mag() > config.max_rate_rps;
+  bool manual_outage_active = time_now_sec > config.manual_outage_start_sec && time_now_sec < config.manual_outage_stop_sec;
   
-  if (max_rate_exceeded || manual_outage_active) {
-    q_j2000_to_star_tracker_meas.setIdentity();
-    noise.setZeros();
+  if (config.outages_enabled && (max_rate_exceeded || manual_outage_active)) {
+    q_j2000_to_star_tracker_meas.set_identity();
+    noise.set_zeros();
     star_tracker_meas_valid = false;
     return;
   }
@@ -57,7 +45,7 @@ void StarTrackerModel::execute() {
   }
 
   q_noise                      = to_quat(noise);
-  q_j2000_to_star_tracker_meas = (q_noise * q_body_to_star_tracker * true_q_j2000_to_body).normalize();
+  q_j2000_to_star_tracker_meas = (q_noise * config.q_body_to_star_tracker * true_q_j2000_to_body).normalize();
   star_tracker_meas_valid      = true;
 };
 
@@ -66,5 +54,5 @@ void StarTrackerModel::set_outputs() {
   outputs.q_j2000_to_star_tracker_meas   = q_j2000_to_star_tracker_meas;
   outputs.measurement_error_rad          = noise;
   outputs.measurement_time               = time_now_sec;
-  outputs.seed                           = random_seed;
+  outputs.seed                           = config.random_seed;
 };

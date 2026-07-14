@@ -47,7 +47,7 @@ TEST(quatTest, QuatUtilities) {
     EXPECT_DOUBLE_EQ(q(1), 4.0);
     EXPECT_DOUBLE_EQ(q(2), 5.0);
     
-    q.setIdentity();
+    q.set_identity();
     EXPECT_DOUBLE_EQ(q(0), 0);
     EXPECT_DOUBLE_EQ(q(1), 0);
     EXPECT_DOUBLE_EQ(q(2), 0);

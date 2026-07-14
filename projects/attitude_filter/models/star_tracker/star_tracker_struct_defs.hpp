@@ -17,4 +17,16 @@ struct star_tracker_outputs {
     uint64_t seed;
 };
 
+struct star_tracker_config {
+    double x_axis_noise_rad_1_sigma;
+    double y_axis_noise_rad_1_sigma;
+    double z_axis_noise_rad_1_sigma;
+    double max_rate_rps;
+    quat<double> q_body_to_star_tracker;
+    double manual_outage_start_sec;
+    double manual_outage_stop_sec;
+    bool outages_enabled;
+    uint64_t random_seed;
+};
+
 #endif

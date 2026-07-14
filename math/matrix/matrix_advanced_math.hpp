@@ -3,9 +3,9 @@
 
 #include "matrix.hpp"
 
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::elementWiseMultiply(const matrix<T, rows, columns>& right_hand_side) const {
-    matrix<T, rows, columns> new_matrix{}; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::element_wise_multiply(const matrix<type, rows, columns>& right_hand_side) const {
+    matrix<type, rows, columns> new_matrix{}; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -16,9 +16,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::elementWiseMultiply(const mat
     return new_matrix;
 }
 
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::elementWiseDivision(const matrix<T, rows, columns>& right_hand_side) const {
-    matrix<T, rows, columns> new_matrix{}; 
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::element_wise_division(const matrix<type, rows, columns>& right_hand_side) const {
+    matrix<type, rows, columns> new_matrix{}; 
 
     for (std::size_t new_row = 0; new_row < rows; new_row++) {
         for (std::size_t new_column = 0; new_column < columns; new_column++) {
@@ -31,9 +31,9 @@ matrix<T, rows, columns> matrix<T, rows, columns>::elementWiseDivision(const mat
 
 // Generic transpose must return another matrix if the transposed matrix is 
 // not square because the outputted matrix would be of a different type (i.e. size) 
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, columns, rows> matrix<T, rows, columns>::transpose() const {
-    matrix<T, columns, rows> output;
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, columns, rows> matrix<type, rows, columns>::T() const {
+    matrix<type, columns, rows> output;
 
     for (std::size_t row = 0; row < rows; row++) {
         for (std::size_t column = 0; column < columns; column++) {
@@ -46,8 +46,8 @@ matrix<T, columns, rows> matrix<T, rows, columns>::transpose() const {
 
 // In-place transpose can simply swap the current rows and columns and the output is 
 // the same type (i.e size)
-template <typename T, std::size_t rows, std::size_t columns>
-void matrix<T, rows, columns>::inPlaceTranspose() {
+template <typename type, std::size_t rows, std::size_t columns>
+void matrix<type, rows, columns>::in_place_transpose() {
     static_assert(rows == columns, "In-place transpose only valid for square matrices.");
 
     for (std::size_t i = 0; i < rows; ++i) {
@@ -57,37 +57,39 @@ void matrix<T, rows, columns>::inPlaceTranspose() {
     }
 }
 
-template <typename T, std::size_t rows, std::size_t columns>
-T matrix<T, rows, columns>::det() const {
+// Computes determinant using Gaussian elimination with scaled partial pivoting.
+// Transforms matrix to upper-triangular form while tracking row swaps for sign.
+// Uses log-domain accumulation of diagonal entries for numerical stability.
+template <typename type, std::size_t rows, std::size_t columns>
+type matrix<type, rows, columns>::det() const {
     static_assert(rows == columns, "Determinant only valid for square matrices.");
-    static_assert(std::is_floating_point<T>::value, "Gaussian elimination in determinant function requires double/float matrix type");
+    static_assert(std::is_floating_point<type>::value, "Gaussian elimination in determinant function requires double/float matrix type");
 
-    matrix<T, rows, columns> matrix_copy(*this);
+    matrix<type, rows, columns> matrix_copy(*this);
 
     long double log_of_determinant = 0.0;
     int determinant_sign           = 1; 
-    T determinant                  = static_cast<T>(0);
-    std::array<T, rows> row_scale;
+    std::array<type, rows> row_scale;
 
-    // Step 1: Compute row scale factors to increase numerical precision
+    // Step 1: Compute row scale factors for scaled partial pivoting (increases numerical precision)
     for (std::size_t row = 0; row < rows; row++) {
-        T row_max = static_cast<T>(0);
+        type row_max = static_cast<type>(0);
 
         for (std::size_t column = 0; column < columns; column++) {
             row_max = std::max(row_max, std::abs(matrix_copy(row, column)));
         }
         
-        row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::epsilon());
+        row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<type>::epsilon());
     }
     
     
     for (std::size_t pivot_index = 0; pivot_index < rows - 1; pivot_index++) {                       
         // Step 2: Find best pivot row using scaled partial pivoting
         std::size_t best_row = pivot_index; 
-        T largest_ratio      = std::abs(matrix_copy(pivot_index, pivot_index)) / row_scale[pivot_index];
+        type largest_ratio      = std::abs(matrix_copy(pivot_index, pivot_index)) / row_scale[pivot_index];
         
         for (std::size_t current_row = pivot_index + 1; current_row < rows; current_row++) {
-            T current_ratio = std::abs(matrix_copy(current_row, pivot_index)) / row_scale[current_row];
+            type current_ratio = std::abs(matrix_copy(current_row, pivot_index)) / row_scale[current_row];
 
             if (current_ratio > largest_ratio) {
                 largest_ratio = current_ratio; 
@@ -106,14 +108,14 @@ T matrix<T, rows, columns>::det() const {
 
         // Step 4: Determinant is zero if pivot and remaining elements in the pivot column are 0.
         // Treat the pivot as zero if it is smaller than machine epsilon relative to its row scale
-        T pivot_value = matrix_copy(pivot_index, pivot_index);
-        if (std::abs(pivot_value) < row_scale[pivot_index] * std::numeric_limits<T>::epsilon()) {
-            return determinant = static_cast<T>(0); 
+        type pivot_value = matrix_copy(pivot_index, pivot_index);
+        if (std::abs(pivot_value) < row_scale[pivot_index] * std::numeric_limits<type>::epsilon()) {
+            return static_cast<type>(0); 
         }
 
         // Step 5: Eliminate matrix cells below pivot
         for (std::size_t row = pivot_index + 1; row < rows; row++) {
-            T factor = matrix_copy(row, pivot_index) / pivot_value;
+            type factor = matrix_copy(row, pivot_index) / pivot_value;
             for (std::size_t column = pivot_index; column < columns; column++) {
                 matrix_copy(row, column) -= factor * matrix_copy(pivot_index, column);
             }
@@ -129,44 +131,135 @@ T matrix<T, rows, columns>::det() const {
         log_of_determinant += std::log(std::abs(matrix_copy(i,i)));
     }
     
-    return determinant = determinant_sign * std::exp(log_of_determinant);
+    return determinant_sign * std::exp(log_of_determinant);
 } 
 
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::inv() const {
-    static_assert(rows == columns, "Determinant only valid for square matrices.");
-    static_assert(std::is_floating_point<T>::value, "Gaussian elimination in determinant function requires double/float matrix type");
 
-    matrix<T, rows, columns> P;
-    matrix<T, rows, columns> L;
-    matrix<T, rows, columns> U(*this);
-    matrix<T, rows, columns> inverse_matrix;
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::inv_2x2() const {
+    static_assert(rows == 2 && columns == 2, "inv_2x2() called by .inv() requires 2x2 matrix");
 
-    P.setIdentity();
-    L.setIdentity();
-    inverse_matrix.setZeros();
+    const type a = data[0][0];
+    const type b = data[0][1];
+    const type c = data[1][0];
+    const type d = data[1][1];
+
+    const type det = a*d - b*c;
+
+    // Row-scaled singularity check matching the NxN inv() path: comparing |det| against
+    // epsilon times the product of each row's largest element is scale-invariant, so rows
+    // living at wildly different magnitudes (e.g. diag(1e-12, 1e12)) don't false-trigger.
+    // Rows are clamped at epsilon so an all-zero row still counts as singular.
+    const type row_0_scale = std::max({std::abs(a), std::abs(b), std::numeric_limits<type>::epsilon()});
+    const type row_1_scale = std::max({std::abs(c), std::abs(d), std::numeric_limits<type>::epsilon()});
+
+    if (std::abs(det) < std::numeric_limits<type>::epsilon() * row_0_scale * row_1_scale) {
+        throw std::runtime_error("Matrix is singular to working precision in inv_2x2()");
+    }
+
+    matrix<type, 2,2> result;
+
+    result(0,0) =  d / det;
+    result(0,1) = -b / det;
+    result(1,0) = -c / det;
+    result(1,1) =  a / det;
+
+    return result;
+}
+
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::inv_3x3() const {
+    static_assert(rows == 3 && columns == 3, "inv_3x3() called by .inv() requires 3x3 matrix");
+
+    const type& a = data[0][0];
+    const type& b = data[0][1];
+    const type& c = data[0][2];
+
+    const type& d = data[1][0];
+    const type& e = data[1][1];
+    const type& f = data[1][2];
+
+    const type& g = data[2][0];
+    const type& h = data[2][1];
+    const type& i = data[2][2];
+
+    const type det = a * (e * i - f * h)
+                   - b * (d * i - f * g)
+                   + c * (d * h - e * g);
+
+    // See comment in inv_2x2() for justification
+    const type row_0_scale = std::max({std::abs(a), std::abs(b), std::abs(c), std::numeric_limits<type>::epsilon()});
+    const type row_1_scale = std::max({std::abs(d), std::abs(e), std::abs(f), std::numeric_limits<type>::epsilon()});
+    const type row_2_scale = std::max({std::abs(g), std::abs(h), std::abs(i), std::numeric_limits<type>::epsilon()});
+
+    if (std::abs(det) < std::numeric_limits<type>::epsilon() * row_0_scale * row_1_scale * row_2_scale) {
+        throw std::runtime_error("Matrix is singular to working precision in inv_3x3()");
+    }
+
+    matrix<type, 3, 3> result;
+
+    result.data[0][0] =  (e * i - f * h) / det;
+    result.data[0][1] = -(b * i - c * h) / det;
+    result.data[0][2] =  (b * f - c * e) / det;
+
+    result.data[1][0] = -(d * i - f * g) / det;
+    result.data[1][1] =  (a * i - c * g) / det;
+    result.data[1][2] = -(a * f - c * d) / det;
+
+    result.data[2][0] =  (d * h - e * g) / det;
+    result.data[2][1] = -(a * h - b * g) / det;
+    result.data[2][2] =  (a * e - b * d) / det;
+
+    return result;
+}
+
+// Computes matrix inverse using LU decomposition with scaled partial pivoting.
+// Factorizes A into P*A = L*U, then solves LUX = P*I column-by-column. Uses 
+// forward and backward substitution to build inverse matrix. Need to use 
+// hardcoded inverse equations for 2x2 and 3x3 sized matrixes because it is faster. 
+// May also want to use Cholesky decomposition for symmetric positive definite 
+// matrixes for ~2x speed improvement
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::inv() const {
+    static_assert(rows == columns, "Determinant only valid for square matrixes.");
+    static_assert(std::is_floating_point<type>::value, "Gaussian elimination in determinant function requires double/float matrix type");
+
+    if constexpr (rows == 2) {
+        return inv_2x2();
+    } else if constexpr (rows == 3) {
+        return inv_3x3();
+    }
+    
+    matrix<type, rows, columns> P;
+    matrix<type, rows, columns> L;
+    matrix<type, rows, columns> U(*this);
+    matrix<type, rows, columns> inverse_matrix;
+
+    P.set_identity();
+    L.set_identity();
+    inverse_matrix.set_zeros();
 
 
-    std::array<T, rows> row_scale; 
+    std::array<type, rows> row_scale; 
 
     // See det() for comments on gaussian elimination steps
     for (std::size_t row = 0; row < rows; row++) {
-        T row_max = static_cast<T>(0);
+        type row_max = static_cast<type>(0);
 
         for (std::size_t column = 0; column < columns; column++) {
             row_max = std::max(row_max, std::abs(U(row, column)));
         }
         
-        row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<T>::epsilon());
+        row_scale[row] = std::max(std::abs(row_max), std::numeric_limits<type>::epsilon());
     }
 
     
     for (std::size_t pivot_index = 0; pivot_index < rows - 1; pivot_index++) {                       
         std::size_t best_row = pivot_index; 
-        T largest_ratio      = std::abs(U(pivot_index, pivot_index)) / row_scale[pivot_index];
+        type largest_ratio      = std::abs(U(pivot_index, pivot_index)) / row_scale[pivot_index];
         
         for (std::size_t current_row = pivot_index + 1; current_row < rows; current_row++) {
-            T current_ratio = std::abs(U(current_row, pivot_index)) / row_scale[current_row];
+            type current_ratio = std::abs(U(current_row, pivot_index)) / row_scale[current_row];
 
             if (current_ratio > largest_ratio) {
                 largest_ratio = current_ratio; 
@@ -189,14 +282,14 @@ matrix<T, rows, columns> matrix<T, rows, columns>::inv() const {
         }
         
         
-        T pivot_value = U(pivot_index, pivot_index);
+        type pivot_value = U(pivot_index, pivot_index);
 
-        if (std::abs(pivot_value) < std::numeric_limits<T>::epsilon() * row_scale[pivot_index]) {
+        if (std::abs(pivot_value) < std::numeric_limits<type>::epsilon() * row_scale[pivot_index]) {
             throw std::runtime_error("Matrix is singular to working precision");
         }
 
         for (std::size_t row = pivot_index + 1; row < rows; row++) {
-            T factor = U(row, pivot_index) / pivot_value;
+            type factor = U(row, pivot_index) / pivot_value;
             for (std::size_t column = pivot_index; column < columns; column++) {
                 U(row, column) -= factor * U(pivot_index, column);
             }
@@ -209,7 +302,7 @@ matrix<T, rows, columns> matrix<T, rows, columns>::inv() const {
     for (std::size_t column = 0; column < columns; column++) {            
         
         // Forward substitution solve Ly = b where b = columns of P
-        matrix<T, rows, 1> y;
+        matrix<type, rows, 1> y;
 
         for (std::size_t row = 0; row < rows; row++) {
             y(row, 0) = P(row,column);
@@ -220,7 +313,7 @@ matrix<T, rows, columns> matrix<T, rows, columns>::inv() const {
         }
 
         // Backwards substitution solve Ux = y
-        matrix<T, rows, 1> x;
+        matrix<type, rows, 1> x;
 
         for (int row = static_cast<int>(rows) - 1; row >= 0; row--) {
             x(row, 0) = y(row, 0);
@@ -243,13 +336,13 @@ matrix<T, rows, columns> matrix<T, rows, columns>::inv() const {
 
 
 // Matrix to a power uses exponentiation by squaring algorithm to improve efficiency
-template <typename T, std::size_t rows, std::size_t columns>
-matrix<T, rows, columns> matrix<T, rows, columns>::pow(int exponent) const {
+template <typename type, std::size_t rows, std::size_t columns>
+matrix<type, rows, columns> matrix<type, rows, columns>::pow(int exponent) const {
     static_assert(rows == columns, "Matrix power only defined for square matrices.");
 
-    matrix<T, rows, columns> new_matrix;
-    matrix<T, rows, columns> matrix_copy(*this);
-    new_matrix.setIdentity();
+    matrix<type, rows, columns> new_matrix;
+    matrix<type, rows, columns> matrix_copy(*this);
+    new_matrix.set_identity();
 
     if (exponent == 0) {
         return new_matrix;

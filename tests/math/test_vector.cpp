@@ -55,7 +55,7 @@ TEST(vectorTest, InhertianceTestFromMatrix) {
     EXPECT_NEAR(v5(1), 0.4, 1e-6);
     EXPECT_NEAR(v5(2), 0.6, 1e-6);
 
-    matrix<int, 1,3> m1 = v1.transpose();
+    matrix<int, 1,3> m1 = v1.T();
     EXPECT_EQ(m1(0,0), 1);
     EXPECT_EQ(m1(0,1), 2);
     EXPECT_EQ(m1(0,2), 3);

@@ -14,12 +14,12 @@ Here is a table of the current functionality unique to the rotation vector libra
 | Function Name       | Parameters                                  | Return Type | Description                                         | Example Usage                                      |
 |:--------------------|:--------------------------------------------|:------------|:----------------------------------------------------|:---------------------------------------------------|
 | rot_vec()           | None                                        | rot_vec     | Construct a rotation vector of all zeros            | rot_vec<double> r;                                 |
-| rot_vec()           | const matrix<T,3,1>& mat                    | rot_vec     | Construct a rotation vector from a 3×1 matrix       | rot_vec<double> r = matrix_3_by_1;                 |
-| rot_vec()           | std::initializer_list<T> initial_rot_vec    | rot_vec     | Construct a rotation vector from an initalizer list | rot_vec<double> r = {0.3, 0.2, 0.1};               |
-| rot_vec()           | const vector<T,3>& axis, T angle            | rot_vec     | Construct from an axis-angle representation         | rot_vec<double> r = {axis, angle};                 |
-| operator()          | std::size_t row_index                       | T&          | Access element at row for modification              | r(0) = 0.5;                                        |
-| operator() const    | std::size_t row_index                       | const T&    | Access element at row for reading                   | double val = r(2);                                 |
-| angle()             | None                                        | T           | Returns the angle of rotation in radians            | double angle = r.angle();                          |
-| axis()              | None                                        | vector<T,3> | Returns the normalized axis of rotation             | vector<double,3> a = r.axis();                     |
+| rot_vec()           | const matrix<type,3,1>& mat                    | rot_vec     | Construct a rotation vector from a 3×1 matrix       | rot_vec<double> r = matrix_3_by_1;                 |
+| rot_vec()           | std::initializer_list<type> initial_rot_vec    | rot_vec     | Construct a rotation vector from an initalizer list | rot_vec<double> r = {0.3, 0.2, 0.1};               |
+| rot_vec()           | const vector<type,3>& axis, type angle            | rot_vec     | Construct from an axis-angle representation         | rot_vec<double> r = {axis, angle};                 |
+| operator()          | std::size_t row_index                       | type&          | Access element at row for modification              | r(0) = 0.5;                                        |
+| operator() const    | std::size_t row_index                       | const type&    | Access element at row for reading                   | double val = r(2);                                 |
+| angle()             | None                                        | type           | Returns the angle of rotation in radians            | double angle = r.angle();                          |
+| axis()              | None                                        | vector<type,3> | Returns the normalized axis of rotation             | vector<double,3> a = r.axis();                     |
 | explicit operator   | template<typename U> operator rot_vec<U>()  | rot_vec<U>  | Converts rotation vector to a new type              | r = static_cast<rot_vec<float>>(rot_vec_int);      |
 

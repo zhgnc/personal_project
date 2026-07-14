@@ -3,6 +3,7 @@
 
 #include "../../sim_framework/data_logging/dataset_overrides.hpp"
 #include "../../sim_framework/data_logging/dataset_base.hpp"
+#include "../../sim_framework/data_logging/hdf5_mutex.hpp"
 #include "../../sim_framework/data_logging/hdf5_to_cpp_type_mapping.hpp"
 #include "../../sim_framework/data_logging/logger_config.hpp"
 #include "../../math//math.hpp"
@@ -14,6 +15,7 @@
 #include <array>
 #include <memory>
 #include <filesystem>
+#include <mutex>
 
 class Logger {
 public:

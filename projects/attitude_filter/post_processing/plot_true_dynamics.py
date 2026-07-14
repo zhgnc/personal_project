@@ -7,7 +7,9 @@ import os
 
 rad2deg = 180.0 / math.pi
 
-hdf5_folder = "C:/git/personal_project/projects/attitude_filter/results/"
+hdf5_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+figures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
+os.makedirs(figures_dir, exist_ok=True)
 hdf5_files  = sorted(glob.glob(os.path.join(hdf5_folder, "*.hdf5")))
 
 num_mc_runs = len(hdf5_files)
@@ -43,7 +45,7 @@ axs[2].grid(True)
 axs[2].set_xlabel("Sim Time (sec)", fontsize=16)
 fig.suptitle(f"True Body Rates vs Simulation Time", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("True Body Rates")
+plt.savefig(figures_dir + "/True Body Rates")
 
 
 
@@ -65,7 +67,7 @@ axs[2].grid(True)
 axs[2].set_xlabel("Sim Time (sec)", fontsize=16)
 fig.suptitle(f"Rotation Vector Attitude vs Simulation Time", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("True Rotation Vector Attitude")
+plt.savefig(figures_dir + "/True Rotation Vector Attitude")
 
 
 
@@ -91,4 +93,4 @@ axs[3].grid(True)
 axs[3].set_xlabel("Sim Time (sec)", fontsize=16)
 fig.suptitle(f"True Quaternion vs Simulation Time", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("True Quatenion Attitude")
+plt.savefig(figures_dir + "/True Quatenion Attitude")

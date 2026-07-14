@@ -17,7 +17,7 @@ TEST(simTest2, TwoAppsWithStopTest) {
     const std::string &sim_and_logger_config_path = "../../tests/integrated_sim_and_logging/test_2/test_2_sim_and_logger_config.yaml";
 
     TestDataBus data_bus;
-    Simulation sim(sim_and_logger_config_path, data_bus);
+    SimManager sim(sim_and_logger_config_path, data_bus);
 
     double app_1_rate_hz    = 10.0; 
     int app_1_priority      = 1;
@@ -45,7 +45,7 @@ TEST(simTest2, TwoAppsWithStopTest) {
     EXPECT_EQ(test_app_2.dt_sec(), 1.0/app_2_rate_hz);
     EXPECT_EQ(test_app_2.priority(), app_2_priority);
 
-    std::string hdf5_file                 = get_absolute_path("tests/integrated_sim_and_logging/test_2/test_2_RUN_00001.hdf5");
+    std::string hdf5_file                      = get_absolute_path("tests/integrated_sim_and_logging/test_2/test_2_RUN_00001.hdf5");
     
     std::vector<int> app_2_counter             = read_hdf5_dataset<int>(hdf5_file,      "/app_2/counter");
     std::vector<double> app_2_sim_time_sec     = read_hdf5_dataset<double>(hdf5_file,   "/app_2/sim_time_sec");
@@ -82,6 +82,7 @@ TEST(simTest2, TwoAppsWithStopTest) {
     double sec_to_usec               = 1e6;
     uint64_t expected_time_usec      = static_cast<uint64_t>(sim_meta_data.start_time_sec * sec_to_usec);
     int sim_to_app2_ratio            = static_cast<int>(sim_meta_data.sim_rate_hz / app_2_rate_hz);
+    uint64_t expected_init_seed      = config_data.initial_random_seed + 1;
 
     for (std::size_t i = 0; i < app_2_counter.size(); i++) {
         std::size_t sim_step = i * sim_to_app2_ratio;
@@ -115,8 +116,8 @@ TEST(simTest2, TwoAppsWithStopTest) {
     EXPECT_TRUE(app2_sim_dt_matches_real_sim_dt);
 
     EXPECT_EQ(test_attr_write_in_logger, 12345);
-    EXPECT_EQ(init_seed, config_data.initial_random_seed);
-    EXPECT_EQ(ending_seed, 11);
+    EXPECT_EQ(init_seed, expected_init_seed);
+    EXPECT_EQ(ending_seed, 12);
     EXPECT_NEAR(init_sim_time, config_data.sim_start_time_sec, tol);
     EXPECT_NEAR(init_sim_dt, 1.0/config_data.simulation_rate_hz, tol);
     EXPECT_NEAR(init_sim_rate, config_data.simulation_rate_hz, tol);

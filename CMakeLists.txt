@@ -33,7 +33,6 @@ if(NOT ENABLE_TESTING)
     PRIVATE
         ${PROJECT_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/sim_framework
-        ${PROJECT_SOURCE_DIR}/examples
   )
 
   target_link_libraries(${PROJECT_NAME} 

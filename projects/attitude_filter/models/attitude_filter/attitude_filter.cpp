@@ -1,21 +1,7 @@
 #include "attitude_filter.hpp"
 
-AttitudeFilter::AttitudeFilter(std::string path_to_config) {
-    YAML::Node config_data = load_yaml_file(path_to_config);
-    
-    config.q_body_to_star_tracker = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_star_tracker");
-    config.q_body_to_gyro         = get_yaml_value<std::array<double, 4>>(config_data, "q_body_to_gyro");
-    config.attitude_pn            = get_yaml_value<double>(config_data, "attitude_process_noise");
-    config.gyro_bias_pn           = get_yaml_value<double>(config_data, "gyro_bias_process_noise");
-    config.gyro_misalign_pn       = get_yaml_value<double>(config_data, "gyro_misalignment_process_noise");
-    config.gyro_sf_pn             = get_yaml_value<double>(config_data, "gyro_scale_factor_process_noise");
-    config.attitude_covar         = get_yaml_value<double>(config_data, "attitude_covariance");
-    config.gyro_bias_covar        = get_yaml_value<double>(config_data, "gyro_bias_covariance");
-    config.gyro_misalign_covar    = get_yaml_value<double>(config_data, "gyro_misalignment_covariance");
-    config.gyro_sf_covar          = get_yaml_value<double>(config_data, "gyro_scale_factor_covariance");
-    config.st_x_meas_noise        = get_yaml_value<double>(config_data, "star_tracker_x_noise_1_sigma_deg") * deg2rad;
-    config.st_y_meas_noise        = get_yaml_value<double>(config_data, "star_tracker_y_noise_1_sigma_deg") * deg2rad;
-    config.st_z_meas_noise        = get_yaml_value<double>(config_data, "star_tracker_z_noise_1_sigma_deg") * deg2rad;
+AttitudeFilter::AttitudeFilter(const AttitudeFilterConfig& config_data) {
+    config = config_data;
 
     q_gyro_to_body = (config.q_body_to_gyro.normalize()).inv();
     q_st_to_body   = (config.q_body_to_star_tracker.normalize()).inv();
@@ -36,20 +22,20 @@ AttitudeFilter::AttitudeFilter(std::string path_to_config) {
                 std::pow(config.st_z_meas_noise, 2)});
 
     matrix<double, 3,3> dcm_st_to_body = to_rotation_matrix(q_st_to_body);
-    R = dcm_st_to_body * R * dcm_st_to_body.transpose(); 
+    R = dcm_st_to_body * R * dcm_st_to_body.T(); 
 
-    H.setZeros();
+    H.set_zeros();
     H.set_block<3,3>(0,0, identity_matrix<double, 3>());
 
-    H_T = H.transpose();
+    H_T = H.T();
 
-    q_j2000_to_body_est.setIdentity();
-    est_biases.setZeros();
-    est_sf.setZeros();
-    est_misalign.setZeros();
+    q_j2000_to_body_est.set_identity();
+    est_biases.set_zeros();
+    est_sf.set_zeros();
+    est_misalign.set_zeros();
 
-    I3.setIdentity();
-    I12.setIdentity();
+    I3.set_identity();
+    I12.set_identity();
 
     first_cycle = true;
 }
@@ -93,9 +79,7 @@ void AttitudeFilter::process_gyro_meas() {
     
     gyro_delta_thetas = q_gyro_to_body * gyro_delta_thetas;
 
-    S = {est_sf(0),      -est_misalign(2), est_misalign(1), 
-         est_misalign(2), est_sf(1),      -est_misalign(0), 
-        -est_misalign(1), est_misalign(0), est_sf(2)};
+    S = diag_matrix<double, 3>(est_sf) + skew_matrix<double, 3>({-est_misalign(2), est_misalign(1), -est_misalign(0)});
 
     bias_corrected_delta_thetas = gyro_delta_thetas - est_biases * dt; 
     corrected_delta_thetas      = (I3 + S).inv() * bias_corrected_delta_thetas; // (I3 - S) is approximation of (I3 + S).inv()
@@ -108,35 +92,25 @@ void AttitudeFilter::propagate_states() {
     rot_vec<double> theta_hat = corrected_delta_thetas;
     rot_vec<double> theta_bar = bias_corrected_delta_thetas;
     
-    stm.setIdentity();
+    stm.set_identity();
 
     // Set first block for attitude
-    // Should be: (I3 - skew(theta_hat))
-    stm(0,1) =  theta_hat(2);
-    stm(0,2) = -theta_hat(1);
-    stm(1,2) =  theta_hat(0);
-    stm(1,0) = -theta_hat(2);
-    stm(2,0) =  theta_hat(1);
-    stm(2,1) = -theta_hat(0);
+    matrix<double, 3,3> block_1 = identity_matrix<double, 3>() - skew_matrix<double, 3>({-theta_hat(2), theta_hat(1), -theta_hat(0)});
+    stm.set_block<3,3>(0,0, block_1);
 
     // Set second block for gyro biases 
-    matrix<double, 3,3> temp = -(I3 + S).inv() * dt; // (I3 - S) is approximation of (I3 + S).inv()
-    stm.set_block<3,3>(0,3, temp);
+    matrix<double, 3,3> block_2 = -(I3 + S).inv() * dt; // (I3 - S) is approximation of (I3 + S).inv()
+    stm.set_block<3,3>(0,3, block_2);
 
     // Set third block for gyro to star tracker misalignments
-    stm(0,7) = -theta_bar(2);
-    stm(0,8) =  theta_bar(1);
-    stm(1,8) = -theta_bar(0);
-    stm(1,6) =  theta_bar(2);
-    stm(2,6) = -theta_bar(1);
-    stm(2,7) =  theta_bar(0);
+    matrix<double, 3,3> block_3 = skew_matrix<double, 3>({-theta_bar(2), theta_bar(1), -theta_bar(0)});
+    stm.set_block<3,3>(0,6, block_3);
 
     // Set fourth block for gyro scale factors
-    stm(0,9)  = -theta_bar(0);
-    stm(1,10) = -theta_bar(1);
-    stm(2,11) = -theta_bar(2);
+    matrix<double, 3,3> block_4 = diag_matrix(-theta_bar);
+    stm.set_block<3,3>(0,9, block_4);
 
-    P = stm * P * stm.transpose() + Q * dt;
+    P = stm * P * stm.T() + Q * dt;
 }
 
 void AttitudeFilter::process_star_tracker_meas() {
@@ -151,7 +125,7 @@ void AttitudeFilter::compute_residual() {
 void AttitudeFilter::update_state() {
     matrix<double, 12,3> K = P * H_T * (H * P * H_T + R).inv();
     vector<double, 12> estimated_error = K * rot_vec_residual;
-    P = (I12 - K*H) * P * (I12 - K*H).transpose() + K*R*K.transpose();
+    P = (I12 - K*H) * P * (I12 - K*H).T() + K*R*K.T();
 
     // It would be great to be able to access a certain amount of the vector elements
     rot_vec<double> rot_vec_error = {estimated_error(0), estimated_error(1), estimated_error(2)};
@@ -176,6 +150,5 @@ void AttitudeFilter::populate_output_data() {
     outputs.q_j2000_to_body_est              = q_j2000_to_body_est; 
     outputs.rot_vec_residual                 = rot_vec_residual;
     outputs.time_now_sec                     = time_now_sec;
-    
-    outputs.covariance_diagonals = P.get_diag();
+    outputs.covariance_diagonals             = P.get_diag();
 }

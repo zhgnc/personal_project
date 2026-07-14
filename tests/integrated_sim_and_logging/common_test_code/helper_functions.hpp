@@ -38,10 +38,11 @@ struct SimuRunYamlConfig {
     double sim_stop_time_sec;
     double simulation_rate_hz;
     std::size_t number_of_monte_carlo_runs;
+    std::size_t number_of_threads;
     uint64_t initial_random_seed;
     bool print_hdf5_file_format;
     bool print_hdf5_attributes_in_file_format;
-    std::string logging_filename_prefix;
+    std::string base_file_name;
     std::string logging_file_save_directory;
     double logging_rate_A_hz;
     double logging_rate_B_hz;

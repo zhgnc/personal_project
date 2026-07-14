@@ -7,7 +7,9 @@ import os
 
 rad2deg = 180.0 / math.pi
 
-hdf5_folder = "C:/git/personal_project/projects/attitude_filter/results/"
+hdf5_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+figures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
+os.makedirs(figures_dir, exist_ok=True)
 hdf5_files  = sorted(glob.glob(os.path.join(hdf5_folder, "*.hdf5")))
 
 num_mc_runs = len(hdf5_files)
@@ -38,7 +40,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Measured Delta Angles vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("gyro_meas_delta_angles")
+plt.savefig(figures_dir + "/gyro_meas_delta_angles")
 
 
 # Plot gyro biases
@@ -61,7 +63,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Rate Biases vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("gyro_rate_biases")
+plt.savefig(figures_dir + "/gyro_rate_biases")
 
 
 # Plot gyro misalignments
@@ -84,7 +86,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Misalignments vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("gyro_misalignments")
+plt.savefig(figures_dir + "/gyro_misalignments")
 
 
 # Plot gyro scale factors
@@ -107,7 +109,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Scale Factors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("gyro_scale_factors")
+plt.savefig(figures_dir + "/gyro_scale_factors")
 
 
 # Plot total gyro errors
@@ -130,4 +132,4 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Delta Angle Total Error vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("gyro_total_error")
+plt.savefig(figures_dir + "/gyro_total_error")

@@ -9,7 +9,9 @@ import os
 
 rad2deg = 180.0 / math.pi
 
-hdf5_folder = "C:/git/personal_project/projects/attitude_filter/results/"
+hdf5_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+figures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
+os.makedirs(figures_dir, exist_ok=True)
 hdf5_files  = sorted(glob.glob(os.path.join(hdf5_folder, "*.hdf5")))
 
 num_mc_runs = len(hdf5_files)
@@ -55,7 +57,7 @@ for i in range(4):
 axs[3].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Estimated and True Attitude vs Simulation Time", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_est_and_true_attitude")
+plt.savefig(figures_dir + "/filter_est_and_true_attitude")
 
 
 
@@ -88,7 +90,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Estimated and True Biases vs Simulation Time", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_est_and_true_biases")
+plt.savefig(figures_dir + "/filter_est_and_true_biases")
 
 
 
@@ -122,7 +124,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Estimated and True Misalignments vs Simulation Time", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_est_and_true_misalignments")
+plt.savefig(figures_dir + "/filter_est_and_true_misalignments")
 
 
 
@@ -156,7 +158,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Estimated and True Scale Factors vs Simulation Time", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_est_and_true_scale_factors")
+plt.savefig(figures_dir + "/filter_est_and_true_scale_factors")
 
 
 
@@ -190,7 +192,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Rotation Vector Attitude Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_attitude_errors")
+plt.savefig(figures_dir + "/filter_attitude_errors")
 
 
 
@@ -219,12 +221,12 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-0.00005, 0.00005)
+    axs[i].set_ylim(-0.001, 0.001)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Bias Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_bias_errors")
+plt.savefig(figures_dir + "/filter_bias_errors")
 
 
 
@@ -251,13 +253,13 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-0.001, 0.001)
+    axs[i].set_ylim(-0.01, 0.01)
 
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro to Star Tracker Misalignment Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_misalignment_errors")
+plt.savefig(figures_dir + "/filter_misalignment_errors")
 
 
 
@@ -284,12 +286,12 @@ for i in range(3):
     axs[i].set_ylabel(axis_labels[i], fontsize=16)
     axs[i].legend(loc="upper right")
     axs[i].grid(True)
-    axs[i].set_ylim(-30, 30)
+    # axs[i].set_ylim(-100, 100)
 
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Gyro Scale Factor Estimate Errors vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_scale_factor_errors")
+plt.savefig(figures_dir + "/filter_scale_factor_errors")
 
 
 
@@ -316,4 +318,4 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Rotation Vector Residual vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("filter_residuals")
+plt.savefig(figures_dir + "/filter_residuals")

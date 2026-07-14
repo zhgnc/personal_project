@@ -18,6 +18,7 @@ public:
         YAML::Node config_data = load_yaml_file(path_to_config);
 
         q_attitude           = get_yaml_value<std::array<double,4>>(config_data, "initial_quaternion");
+        q_attitude           = q_attitude.normalize(); 
         rot_vec_attitude     = to_rot_vec(q_attitude);
 
         x_axis_period_s      = get_yaml_value<double>(config_data, "x_axis_period_s");
@@ -31,6 +32,10 @@ public:
         z_axis_period_s      = get_yaml_value<double>(config_data, "z_axis_period_s");
         z_axis_amplitude_rps = get_yaml_value<double>(config_data, "z_axis_amplitude_dps") * deg2rad;
         z_axis_shift_rad     = get_yaml_value<double>(config_data, "z_axis_shift_deg") * deg2rad;
+
+        if (x_axis_period_s <= 0.0 || y_axis_period_s <= 0.0 || z_axis_period_s <= 0.0) {
+            throw std::runtime_error("[fake_dynamics_sim_app.hpp] All axis periods must be > 0 (check fake_dynamics_config.yaml)");
+        }
     }
 
     void step(DataBus& bus, SimControl& sim_ctrl) override {

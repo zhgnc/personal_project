@@ -3,6 +3,8 @@
 
 #include <cstddef>
 #include <chrono>
+#include <ctime>
+#include <mutex>
 
 #include "../../sim_framework/data_logging/logger.hpp"
 #include "../../sim_framework/sim_core/sim_control.hpp"
@@ -39,6 +41,12 @@ public:
 
 private:
     Logger& logger;
+
+    // std::localtime writes into a static buffer shared by the whole process, so concurrent
+    // SimSingleRun threads calling it at teardown would race on that buffer. This mutex
+    // serializes the read of that buffer (via strftime) before releasing it back.
+    static std::mutex time_format_mutex;
+    static std::string format_time(const std::time_t& time);
 };
 
 #endif

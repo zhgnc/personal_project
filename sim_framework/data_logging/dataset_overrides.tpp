@@ -2,6 +2,7 @@
 #define DATASET_OVERRIDES_TPP
 
 #include "../../sim_framework/data_logging/dataset_overrides.hpp"
+#include "../../sim_framework/data_logging/hdf5_mutex.hpp"
 #include "../../external/hdf5/include/H5Cpp.h"
 #include "../../math//math.hpp"
 
@@ -116,7 +117,12 @@ void DatasetOverrides<T, buffer_length>::log_if_needed(const uint64_t& current_s
 
 template<typename T, std::size_t buffer_length>
 void DatasetOverrides<T, buffer_length>::flush_buffer() {
-        
+    // Locked because this is the one dataset function that calls into the non-thread-safe
+    // HDF5 API from the (unlocked) step loop, via log_if_needed() when the buffer fills.
+    // The constructor and create_dataset() also touch HDF5 but rely on their only caller,
+    // Logger::add_dataset(), already holding this lock
+    std::lock_guard<std::recursive_mutex> lock(hdf5_mutex);
+
     if (buffer_index == 0) {
         return;
     }

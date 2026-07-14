@@ -17,7 +17,7 @@ TEST(simTest1, BasicTest) {
     const std::string &sim_and_logger_config_path = "../../tests/integrated_sim_and_logging/test_1/test_1_sim_and_logger_config.yaml";
 
     TestDataBus data_bus;
-    Simulation sim(sim_and_logger_config_path, data_bus);
+    SimManager sim(sim_and_logger_config_path, data_bus);
 
     double app_rate_hz      = 10.0; 
     int app_priority        = 10;
@@ -48,6 +48,7 @@ TEST(simTest1, BasicTest) {
     EXPECT_FALSE(sim_meta_data.computer_stop_time.empty());
     EXPECT_NEAR(sim_meta_data.config_stop_time_sec, sim_meta_data.actual_stop_time_sec, tol);
     EXPECT_EQ(sim_meta_data.current_mc_run, 1);
+    EXPECT_EQ(config_data.number_of_threads, 1);
     EXPECT_EQ(sim_meta_data.initial_random_seed, config_data.initial_random_seed);
     EXPECT_EQ(sim_meta_data.logging_app_count, 1);
     EXPECT_EQ(sim_meta_data.num_total_mc_runs, config_data.number_of_monte_carlo_runs);

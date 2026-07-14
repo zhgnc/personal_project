@@ -36,10 +36,11 @@ SimuRunYamlConfig load_simulation_run_config(const std::string& yaml_path) {
     config.sim_stop_time_sec                    = get_yaml_value<double>(root, "sim_stop_time_sec");
     config.simulation_rate_hz                   = get_yaml_value<double>(root, "simulation_rate_hz");
     config.number_of_monte_carlo_runs           = get_yaml_value<std::size_t>(root, "number_of_monte_carlo_runs");
+    config.number_of_threads                    = get_yaml_value<std::size_t>(root, "number_of_threads");
     config.initial_random_seed                  = get_yaml_value<uint64_t>(root, "initial_random_seed");
     config.print_hdf5_file_format               = get_yaml_value<bool>(root, "print_hdf5_file_format");
     config.print_hdf5_attributes_in_file_format = get_yaml_value<bool>(root, "print_hdf5_attributes_in_file_format");
-    config.logging_filename_prefix              = get_yaml_value<std::string>(root, "logging_filename_prefix");
+    config.base_file_name                       = get_yaml_value<std::string>(root, "base_file_name");
     config.logging_file_save_directory          = get_yaml_value<std::string>(root, "logging_file_save_directory");
     config.logging_rate_A_hz                    = get_yaml_value<double>(root, "logging_rate_A_hz");
     config.logging_rate_B_hz                    = get_yaml_value<double>(root, "logging_rate_B_hz");

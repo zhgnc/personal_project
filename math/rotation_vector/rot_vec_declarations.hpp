@@ -4,21 +4,21 @@
 #include "../matrix/matrix.hpp"
 #include "../vector/vector.hpp"
 
-template<typename T>
-class rot_vec : public matrix<T,3,1> 
+template<typename type>
+class rot_vec : public matrix<type,3,1> 
 {    
   public:
     
     // Constructors
-    using matrix<T,3,1>::matrix; // Inherit matrix class constructors 
-    rot_vec(const matrix<T,3,1>& mat);
-    rot_vec(const vector<T,3>& axis, T angle); 
+    using matrix<type,3,1>::matrix; // Inherit matrix class constructors 
+    rot_vec(const matrix<type,3,1>& mat);
+    rot_vec(const vector<type,3>& axis, type angle); 
     
     // Utilities
-    T& operator()(std::size_t row_to_return);
-    const T& operator()(std::size_t row_to_return) const; 
-    T angle() const; 
-    vector<T,3> axis() const; 
+    type& operator()(std::size_t row_to_return);
+    const type& operator()(std::size_t row_to_return) const; 
+    type angle() const; 
+    vector<type,3> axis() const; 
     
     template<typename U>
     explicit operator rot_vec<U>() const;

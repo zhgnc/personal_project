@@ -5,9 +5,12 @@ import matplotlib.pyplot as plt
 import glob
 import os
 
-rad2deg = 180.0 / math.pi
+rad2deg  = 180.0 / math.pi
+deg2asec = 3600.0 
 
-hdf5_folder = "C:/git/personal_project/projects/attitude_filter/results/"
+hdf5_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+figures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
+os.makedirs(figures_dir, exist_ok=True)
 hdf5_files  = sorted(glob.glob(os.path.join(hdf5_folder, "*.hdf5")))
 
 num_mc_runs = len(hdf5_files)
@@ -38,12 +41,12 @@ for i in range(4):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Star Tracker Measured Quaternion vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("star_tracker_meas_quats")
+plt.savefig(figures_dir + "/star_tracker_meas_quats")
 
 
 # Plot measurement error
 fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
-axis_labels = ['X-Axis [Deg]', 'Y-Axis [Deg]', 'Z-Axis [Deg]']
+axis_labels = ['X-Axis [asec]', 'Y-Axis [asec]', 'Z-Axis [asec]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
@@ -51,7 +54,7 @@ for file_idx, hdf5_path in enumerate(hdf5_files):
         sim_time_sec = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
-        axs[i].plot(sim_time_sec[1:], error[1:, i] * rad2deg, linewidth=0.5)
+        axs[i].plot(sim_time_sec[1:], error[1:, i] * rad2deg * deg2asec, linewidth=0.5)
 
 
 for i in range(3):
@@ -61,7 +64,7 @@ for i in range(3):
 axs[2].set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Star Tracker Measurement Error Per Axis vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("star_tracker_meas_error")
+plt.savefig(figures_dir + "/star_tracker_meas_error")
 
 
 # Plot star tracker valid flags
@@ -82,4 +85,4 @@ axs.grid(True)
 axs.set_xlabel("Simulation Time (sec)", fontsize=16)
 fig.suptitle(f"Star Tracker Measurement Valid Flag vs Simulation Time ({num_mc_runs} MC runs)", fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.savefig("star_tracker_meas_flag")
+plt.savefig(figures_dir + "/star_tracker_meas_flag")

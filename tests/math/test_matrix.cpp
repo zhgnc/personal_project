@@ -162,7 +162,7 @@ TEST(matrixTest, MatrixElementWiseMultiplication) {
     matrix<double, 3, 3> test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
     matrix<double, 3, 3> test_matrix_2 = test_matrix_1;  
 
-    matrix<double, 3, 3> output      = test_matrix_1.elementWiseMultiply(test_matrix_2);
+    matrix<double, 3, 3> output      = test_matrix_1.element_wise_multiply(test_matrix_2);
     matrix<double, 3, 3> expected    = {1, 4, 9, 16, 25, 36, 49, 64, 81};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -176,7 +176,7 @@ TEST(matrixTest, MatrixElementWiseDivision) {
     matrix<double, 3, 3> test_matrix_1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};  
     matrix<double, 3, 3> test_matrix_2 = test_matrix_1;  
 
-    matrix<double, 3, 3> output      = test_matrix_1.elementWiseDivision(test_matrix_2);
+    matrix<double, 3, 3> output      = test_matrix_1.element_wise_division(test_matrix_2);
     matrix<double, 3, 3> expected    = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -492,7 +492,7 @@ TEST(matrixTest, MatrixBlockGetTest) {
 
 TEST(matrixTest, MatrixSetIdentity) {   
     matrix<int, 3, 3> test_matrix = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    test_matrix.setIdentity();
+    test_matrix.set_identity();
     matrix<int, 3, 3> expected    = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -504,7 +504,7 @@ TEST(matrixTest, MatrixSetIdentity) {
 
 TEST(matrixTest, MatrixSetZeros) {   
     matrix<int, 3, 2> test_matrix = {1, 2, 3, 4, 5, 6};
-    test_matrix.setZeros();  
+    test_matrix.set_zeros();  
     matrix<int, 3, 2> expected;
 
     for (size_t rows = 0; rows < expected.num_rows; rows++) {
@@ -538,7 +538,7 @@ TEST(matrixTest, MatrixInitZeros) {
 
 TEST(matrixTest, MatrixTranspose) {   
     matrix<int, 3, 2> test_matrix_1 = {1, 2, 3, 4, 5, 6};
-    matrix<int, 2, 3> output_1      = test_matrix_1.transpose();
+    matrix<int, 2, 3> output_1      = test_matrix_1.T();
     matrix<int, 2, 3> expected_1    = {1, 3, 5, 2, 4, 6};
 
     for (size_t rows = 0; rows < expected_1.num_rows; rows++) {
@@ -548,7 +548,7 @@ TEST(matrixTest, MatrixTranspose) {
     }
     
     matrix<int, 3, 3> test_matrix_2 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    test_matrix_2.inPlaceTranspose();
+    test_matrix_2.in_place_transpose();
     matrix<int, 3, 3> expected_2    = {1, 4, 7, 2, 5, 8, 3, 6, 9};
 
     for (size_t rows = 0; rows < expected_2.num_rows; rows++) {
@@ -558,37 +558,93 @@ TEST(matrixTest, MatrixTranspose) {
     }
 }
 
+TEST(matrixTest, SkewMatrixTest) {   
+    matrix<int, 2, 2> test_matrix_1     = skew_matrix<int, 2>({1});
+    matrix<int, 2, 2> expected_matrix_1 = {0,1, -1,0};
+    
+    for (std::size_t row = 0; row < test_matrix_1.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_1.num_columns; column++) {
+            EXPECT_EQ(expected_matrix_1(row, column), test_matrix_1(row, column));
+        }
+    }
+
+
+    matrix<float, 3, 3> test_matrix_2     = skew_matrix<float, 3>({10,11,12});
+    matrix<float, 3, 3> expected_matrix_2 = {0,10,11, -10,0,12, -11,-12,0};
+    
+    for (std::size_t row = 0; row < test_matrix_2.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_2.num_columns; column++) {
+            EXPECT_FLOAT_EQ(expected_matrix_2(row, column), test_matrix_2(row, column));
+        }
+    }
+
+
+    matrix<double, 4, 4> test_matrix_3     = skew_matrix<double, 4>({100,-101,102, -103,104, -105});
+    matrix<double, 4, 4> expected_matrix_3 = {0,  100, -101,  102, 
+                                           -100,    0, -103,  104, 
+                                            101,  103,    0, -105, 
+                                           -102, -104,  105,    0};
+    
+    for (std::size_t row = 0; row < test_matrix_3.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_3.num_columns; column++) {
+            EXPECT_DOUBLE_EQ(expected_matrix_3(row, column), test_matrix_3(row, column));
+        }
+    }
+    
+
+    matrix<double, 5, 5> test_matrix_4 = skew_matrix<double, 5>({200, -201, 202, -203,
+                                                                 204, -205, 206,
+                                                                -207, 208,
+                                                                -209});
+
+    matrix<double, 5, 5> expected_matrix_4 = {0,   200, -201,  202, -203,
+                                            -200,    0,  204, -205,  206,
+                                             201, -204,    0, -207,  208,
+                                            -202,  205,  207,    0, -209,
+                                             203, -206, -208,  209,    0};
+
+    for (std::size_t row = 0; row < test_matrix_4.num_rows; row++) {
+        for (std::size_t column = 0; column < test_matrix_4.num_columns; column++) {
+            EXPECT_EQ(expected_matrix_4(row, column), test_matrix_4(row, column));
+        }
+    }
+}
+
 TEST(matrixTest, EasyMatrixDeterminate) {
       matrix<double, 10, 10> I_10 = identityMatrix<double, 10>();
       EXPECT_DOUBLE_EQ(1, I_10.det());
 
       matrix<double, 3, 3> test_matrix_1 = {2, 0, 0,
-                                              0, 3, 0,
-                                              0, 0, 4};
+                                            0, 3, 0,
+                                            0, 0, 4};
       EXPECT_DOUBLE_EQ(24, test_matrix_1.det());
 
       matrix<double, 3, 3> test_matrix_2 = {1, 2, 3,
-                                              0, 4, 5,
-                                              0, 0, 6};
+                                            0, 4, 5,
+                                            0, 0, 6};
       EXPECT_DOUBLE_EQ(24, test_matrix_2.det());
 
       matrix<double, 2, 2> test_matrix_3 = {2, 4,
-                                              1, 2};
+                                            1, 2};
       EXPECT_DOUBLE_EQ(0, test_matrix_3.det());
 
       matrix<double, 2, 2> test_matrix_4 = {0, 1,
-                                              1, 0};
+                                            1, 0};
       EXPECT_DOUBLE_EQ(-1, test_matrix_4.det());
 
       matrix<double, 3, 3> test_matrix_5 = {0, 1, 0,
-                                              0, 0, 1,
-                                              1, 0, 0};
+                                            0, 0, 1,
+                                            1, 0, 0};
       EXPECT_DOUBLE_EQ(1.0, test_matrix_5.det());
 
       matrix<double, 3, 3> test_matrix_6 = {1,2,3,
-                                              4,5,6,
-                                              1,2,3};
+                                            4,5,6,
+                                            1,2,3};
       EXPECT_DOUBLE_EQ(0.0, test_matrix_6.det());
+
+      matrix<double, 2, 2> test_matrix_7 = {1,0,
+                                            0,0};
+      EXPECT_DOUBLE_EQ(0.0, test_matrix_7.det());
 }
 
 TEST(matrixTest, MediumMatrixDeterminate) {
@@ -804,10 +860,10 @@ TEST(matrix, SimpleOrderOfOperation) {
     matrix<double, 2,2> output_3 = (B*A).pow(2);
     matrix<double, 2,2> expected_output_3 = {1583,2346, 2139,3170};
 
-    matrix<double, 2,2> output_4 = A.transpose() + A.inv() + A.pow(2);
+    matrix<double, 2,2> output_4 = A.T() + A.inv() + A.pow(2);
     matrix<double, 2,2> expected_output_4 = {6,14, 18.5,25.5};
 
-    matrix<double, 2,2> output_5 = A.transpose() * A.inv() * A.pow(2);
+    matrix<double, 2,2> output_5 = A.T() * A.inv() * A.pow(2);
     matrix<double, 2,2> expected_output_5 = {10,14, 14,20};
 
     matrix<double, 2,2> output_6 = A * B + C;
@@ -1009,7 +1065,7 @@ void runRandomInverseCheck(std::mt19937& rng) {
     std::uniform_int_distribution<int> random_power(-5, 5);
 
     matrix<double, N, N> A, A_pow, A_expected;
-    A_expected.setIdentity();
+    A_expected.set_identity();
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {

@@ -2,6 +2,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <random>
+#include <array>
+#include <numbers>
 #include "../math//transforms/transforms.hpp"
 #include "../math//matrix/matrix.hpp"
 #include "../math//rotation_vector/rot_vec.hpp"
@@ -11,7 +13,7 @@ TEST(transformsTest, SimpleRotationTest) {
   matrix<double,3,3> dcm_1_to_2 = {0,1,0, -1,0,0, 0,0,1};
   vector<double,3>   vec        = {1,0,0};
   vector<double,3>   vec_2      = dcm_1_to_2 * vec;
-  vector<double,3>   vec_1      = dcm_1_to_2.transpose() * vec;
+  vector<double,3>   vec_1      = dcm_1_to_2.T() * vec;
 
   EXPECT_NEAR(vec_2(0),  0, 1e-9);
   EXPECT_NEAR(vec_2(1), -1, 1e-9);
@@ -66,7 +68,7 @@ TEST(transformsTest, QuatToRotationAndTransformationMatrix) {
         matrix<double, 3, 3> trans_mat_me = to_transformation_matrix(q_me);
         Eigen::Matrix3d rot_vec_eigen     = q_eigen.toRotationMatrix();
 
-        trans_mat_me = trans_mat_me.transpose();
+        trans_mat_me = trans_mat_me.T();
 
         for (std::size_t row = 0; row < 3; row++) {
             for (std::size_t column = 0; column < 3; column++) {
@@ -92,7 +94,7 @@ inline matrix<double, 3,3> eigenMatoMyMat(Eigen::Matrix3d dcm_in) {
 TEST(transformsTest, RotationMatrixtoQuat) {
     std::mt19937 rng(0);
     std::uniform_real_distribution<double> angle_dist(-3.14, 3.14);
-    int number_of_tests = 1; 
+    int number_of_tests = 100;
 
     for (std::size_t i = 0; i < number_of_tests; i++) { 
         double roll  = angle_dist(rng);
@@ -114,6 +116,42 @@ TEST(transformsTest, RotationMatrixtoQuat) {
                                   q_rot_mat_me(2)*q_eigen.z() +
                                   q_rot_mat_me(3)*q_eigen.w();
         
+        if (dot_product_test < 0) {
+            q_rot_mat_me = q_rot_mat_me.neg();
+        }
+
+        EXPECT_NEAR(q_rot_mat_me(0), q_eigen.x(), 1e-9);
+        EXPECT_NEAR(q_rot_mat_me(1), q_eigen.y(), 1e-9);
+        EXPECT_NEAR(q_rot_mat_me(2), q_eigen.z(), 1e-9);
+        EXPECT_NEAR(q_rot_mat_me(3), q_eigen.w(), 1e-9);
+    }
+}
+
+// Exactly-180-degree rotations make the quaternion scalar component zero, forcing
+// to_quat() through its trace-near-negative-one switch branches, which the random
+// sampling above essentially never reaches. Each axis below selects a different
+// branch (x/y/z dominant plus mixed-axis cases exercising the off-diagonal terms).
+TEST(transformsTest, RotationMatrixtoQuat180Degrees) {
+    std::array<Eigen::Vector3d, 6> axes = {Eigen::Vector3d(1.0, 0.0, 0.0),
+                                           Eigen::Vector3d(0.0, 1.0, 0.0),
+                                           Eigen::Vector3d(0.0, 0.0, 1.0),
+                                           Eigen::Vector3d(1.0, 1.0, 0.0).normalized(),
+                                           Eigen::Vector3d(0.0, 1.0, 1.0).normalized(),
+                                           Eigen::Vector3d(1.0, 1.0, 1.0).normalized()};
+
+    for (const Eigen::Vector3d& axis : axes) {
+        Eigen::Matrix3d rot_mat_eigen = Eigen::AngleAxisd(std::numbers::pi, axis).toRotationMatrix();
+
+        matrix<double, 3,3> rot_mat_me = eigenMatoMyMat(rot_mat_eigen);
+
+        Eigen::Quaternion<double> q_eigen(rot_mat_eigen);
+        quat<double> q_rot_mat_me = to_quat(rot_mat_me);
+
+        double dot_product_test = q_rot_mat_me(0)*q_eigen.x() +
+                                  q_rot_mat_me(1)*q_eigen.y() +
+                                  q_rot_mat_me(2)*q_eigen.z() +
+                                  q_rot_mat_me(3)*q_eigen.w();
+
         if (dot_product_test < 0) {
             q_rot_mat_me = q_rot_mat_me.neg();
         }
