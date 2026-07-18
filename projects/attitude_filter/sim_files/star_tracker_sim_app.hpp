@@ -8,9 +8,8 @@
 
 #include "../../../sim_framework/sim_includes.hpp"
 #include "../../../projects/attitude_filter/models/star_tracker/star_tracker_model.hpp"
-#include "../../../projects/attitude_filter/sim_files/data_bus.hpp"
 
-class StarTrackerSimApp : public SimAppBase<DataBus> {
+class StarTrackerSimApp : public SimAppBase {
 public:
     using SimAppBase::SimAppBase;
 
@@ -18,7 +17,7 @@ public:
         YAML::Node config_file = load_yaml_file(path_to_config);
 
         star_tracker_config config_data;
-  
+
         config_data.x_axis_noise_rad_1_sigma = get_yaml_value<double>(config_file, "x_axis_noise_deg_1_sigma") * M_PI / 180.0;
         config_data.y_axis_noise_rad_1_sigma = get_yaml_value<double>(config_file, "y_axis_noise_deg_1_sigma") * M_PI / 180.0;
         config_data.z_axis_noise_rad_1_sigma = get_yaml_value<double>(config_file, "z_axis_noise_deg_1_sigma") * M_PI / 180.0;
@@ -33,27 +32,34 @@ public:
         star_tracker = StarTrackerModel(config_data);
     }
 
-    void step(DataBus& bus, SimControl& sim_ctrl) override {
-        star_tracker.inputs.q_j2000_to_body_true = bus.fake_dynamics_outputs.quat;
-        star_tracker.inputs.body_rates_true_rps  = bus.fake_dynamics_outputs.body_rates;
-        star_tracker.inputs.current_time_sec     = sim_ctrl.public_sim_data().current_sim_time_sec;
+    void declare_io(IoRegistry& io) override {
+        // ---- Inputs: copied into the model by the framework before each step ----
+        io.subscribe("q_j2000_to_body_true", star_tracker.inputs.q_j2000_to_body_true);
+        io.subscribe("body_rates_true_rps",  star_tracker.inputs.body_rates_true_rps, Units::RadiansPerSec);
+
+        // ---- Outputs: available to every app; tlm_req vs debug_tlm sets the recording level ----
+        io.tlm_req("measurement_valid",            star_tracker.outputs.star_tracker_measurement_valid);
+        io.tlm_req("q_j2000_to_star_tracker_meas", star_tracker.outputs.q_j2000_to_star_tracker_meas);
+        io.tlm_req("measurement_time",             star_tracker.outputs.measurement_time, Units::Seconds);
+
+        io.debug_tlm("measurement_error_rad", star_tracker.outputs.measurement_error_rad, Units::Radians);
+        io.debug_tlm("seed",                  star_tracker.outputs.seed);
+    }
+
+    void step(SimControl& sim_ctrl) override {
+        // The truth attitude and rates are filled through subscribed ports
+        // before this function runs
+        star_tracker.inputs.current_time_sec = sim_ctrl.public_sim_data().current_sim_time_sec;
 
         star_tracker.run();
-
-        bus.star_tracker_outputs.measurement_valid            = star_tracker.outputs.star_tracker_measurement_valid;
-        bus.star_tracker_outputs.q_j2000_to_star_tracker_meas = star_tracker.outputs.q_j2000_to_star_tracker_meas;
-        bus.star_tracker_outputs.measurement_error_rad        = star_tracker.outputs.measurement_error_rad;
-        bus.star_tracker_outputs.measurement_time             = star_tracker.outputs.measurement_time;
-        bus.star_tracker_outputs.seed                         = star_tracker.outputs.seed;
     }
-    
-    void teardown(DataBus& bus, SimControl& sim_ctrl) override {
-        (void)bus; // Tells compiler that I know these variables are unused
-        (void)sim_ctrl;
+
+    void teardown(SimControl& sim_ctrl) override {
+        (void)sim_ctrl; // Tells compiler that I know this variable is unused
     }
 
 private:
-    StarTrackerModel star_tracker; 
+    StarTrackerModel star_tracker;
 };
 
 #endif

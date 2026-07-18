@@ -3,6 +3,6 @@
 
 #include "sim_core/sim_manager.hpp"
 #include "generic_apps/sim_app_base.hpp"
-#include "generic_apps/logging_app_base.hpp"
+#include "messaging/io_registry.hpp"
 
 #endif

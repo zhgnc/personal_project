@@ -4,9 +4,6 @@
 #include "sim_framework/sim_includes.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_sim_app_1.hpp"
 #include "integrated_sim_and_logging/common_test_code/test_sim_app_2.hpp"
-#include "integrated_sim_and_logging/common_test_code/test_data_bus.hpp"
-#include "integrated_sim_and_logging/common_test_code/test_logger_1.hpp"
-#include "integrated_sim_and_logging/common_test_code/test_logger_2.hpp"
 #include "integrated_sim_and_logging/common_test_code/helper_functions.hpp"
 
 #include "integrated_sim_and_logging/common_test_code/file_path_helper_functions.hpp"
@@ -16,8 +13,7 @@ TEST(simTest2, TwoAppsWithStopTest) {
     double tol = 1e-10;
     const std::string &sim_and_logger_config_path = "../../tests/integrated_sim_and_logging/test_2/test_2_sim_and_logger_config.yaml";
 
-    TestDataBus data_bus;
-    SimManager sim(sim_and_logger_config_path, data_bus);
+    SimManager sim(sim_and_logger_config_path);
 
     double app_1_rate_hz    = 10.0; 
     int app_1_priority      = 1;
@@ -30,12 +26,6 @@ TEST(simTest2, TwoAppsWithStopTest) {
     TestSimApp2 test_app_2("test_app_2", app_2_rate_hz, app_2_priority, config_path);
     sim.add_app(test_app_2);
 
-    TestLogger1 logger_1;
-    sim.add_logging_app(logger_1);
-    
-    TestLogger2 logger_2; // Testing to make sure sim can use multiple logging classes
-    sim.add_logging_app(logger_2);
-    
     sim.run();
 
 
@@ -47,11 +37,11 @@ TEST(simTest2, TwoAppsWithStopTest) {
 
     std::string hdf5_file                      = get_absolute_path("tests/integrated_sim_and_logging/test_2/test_2_RUN_00001.hdf5");
     
-    std::vector<int> app_2_counter             = read_hdf5_dataset<int>(hdf5_file,      "/app_2/counter");
-    std::vector<double> app_2_sim_time_sec     = read_hdf5_dataset<double>(hdf5_file,   "/app_2/sim_time_sec");
-    std::vector<uint64_t> app_2_sim_step_count = read_hdf5_dataset<uint64_t>(hdf5_file, "/app_2/sim_step_count");
-    std::vector<double> app_2_sim_rate_hz      = read_hdf5_dataset<double>(hdf5_file,   "/app_2/sim_rate_hz");
-    std::vector<double> app_2_sim_dt_sec       = read_hdf5_dataset<double>(hdf5_file,   "/app_2/sim_dt_sec");
+    std::vector<int> app_2_counter             = read_hdf5_dataset<int>(hdf5_file,      "/test_app_2/counter");
+    std::vector<double> app_2_sim_time_sec     = read_hdf5_dataset<double>(hdf5_file,   "/test_app_2/sim_time_sec");
+    std::vector<uint64_t> app_2_sim_step_count = read_hdf5_dataset<uint64_t>(hdf5_file, "/test_app_2/sim_step_count");
+    std::vector<double> app_2_sim_rate_hz      = read_hdf5_dataset<double>(hdf5_file,   "/test_app_2/sim_rate_hz");
+    std::vector<double> app_2_sim_dt_sec       = read_hdf5_dataset<double>(hdf5_file,   "/test_app_2/sim_dt_sec");
 
     uint64_t test_attr_write_in_logger         = read_hdf5_attribute<uint64_t>(hdf5_file, "test_group", "test_attribute_write_in_logger");
     uint64_t init_seed                         = read_hdf5_attribute<uint64_t>(hdf5_file, "test_group", "init_seed");                 

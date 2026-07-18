@@ -1,3 +1,12 @@
+# ---- Input wiring: one line per subscribed input, every field named ----
+connections:
+  - { input: q_j2000_to_body_true,  from_app: fake_dynamics_app,  from_port: q_j2000_to_body_true }
+
+# ---- Telemetry: recording rate and level (off / required / debug) ----
+tlm_rate_hz: 5.0
+tlm_level: debug
+
+# ---- Model parameters ----
 angle_random_walk_1_sigma: 3.14e-7         # [rad/s^(1/2)]
 turn_on_bias_1_sigma_rps: 0.00175          # [rad/s]
 rate_random_walk_1_sigma: 1.74e-10         # [rad/s^(3/2)]

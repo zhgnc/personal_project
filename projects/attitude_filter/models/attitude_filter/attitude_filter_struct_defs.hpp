@@ -3,14 +3,17 @@
 
 #include "math/math.hpp"
 
+// Scalar fields carry explicit initializers so the first telemetry sample
+// (taken before the filter processes its first measurement) records a defined
+// value instead of uninitialized memory
 struct AttitudeFilterInputs {
     quat<double> q_j2000_to_star_tracker_meas;
-    bool star_tracker_meas_valid;
-    double star_tracker_meas_time;
+    bool star_tracker_meas_valid = false;
+    double star_tracker_meas_time = 0.0;
     rot_vec<double> meas_delta_thetas;
-    bool gyro_meas_valid;
-    double gyro_meas_time;
-    double current_time_sec;
+    bool gyro_meas_valid = false;
+    double gyro_meas_time = 0.0;
+    double current_time_sec = 0.0;
 };
 
 struct AttitudeFilterOutputs {
@@ -21,7 +24,7 @@ struct AttitudeFilterOutputs {
     vector<double, 3> est_gyro_scale_factors;
     rot_vec<double> rot_vec_residual;
     vector<double, 12> covariance_diagonals;
-    double time_now_sec;
+    double time_now_sec = 0.0;
 };
 
 struct AttitudeFilterConfig {

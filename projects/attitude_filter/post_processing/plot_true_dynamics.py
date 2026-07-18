@@ -23,9 +23,9 @@ plt.style.use('dark_background')
 first_hdf5_file = hdf5_files[0]
 
 with h5py.File(first_hdf5_file, "r") as f:
-    body_rates       = f["/fake_dynamics/body_rates"][:]
-    q_true           = f["/fake_dynamics/quat"][:]
-    rot_vec_attitude = f["/fake_dynamics/rot_vec_attitude"][:]
+    body_rates       = f["/fake_dynamics_app/body_rates"][:]
+    q_true           = f["/fake_dynamics_app/q_j2000_to_body_true"][:]
+    rot_vec_attitude = f["/fake_dynamics_app/rot_vec_attitude"][:]
     sim_time_sec = f["/sim/current_sim_time_sec"][:]
 
 fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)

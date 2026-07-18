@@ -1,3 +1,8 @@
+# ---- Telemetry: recording rate and level (off / required / debug) ----
+tlm_rate_hz: 5.0
+tlm_level: debug
+
+# ---- Model parameters ----
 initial_quaternion: [0.0, 0.0, 0.0, 1.0]
 
 x_axis_period_s: 30.0

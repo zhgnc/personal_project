@@ -6,33 +6,36 @@
 #include <string>
 
 #include "../../../sim_framework/generic_apps/sim_app_base.hpp"
-#include "../../../tests/integrated_sim_and_logging/common_test_code/test_data_bus.hpp"
 
 
-class TestSimApp1 : public SimAppBase<TestDataBus> {
+class TestSimApp1 : public SimAppBase {
 public:
     using SimAppBase::SimAppBase;
 
     void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
         (void)path_to_config; // Tells the compiler I know this varible is unused
-        (void)sim_ctrl; 
-        
+        (void)sim_ctrl;
+
         count = 0;
     };
 
-    void step(TestDataBus& bus, SimControl& sim_ctrl) override {
-        count = count + 1;
-        bus.app_1_data.counter = count;
+    void declare_io(IoRegistry& io) override {
+        io.tlm_req("counter", count);
     };
 
-    void teardown(TestDataBus& bus, SimControl& sim_ctrl) override {
-        (void)bus;
+    void step(SimControl& sim_ctrl) override {
+        (void)sim_ctrl;
+
+        count = count + 1;
+    };
+
+    void teardown(SimControl& sim_ctrl) override {
         (void)sim_ctrl;
     };
 
 
 private:
-    int count;  
+    int count;
 };
 
 #endif
