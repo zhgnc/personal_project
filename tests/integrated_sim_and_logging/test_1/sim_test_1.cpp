@@ -5,8 +5,6 @@
 #include "sim_framework/data_logging/read_hdf5_data.hpp"
 
 #include "integrated_sim_and_logging/common_test_code/test_sim_app_1.hpp"
-#include "integrated_sim_and_logging/common_test_code/test_data_bus.hpp"
-#include "integrated_sim_and_logging/common_test_code/test_logger_1.hpp"
 #include "integrated_sim_and_logging/common_test_code/helper_functions.hpp"
 
 #include "integrated_sim_and_logging/common_test_code/file_path_helper_functions.hpp"
@@ -16,8 +14,7 @@ TEST(simTest1, BasicTest) {
     double tol = 1e-10;
     const std::string &sim_and_logger_config_path = "../../tests/integrated_sim_and_logging/test_1/test_1_sim_and_logger_config.yaml";
 
-    TestDataBus data_bus;
-    SimManager sim(sim_and_logger_config_path, data_bus);
+    SimManager sim(sim_and_logger_config_path);
 
     double app_rate_hz      = 10.0; 
     int app_priority        = 10;
@@ -25,9 +22,6 @@ TEST(simTest1, BasicTest) {
     TestSimApp1 test_app_1("test_app_1", app_rate_hz, app_priority, config_path);
     sim.add_app(test_app_1);
 
-    TestLogger1 logger_1;
-    sim.add_logging_app(logger_1);
-    
     sim.run();
 
 
@@ -36,7 +30,7 @@ TEST(simTest1, BasicTest) {
     EXPECT_EQ(test_app_1.priority(), app_priority);
 
     std::string hdf5_file             = get_absolute_path("tests/integrated_sim_and_logging/test_1/test_1_RUN_00001.hdf5");
-    std::vector<int> app_counter_data = read_hdf5_dataset<int>(hdf5_file, "/app_1/counter");
+    std::vector<int> app_counter_data = read_hdf5_dataset<int>(hdf5_file, "/test_app_1/counter");
     SimMetaDataRaw  sim_meta_data     = get_meta_data(hdf5_file);
     SimCyclicalData sim_data          = get_sim_logged_data(hdf5_file);
     SimuRunYamlConfig config_data     = load_simulation_run_config(sim_and_logger_config_path);
@@ -50,7 +44,6 @@ TEST(simTest1, BasicTest) {
     EXPECT_EQ(sim_meta_data.current_mc_run, 1);
     EXPECT_EQ(config_data.number_of_threads, 1);
     EXPECT_EQ(sim_meta_data.initial_random_seed, config_data.initial_random_seed);
-    EXPECT_EQ(sim_meta_data.logging_app_count, 1);
     EXPECT_EQ(sim_meta_data.num_total_mc_runs, config_data.number_of_monte_carlo_runs);
     EXPECT_NEAR(sim_meta_data.sim_rate_hz, config_data.simulation_rate_hz, tol);
     EXPECT_TRUE(sim_meta_data.sim_to_real_time_ratio > 0);

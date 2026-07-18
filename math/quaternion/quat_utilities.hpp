@@ -24,12 +24,6 @@ const type& quat<type>::operator()(std::size_t element_to_return) const {
 }
 
 template <typename type>
-quat<type>& quat<type>::operator=(const quat<type>& another_quaternion) {
-    data = another_quaternion.data;
-    return (*this);
-}
-
-template <typename type>
 quat<type>& quat<type>::operator=(const std::array<type,4>& std_array_quat) {
     data = std_array_quat;
     return (*this);

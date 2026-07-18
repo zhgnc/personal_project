@@ -1,3 +1,21 @@
+# ---- Input wiring: one line per subscribed input, every field named ----
+connections:
+  - { input: meas_delta_thetas,            from_app: gyro_app,          from_port: measured_delta_angles }
+  - { input: gyro_meas_valid,              from_app: gyro_app,          from_port: measurement_valid }
+  - { input: gyro_meas_time,               from_app: gyro_app,          from_port: measurement_time }
+  - { input: q_j2000_to_star_tracker_meas, from_app: star_tracker_app,  from_port: q_j2000_to_star_tracker_meas }
+  - { input: star_tracker_meas_valid,      from_app: star_tracker_app,  from_port: measurement_valid }
+  - { input: star_tracker_meas_time,       from_app: star_tracker_app,  from_port: measurement_time }
+  - { input: q_j2000_to_body_true,         from_app: fake_dynamics_app, from_port: q_j2000_to_body_true }
+  - { input: true_rate_biases,             from_app: gyro_app,          from_port: rate_biases }
+  - { input: true_misalignments,           from_app: gyro_app,          from_port: misalignments }
+  - { input: true_scale_factors,           from_app: gyro_app,          from_port: scale_factors }
+
+# ---- Telemetry: recording rate and level (off / required / debug) ----
+tlm_rate_hz: 1.0
+tlm_level: debug
+
+# ---- Model parameters ----
 q_body_to_gyro: [0.0, 0.7071, 0.0, 0.7071]
 q_body_to_star_tracker: [0.5, 0.5, 0.5, 0.5]
 

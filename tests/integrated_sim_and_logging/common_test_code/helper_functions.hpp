@@ -17,7 +17,6 @@ struct SimMetaDataRaw {
     std::size_t current_mc_run;
     uint64_t initial_random_seed;
     std::size_t app_count;
-    std::size_t logging_app_count;
     double computer_elapsed_time_sec;
     double sim_to_real_time_ratio;
     std::string stop_type;
@@ -44,11 +43,6 @@ struct SimuRunYamlConfig {
     bool print_hdf5_attributes_in_file_format;
     std::string base_file_name;
     std::string logging_file_save_directory;
-    double logging_rate_A_hz;
-    double logging_rate_B_hz;
-    double logging_rate_C_hz;
-    double logging_rate_D_hz;
-    double logging_rate_E_hz;
 };
 
 SimMetaDataRaw get_meta_data(const std::string& hdf5_file);

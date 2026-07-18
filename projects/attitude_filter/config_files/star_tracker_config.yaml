@@ -1,3 +1,13 @@
+# ---- Input wiring: one line per subscribed input, every field named ----
+connections:
+  - { input: q_j2000_to_body_true,  from_app: fake_dynamics_app,  from_port: q_j2000_to_body_true }
+  - { input: body_rates_true_rps,   from_app: fake_dynamics_app,  from_port: body_rates }
+
+# ---- Telemetry: recording rate and level (off / required / debug) ----
+tlm_rate_hz: 5.0
+tlm_level: debug
+
+# ---- Model parameters ----
 x_axis_noise_deg_1_sigma: 0.000278 # 0.000278 deg = 1.0 arcsec
 y_axis_noise_deg_1_sigma: 0.000278 # 0.000278 deg = 1.0 arcsec
 z_axis_noise_deg_1_sigma: 0.000833 # 0.000833 deg = 1.0 arcsec
