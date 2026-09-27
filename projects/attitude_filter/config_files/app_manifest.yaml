@@ -1,0 +1,17 @@
+# Defines every app in the simulation: two lines per app, every field named.
+# All fields are required — nothing defaults.
+#
+#   name         unique instance name (lowercase letters, digits, underscores)
+#   class        C++ class from the project's AppClassList (see run_attitude_filter.hpp)
+#   enabled      false removes the app from the sim without deleting its entry
+#   priority     execution order, lower steps first; must be unique among enabled apps
+#   rate_hz      execution rate
+#   tlm_level    off | required | debug  (what the recorder stores)
+#   tlm_rate_hz  recording rate
+#   config       this app's config file, relative to this manifest's directory
+
+apps:
+  - { name: fake_dynamics_app,   class: FakeDynamicsSimApp,   enabled: true, priority: 1, rate_hz: 5.0, tlm_level: debug, tlm_rate_hz: 5.0, config: fake_dynamics_config.yaml }
+  - { name: gyro_app,            class: GyroSimApp,           enabled: true, priority: 2, rate_hz: 5.0, tlm_level: debug, tlm_rate_hz: 5.0, config: gyro_config.yaml }
+  - { name: star_tracker_app,    class: StarTrackerSimApp,    enabled: true, priority: 3, rate_hz: 1.0, tlm_level: debug, tlm_rate_hz: 1.0, config: star_tracker_config.yaml }
+  - { name: attitude_filter_app, class: AttitudeFilterSimApp, enabled: true, priority: 4, rate_hz: 5.0, tlm_level: debug, tlm_rate_hz: 1.0, config: attitude_filter_config.yaml }

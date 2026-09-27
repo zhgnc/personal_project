@@ -1,0 +1,12 @@
+sim_start_time_sec: 0.0
+sim_stop_time_sec: 3600.0
+simulation_rate_hz: 5.0
+number_of_monte_carlo_runs: 10
+number_of_threads: 5
+initial_random_seed: 0
+print_hdf5_file_format: true
+print_hdf5_attributes_in_file_format: true
+sim_stats_report_level: 2 
+base_file_name: "zach_test"
+logging_file_save_directory: "projects/attitude_filter/results"
+app_manifest: "projects/attitude_filter/config_files/app_manifest.yaml"

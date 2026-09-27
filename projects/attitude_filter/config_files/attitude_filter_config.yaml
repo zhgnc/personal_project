@@ -1,16 +1,31 @@
-q_body_to_gyro: [0.0, 0.7071, 0.0, 0.7071]
-q_body_to_star_tracker: [0.5, 0.5, 0.5, 0.5]
+# ---- Input wiring: one line per subscribed input, every field named ----
+input_mapping:
+  - { input: meas_delta_thetas,            from_app: gyro_app,          from_port: measured_delta_angles }
+  - { input: gyro_meas_valid,              from_app: gyro_app,          from_port: measurement_valid }
+  - { input: gyro_meas_time,               from_app: gyro_app,          from_port: measurement_time }
+  - { input: q_j2000_to_star_tracker_meas, from_app: star_tracker_app,  from_port: q_j2000_to_star_tracker_meas }
+  - { input: star_tracker_meas_valid,      from_app: star_tracker_app,  from_port: measurement_valid }
+  - { input: star_tracker_meas_time,       from_app: star_tracker_app,  from_port: measurement_time }
+  - { input: q_j2000_to_body_true,         from_app: fake_dynamics_app, from_port: q_j2000_to_body_true }
+  - { input: true_rate_biases,             from_app: gyro_app,          from_port: rate_biases }
+  - { input: true_misalignments,           from_app: gyro_app,          from_port: misalignments }
+  - { input: true_scale_factors,           from_app: gyro_app,          from_port: scale_factors }
 
-attitude_process_noise: 1e-13
-gyro_bias_process_noise: 8e-15
-gyro_misalignment_process_noise: 7e-15
-gyro_scale_factor_process_noise: 7e-15
+# ---- Model parameters (handed to configure_model) ----
+app_config:
+  q_body_to_gyro: [0.0, 0.7071, 0.0, 0.7071]
+  q_body_to_star_tracker: [0.5, 0.5, 0.5, 0.5]
 
-attitude_covariance: 1e-4
-gyro_bias_covariance: 3e-6
-gyro_misalignment_covariance: 5e-6  
-gyro_scale_factor_covariance: 3e-9
+  attitude_process_noise: 1e-13
+  gyro_bias_process_noise: 8e-15
+  gyro_misalignment_process_noise: 7e-15
+  gyro_scale_factor_process_noise: 7e-15
 
-star_tracker_x_noise_1_sigma_deg: 0.0005
-star_tracker_y_noise_1_sigma_deg: 0.0005
-star_tracker_z_noise_1_sigma_deg: 0.001
+  attitude_covariance: 1e-4
+  gyro_bias_covariance: 3e-6
+  gyro_misalignment_covariance: 5e-6
+  gyro_scale_factor_covariance: 3e-9
+
+  star_tracker_x_noise_1_sigma_deg: 0.0005
+  star_tracker_y_noise_1_sigma_deg: 0.0005
+  star_tracker_z_noise_1_sigma_deg: 0.001
