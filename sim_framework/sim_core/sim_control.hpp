@@ -85,8 +85,12 @@ public:
     };
 
     template <typename T>
-    void write_attribute(const std::string& object_path, const std::string& attribute_name, const T& value) {
-        wrapped_logger.write_attribute(object_path, attribute_name, value);
+    void write_attribute(const std::string& group_path, const std::string& attribute_name, const T& value) {
+        // App-facing attribute writes target groups, and the group is created
+        // on first use: apps write config attributes during configure_model(),
+        // before the recorder has built the file structure
+        wrapped_logger.add_group(group_path);
+        wrapped_logger.write_attribute(group_path, attribute_name, value);
     };
 
     double sample_normal(double mean, double std) {
