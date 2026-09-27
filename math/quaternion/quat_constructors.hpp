@@ -22,11 +22,6 @@ quat<type>::quat(std::initializer_list<type> initial_quaternion) {
 }
 
 template <typename type>
-quat<type>::quat(const quat<type>& another_quaternion) {    
-    data = another_quaternion.data;
-}
-
-template <typename type>
 quat<type>::quat(const std::array<type,4>& std_array_quat) {
     for (std::size_t i = 0; i < 4; i++) {
         data[i] = std_array_quat[i];
