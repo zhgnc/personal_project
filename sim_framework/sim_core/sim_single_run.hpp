@@ -1,6 +1,11 @@
 #ifndef SIM_SINGLE_RUN_HPP
 #define SIM_SINGLE_RUN_HPP
 
+// SimSingleRun executes one simulation from t=0 to the stop time. Every
+// Monte Carlo run gets its own instance holding its own app clones, IO
+// registry, and output file, which is what makes runs safe to execute in
+// parallel.
+
 #include <memory>
 #include <string>
 #include <chrono>
@@ -11,21 +16,34 @@
 #include "sim_data_logger.hpp"
 #include "sim_structs.hpp"
 #include "../data_logging/logger.hpp"
+#include "../telemetry/recorder.hpp"
 #include "console_mutex.hpp"
 
-template<typename DataBusType>
+// One complete simulation run. Owns the apps, their wiring, and the HDF5
+// file for this run only; nothing here is shared with other runs.
 class SimSingleRun {
 public:
     // Takes ownership of the config object and moves its resources into the
     // sim run. An rvalue reference (`&&`) is used because the configuration
     // contains move-only objects like std::unique_ptr's
-    SimSingleRun(SimSingleRunConfig<DataBusType>&& config_data);
+    SimSingleRun(SimSingleRunConfig&& config_data);
 
+    // Runs setup, the frame loop, and teardown, then reports the run's stats
     SimRunStats run();
 
 private:
+    // Creates the output file, configures the apps, wires them together, and
+    // registers telemetry — everything that must happen before t=0
     void setup();
+
+    // Collects the apps' port declarations, applies the connection specs,
+    // resolves the topology, and hands each app its copy plan
+    void setup_io();
+
+    // Advances the sim by one frame: every app that is due steps, in priority
+    // order, then the logger samples and time moves forward
     void step();
+
     void teardown();
     SimRunStats create_run_stats();
 
@@ -39,15 +57,17 @@ private:
     uint64_t get_seed();
 
     // Config data
-    DataBusType data_bus;
-
-    std::array<std::unique_ptr<SimAppBase<DataBusType>>, SimConfig::max_app_number> apps;
+    std::array<std::unique_ptr<SimAppBase>, SimConfig::max_app_number> apps;
     std::size_t app_count;
 
-    std::array<std::unique_ptr<LoggingAppBase<DataBusType>>, SimConfig::max_logging_app_number> logging_apps;
-    std::size_t logging_app_count;
+    // Heap-owned because the registry's fixed-size storage is too large for
+    // a thread-stack local (see io_registry.hpp)
+    std::unique_ptr<IoRegistry> io_registry;
+    std::array<IoConnectionSpec, SimConfig::max_connection_number> io_connections;
+    std::size_t io_connection_count;
 
-    AppLoggingRates logging_rates;
+    std::array<AppTlmSettings, SimConfig::max_app_number> tlm_settings;
+
     bool print_hdf5_file_tree;
     bool print_file_attributes;
 
@@ -63,7 +83,7 @@ private:
 
     std::size_t run_number;
     std::size_t total_mc_runs;
-    
+
     uint64_t current_seed;
     uint64_t initial_seed;
 
@@ -84,12 +104,10 @@ private:
 
     std::unique_ptr<Logger> logger;
     std::unique_ptr<SimDataLogger> sim_data_logger;
-    
+
     SimMetaData meta_data;
 
     static constexpr double sec2usec = 1e6;
 };
-
-#include "sim_single_run.tpp"
 
 #endif
