@@ -29,9 +29,9 @@ fig, axs = plt.subplots(4,1, figsize=(10, 8), sharex=True)
 axis_labels = ['q_i', 'q_j', 'q_k', 'q_real']
 
 with h5py.File(first_run_file, "r") as f:
-    q_j2000_to_body_est   = f["/attitude_filter/q_j2000_to_body_est"][:]
-    q_j2000_to_body_true  = f["/fake_dynamics/quat"][:]
-    filter_time_sec       = f["/attitude_filter/current_time_sec"][:]
+    q_j2000_to_body_est   = f["/attitude_filter_app/q_j2000_to_body_est"][:]
+    q_j2000_to_body_true  = f["/fake_dynamics_app/q_j2000_to_body_true"][:]
+    filter_time_sec       = f["/attitude_filter_app/current_time_sec"][:]
     sim_time_sec          = f["/sim/current_sim_time_sec"][:]
 
 
@@ -66,9 +66,9 @@ fig, axs = plt.subplots(3,1, figsize=(10, 8), sharex=True)
 axis_labels = ['X Bias [deg]', 'Y Bias [deg]', 'Z Bias [deg]']
 
 with h5py.File(first_run_file, "r") as f:
-    est_gyro_biases_deg  = f["/attitude_filter/est_gyro_biases_rad"][:] * rad2deg
-    true_gyro_biases_deg = f["/gyro/rate_biases"][:]  * rad2deg
-    filter_time_sec       = f["/attitude_filter/current_time_sec"][:]
+    est_gyro_biases_deg  = f["/attitude_filter_app/est_gyro_biases_rad"][:] * rad2deg
+    true_gyro_biases_deg = f["/gyro_app/rate_biases"][:]  * rad2deg
+    filter_time_sec       = f["/attitude_filter_app/current_time_sec"][:]
     sim_time_sec          = f["/sim/current_sim_time_sec"][:]
  
 # True and Estimated Biases
@@ -100,9 +100,9 @@ fig, axs = plt.subplots(3,1, figsize=(10, 8), sharex=True)
 axis_labels = ['X Misalign [deg]', 'Y Misalign [deg]', 'Z Misalign [deg]']
 
 with h5py.File(first_run_file, "r") as f:
-    est_gyro_misalign_deg  = f["/attitude_filter/est_gyro_to_st_misalignments_rad"][:] * rad2deg
-    true_gyro_misalign_deg = f["/gyro/misalignments"][:]  * rad2deg
-    filter_time_sec       = f["/attitude_filter/current_time_sec"][:]
+    est_gyro_misalign_deg  = f["/attitude_filter_app/est_gyro_to_st_misalignments_rad"][:] * rad2deg
+    true_gyro_misalign_deg = f["/gyro_app/misalignments"][:]  * rad2deg
+    filter_time_sec       = f["/attitude_filter_app/current_time_sec"][:]
     sim_time_sec          = f["/sim/current_sim_time_sec"][:]
  
 # True and Estimated Biases
@@ -134,9 +134,9 @@ fig, axs = plt.subplots(3,1, figsize=(10, 8), sharex=True)
 axis_labels = ['X SF [PPM]', 'Y SF [PPM]', 'Z SF [PPM]']
 
 with h5py.File(first_run_file, "r") as f:
-    est_gyro_sf_ppm  = f["/attitude_filter/est_gyro_scale_factors"][:] * 1e6
-    true_gyro_sf_ppm = f["/gyro/scale_factors"][:]  * 1e6
-    filter_time_sec       = f["/attitude_filter/current_time_sec"][:]
+    est_gyro_sf_ppm  = f["/attitude_filter_app/est_gyro_scale_factors"][:] * 1e6
+    true_gyro_sf_ppm = f["/gyro_app/scale_factors"][:]  * 1e6
+    filter_time_sec       = f["/attitude_filter_app/current_time_sec"][:]
     sim_time_sec          = f["/sim/current_sim_time_sec"][:]
  
 # True and Estimated Biases
@@ -170,9 +170,9 @@ axis_labels = ['X-Axis [arcsec]', 'Y-Axis [arcsec]', 'Z-Axis [arcsec]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        rot_vec_error   = f["/attitude_filter/rot_vec_error"][:] * rad2deg * 3600.0
-        diag_cov        = f["/attitude_filter/diagonal_covariance"][:]
-        filter_time_sec = f["/attitude_filter/current_time_sec"][:]
+        rot_vec_error   = f["/attitude_filter_app/rot_vec_error"][:] * rad2deg * 3600.0
+        diag_cov        = f["/attitude_filter_app/covariance_diagonals"][:]
+        filter_time_sec = f["/attitude_filter_app/current_time_sec"][:]
  
     std_3_bounds = 3.0 * np.sqrt(diag_cov[:, 0:3]) * rad2deg * 3600.0
 
@@ -204,9 +204,9 @@ axis_labels = ['X-Axis [deg/s]', 'Y-Axis [deg/s]', 'Z-Axis [deg/s]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        bias_error      = f["/attitude_filter/bias_error"][:] * rad2deg
-        diag_cov        = f["/attitude_filter/diagonal_covariance"][:]
-        filter_time_sec = f["/attitude_filter/current_time_sec"][:]
+        bias_error      = f["/attitude_filter_app/bias_error"][:] * rad2deg
+        diag_cov        = f["/attitude_filter_app/covariance_diagonals"][:]
+        filter_time_sec = f["/attitude_filter_app/current_time_sec"][:]
  
     std_3_bounds = 3.0 * np.sqrt(diag_cov[:, 3:6]) * rad2deg
 
@@ -236,9 +236,9 @@ axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        misalignment_error = f["/attitude_filter/misalignment_error"][:] * rad2deg
-        diag_cov           = f["/attitude_filter/diagonal_covariance"][:]
-        filter_time_sec    = f["/attitude_filter/current_time_sec"][:]
+        misalignment_error = f["/attitude_filter_app/misalignment_error"][:] * rad2deg
+        diag_cov           = f["/attitude_filter_app/covariance_diagonals"][:]
+        filter_time_sec    = f["/attitude_filter_app/current_time_sec"][:]
  
     std_3_bounds = 3.0 * np.sqrt(diag_cov[:, 6:9]) * rad2deg
 
@@ -269,9 +269,9 @@ axis_labels = ['X-Axis [PPM]', 'Y-Axis [PPM]', 'Z-Axis [PPM]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        scale_factor_error = f["/attitude_filter/scale_factor_error"][:] * 1e6
-        diag_cov           = f["/attitude_filter/diagonal_covariance"][:]
-        filter_time_sec    = f["/attitude_filter/current_time_sec"][:]
+        scale_factor_error = f["/attitude_filter_app/scale_factor_error"][:] * 1e6
+        diag_cov           = f["/attitude_filter_app/covariance_diagonals"][:]
+        filter_time_sec    = f["/attitude_filter_app/current_time_sec"][:]
  
     std_3_bounds = 3.0 * np.sqrt(diag_cov[:, 9:12]) * 1e6
 
@@ -303,8 +303,8 @@ axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        rot_vec_residual = f["/attitude_filter/rot_vec_residual"][:] * rad2deg
-        filter_time_sec     = f["/attitude_filter/current_time_sec"][:]
+        rot_vec_residual = f["/attitude_filter_app/rot_vec_residual"][:] * rad2deg
+        filter_time_sec     = f["/attitude_filter_app/current_time_sec"][:]
  
     for i in range(3):
         axs[i].plot(filter_time_sec[1:], rot_vec_residual[1:, i], linewidth=0.5)

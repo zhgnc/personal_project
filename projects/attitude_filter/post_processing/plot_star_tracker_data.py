@@ -27,7 +27,7 @@ axis_labels = ['i', 'j', 'k', 'real']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        q_meas       = f["/star_tracker/q_j2000_to_star_tracker_meas"][:]
+        q_meas       = f["/star_tracker_app/q_j2000_to_star_tracker_meas"][:]
         sim_time_sec = f["/sim/current_sim_time_sec"][:]
 
     for i in range(4):
@@ -50,7 +50,7 @@ axis_labels = ['X-Axis [asec]', 'Y-Axis [asec]', 'Z-Axis [asec]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        error        = f["/star_tracker/measurement_error_rad"][:]
+        error        = f["/star_tracker_app/measurement_error_rad"][:]
         sim_time_sec = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
@@ -73,7 +73,7 @@ axis_labels = ['Tracker Valid Flag [1 == Valid]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        valid_flag   = f["/star_tracker/measurement_valid"][:]
+        valid_flag   = f["/star_tracker_app/measurement_valid"][:]
         sim_time_sec = f["/sim/current_sim_time_sec"][:]
 
         axs.plot(sim_time_sec, valid_flag, linewidth=3.0, color="red")

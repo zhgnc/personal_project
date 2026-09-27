@@ -26,7 +26,7 @@ axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        delta_theta_data = f["/gyro/meas_delta_angles"][:]
+        delta_theta_data = f["/gyro_app/measured_delta_angles"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
@@ -49,7 +49,7 @@ axis_labels = ['X-Biases [deg/s]', 'Y-Biases [deg/s]', 'Z-Biases [deg/s]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        rate_biases     = f["/gyro/rate_biases"][:]
+        rate_biases     = f["/gyro_app/rate_biases"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
@@ -72,7 +72,7 @@ axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        misalignments    = f["/gyro/misalignments"][:]
+        misalignments    = f["/gyro_app/misalignments"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
@@ -95,7 +95,7 @@ axis_labels = ['X-Axis [PPM]', 'Y-Axis [PPM]', 'Z-Axis [PPM]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        scale_factors    = f["/gyro/scale_factors"][:]
+        scale_factors    = f["/gyro_app/scale_factors"][:]
         sim_time_sec     = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
@@ -118,7 +118,7 @@ axis_labels = ['X-Axis [deg]', 'Y-Axis [deg]', 'Z-Axis [deg]']
 
 for file_idx, hdf5_path in enumerate(hdf5_files):
     with h5py.File(hdf5_path, "r") as f:
-        total_error  = f["/gyro/total_delta_angle_error"][:]
+        total_error  = f["/gyro_app/total_delta_angle_error"][:]
         sim_time_sec = f["/sim/current_sim_time_sec"][:]
 
     for i in range(3):
