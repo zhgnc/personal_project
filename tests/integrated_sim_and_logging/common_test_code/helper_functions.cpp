@@ -10,7 +10,6 @@ SimMetaDataRaw get_meta_data(const std::string& hdf5_file) {
     meta.current_mc_run            = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "current_mc_run");
     meta.initial_random_seed       = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "initial_random_seed");
     meta.app_count                 = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "app_count");
-    meta.logging_app_count         = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "logging_app_count");
     meta.computer_elapsed_time_sec = read_hdf5_attribute<double>(hdf5_file, "/sim", "computer_elapsed_time_sec");
     meta.sim_to_real_time_ratio    = read_hdf5_attribute<double>(hdf5_file, "/sim", "sim_to_real_time_ratio");
     meta.stop_type                 = read_hdf5_attribute<std::string>(hdf5_file, "/sim", "stop_type");
@@ -42,10 +41,5 @@ SimuRunYamlConfig load_simulation_run_config(const std::string& yaml_path) {
     config.print_hdf5_attributes_in_file_format = get_yaml_value<bool>(root, "print_hdf5_attributes_in_file_format");
     config.base_file_name                       = get_yaml_value<std::string>(root, "base_file_name");
     config.logging_file_save_directory          = get_yaml_value<std::string>(root, "logging_file_save_directory");
-    config.logging_rate_A_hz                    = get_yaml_value<double>(root, "logging_rate_A_hz");
-    config.logging_rate_B_hz                    = get_yaml_value<double>(root, "logging_rate_B_hz");
-    config.logging_rate_C_hz                    = get_yaml_value<double>(root, "logging_rate_C_hz");
-    config.logging_rate_D_hz                    = get_yaml_value<double>(root, "logging_rate_D_hz");
-    config.logging_rate_E_hz                    = get_yaml_value<double>(root, "logging_rate_E_hz");
     return config;
 }
