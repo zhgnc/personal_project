@@ -2,46 +2,52 @@
 #define FAKE_DYNAMICS_SIM_APP_HPP
 
 #include "../../../sim_framework/sim_includes.hpp"
-#include "data_bus.hpp"
 #include "utilities/yaml_utilities.hpp"
 #include "math/math.hpp"
 
 #include <cmath>
 
-class FakeDynamicsSimApp : public SimAppBase<DataBus> {
+class FakeDynamicsSimApp : public SimAppBase {
 public:
     using SimAppBase::SimAppBase;
 
     void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) override {
+        YAML::Node app_config = load_yaml_file(path_to_config)["app_config"];
+
         (void)sim_ctrl;
 
-        YAML::Node config_data = load_yaml_file(path_to_config);
-
-        q_attitude           = get_yaml_value<std::array<double,4>>(config_data, "initial_quaternion");
-        q_attitude           = q_attitude.normalize(); 
+        q_attitude           = get_yaml_value<std::array<double,4>>(app_config, "initial_quaternion");
+        q_attitude           = q_attitude.normalize();
         rot_vec_attitude     = to_rot_vec(q_attitude);
 
-        x_axis_period_s      = get_yaml_value<double>(config_data, "x_axis_period_s");
-        x_axis_amplitude_rps = get_yaml_value<double>(config_data, "x_axis_amplitude_dps") * deg2rad;
-        x_axis_shift_rad     = get_yaml_value<double>(config_data, "x_axis_shift_deg") * deg2rad;
-        
-        y_axis_period_s      = get_yaml_value<double>(config_data, "y_axis_period_s");
-        y_axis_amplitude_rps = get_yaml_value<double>(config_data, "y_axis_amplitude_dps") * deg2rad;
-        y_axis_shift_rad     = get_yaml_value<double>(config_data, "y_axis_shift_deg") * deg2rad;
-        
-        z_axis_period_s      = get_yaml_value<double>(config_data, "z_axis_period_s");
-        z_axis_amplitude_rps = get_yaml_value<double>(config_data, "z_axis_amplitude_dps") * deg2rad;
-        z_axis_shift_rad     = get_yaml_value<double>(config_data, "z_axis_shift_deg") * deg2rad;
+        x_axis_period_s      = get_yaml_value<double>(app_config, "x_axis_period_s");
+        x_axis_amplitude_rps = get_yaml_value<double>(app_config, "x_axis_amplitude_dps") * deg2rad;
+        x_axis_shift_rad     = get_yaml_value<double>(app_config, "x_axis_shift_deg") * deg2rad;
+
+        y_axis_period_s      = get_yaml_value<double>(app_config, "y_axis_period_s");
+        y_axis_amplitude_rps = get_yaml_value<double>(app_config, "y_axis_amplitude_dps") * deg2rad;
+        y_axis_shift_rad     = get_yaml_value<double>(app_config, "y_axis_shift_deg") * deg2rad;
+
+        z_axis_period_s      = get_yaml_value<double>(app_config, "z_axis_period_s");
+        z_axis_amplitude_rps = get_yaml_value<double>(app_config, "z_axis_amplitude_dps") * deg2rad;
+        z_axis_shift_rad     = get_yaml_value<double>(app_config, "z_axis_shift_deg") * deg2rad;
 
         if (x_axis_period_s <= 0.0 || y_axis_period_s <= 0.0 || z_axis_period_s <= 0.0) {
             throw std::runtime_error("[fake_dynamics_sim_app.hpp] All axis periods must be > 0 (check fake_dynamics_config.yaml)");
         }
     }
 
-    void step(DataBus& bus, SimControl& sim_ctrl) override {
+    void declare_io(IoRegistry& io) override {
+        // ---- Outputs: available to every app; tlm_req vs tlm_debug sets the recording level ----
+        io.tlm_req("q_j2000_to_body_true", q_attitude);
+        io.tlm_req("body_rates",           body_rates);
+
+        io.tlm_debug("rot_vec_attitude", rot_vec_attitude);
+    }
+
+    void step(SimControl& sim_ctrl) override {
         t  = sim_ctrl.public_sim_data().current_sim_time_sec;
-        dt = sim_ctrl.public_sim_data().sim_dt_sec; 
-        
+        dt = sim_ctrl.public_sim_data().sim_dt_sec;
 
         body_rates(0) = x_axis_amplitude_rps * sin((2*M_PI/x_axis_period_s) * t + x_axis_shift_rad);
         body_rates(1) = y_axis_amplitude_rps * sin((2*M_PI/y_axis_period_s) * t + y_axis_shift_rad);
@@ -49,15 +55,10 @@ public:
 
         rot_vec_attitude = rot_vec_attitude + body_rates * dt;
         q_attitude       = to_quat(rot_vec_attitude).normalize();
-    
-        bus.fake_dynamics_outputs.quat             = q_attitude;
-        bus.fake_dynamics_outputs.body_rates       = body_rates;
-        bus.fake_dynamics_outputs.rot_vec_attitude = rot_vec_attitude;
     }
-    
-    void teardown(DataBus& bus, SimControl& sim_ctrl) override {
-        (void)bus; // Tells compiler that I know these variables are unused
-        (void)sim_ctrl;
+
+    void teardown(SimControl& sim_ctrl) override {
+        (void)sim_ctrl; // Tells compiler that I know this variable is unused
     }
 
 private:
@@ -67,7 +68,6 @@ private:
     vector<double, 3> body_rates;
     rot_vec<double> rot_vec_attitude;
     quat<double> q_attitude;
-    
 
     double x_axis_period_s;
     double x_axis_amplitude_rps;
