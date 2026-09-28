@@ -18,13 +18,13 @@ public:
     // Constructors
     quat();
     quat(std::initializer_list<type> initial_quaternion);
-    quat(const quat<type>& another_quaternion);
+    quat(const quat<type>& another_quaternion) = default;
     explicit quat(const std::array<type,4>& std_array_quat);
 
     // Utilities
     type& operator()(std::size_t element_to_return);
     const type& operator()(std::size_t element_to_return) const;
-    quat<type>& operator=(const quat<type>& another_quaternion);
+    quat<type>& operator=(const quat<type>& another_quaternion) = default;
     quat<type>& operator=(const std::array<type,4>& std_array_quat);
 
     void print() const;
