@@ -52,7 +52,7 @@ void IoRegistry::add_record(const std::string& port_name, T& member, PortKind ki
             "max_port_number", SimConfig::max_port_number));
     }
 
-    std::string violation = io_name_violation(port_name);
+    std::string violation = PortMatching::name_violation(port_name);
 
     if (violation.empty() == false) {
         record_error(app_open_for_declarations + ": port name '" + port_name + "' is invalid: " + violation);
