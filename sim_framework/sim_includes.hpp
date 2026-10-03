@@ -1,9 +1,10 @@
 #ifndef SIM_INCLUDES_HPP
 #define SIM_INCLUDES_HPP
 
-// #include "sim_core/simulation.hpp"
-#include "sim_core/sim_manager.hpp"
-#include "generic_apps/sim_app_base.hpp"
-#include "generic_apps/logging_app_base.hpp"
+// Single header for projects using the sim framework
+
+#include "sim_main_loop/sim_manager.hpp"
+#include "apps/sim_app_base.hpp"
+#include "apps/logging_app_base.hpp"
 
 #endif
