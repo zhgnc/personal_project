@@ -1,7 +1,7 @@
 #ifndef PORT_MATCHING_HPP
 #define PORT_MATCHING_HPP
 
-// Checking names against the ports that actually exist.
+// Checks names against the ports that actually exist.
 //
 // When a config file names something that was never declared, the framework
 // reports what the user wrote and then lists every option they could have
@@ -10,10 +10,11 @@
 // tuning, and tells the user what exists rather than one opinion about what
 // they meant.
 //
-// Every function is static and takes the port records as a span, so this
+// Every function is static and is handed the port records it needs, so this
 // class holds no state and needs no access to IoRegistry's internals.
 
-#include <span>
+#include <array>
+#include <cstddef>
 #include <string>
 #include <typeindex>
 
@@ -21,29 +22,20 @@
 
 class PortMatching {
 public:
-    // App instance and port names may use only lowercase letters, digits, and
-    // underscores. Returns an empty string when `name` complies, otherwise a
-    // description of the violation for an error message
-    static std::string name_violation(const std::string& name);
+    static std::string name_violation(const std::string& name);                       // Checks name only includes letters, numbers, and `_`
+    static bool matches_direction(const PortRecord& record, PortDirection direction); // Checks whether a port is on the requested side of its app
 
-    // True when a port is on the requested side of its app
-    static bool matches_direction(const PortRecord& record, PortDirection direction);
+    static std::string list_port_names(const std::array<PortRecord, SimConfig::max_port_number>& ports,
+                                       std::size_t port_count,
+                                       const std::string& app_name,
+                                       PortDirection direction);
 
-    // ---------------- "here is what you could have written" lists ----------------
+    static std::string list_publishers_of_type(const std::array<PortRecord, SimConfig::max_port_number>& ports,
+                                               std::size_t port_count,
+                                               const std::type_index& type);
 
-    // Comma-separated list of one app's input or output names, or "(none)"
-    static std::string port_names_for(std::span<const PortRecord> ports,
-                                      const std::string& app_name,
-                                      PortDirection direction);
-
-    // Every output anywhere in the sim carrying `type`, as "app.port" entries.
-    // Returns an empty string (not "(none)") when there are none, because the
-    // caller prints a different sentence in that case
-    static std::string publishers_of_type(std::span<const PortRecord> ports,
-                                          const std::type_index& type);
-
-    // Comma-separated list of every declared app instance name, or "(none)"
-    static std::string app_names(std::span<const std::string> declared_app_names);
+    static std::string list_app_names(const std::array<std::string, SimConfig::max_app_number>& app_names,
+                                      std::size_t app_count);
 };
 
 #endif
