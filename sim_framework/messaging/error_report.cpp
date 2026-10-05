@@ -13,15 +13,6 @@ void ErrorReport::record_error(const std::string& message) {
     total_error_count++;
 }
 
-void ErrorReport::record_warning(const std::string& message) {
-    if (stored_warning_count < warnings.size()) {
-        warnings[stored_warning_count] = message;
-        stored_warning_count++;
-    }
-
-    total_warning_count++;
-}
-
 std::string ErrorReport::build_error_text(const std::string& heading) const {
     std::ostringstream report;
 

@@ -65,6 +65,7 @@ inline std::string port_kind_to_string(PortKind kind) {
 // Struct contains everything the framework knows about an input/output
 struct PortRecord {
     std::string owner_app;
+    std::size_t owner_app_numerical_index = 0; // Index of the app that declared this port, assigned by add_app()
     std::string port_name;
     PortKind kind = PortKind::Subscribe;
 
@@ -81,6 +82,7 @@ struct PortRecord {
     // Output ports
     uint64_t last_write_usec = std::numeric_limits<uint64_t>::max();
 
+    bool is_input() const { return kind == PortKind::Subscribe; }
     bool is_connected() const { return source_numerical_index != std::numeric_limits<std::size_t>::max(); }
 };
 

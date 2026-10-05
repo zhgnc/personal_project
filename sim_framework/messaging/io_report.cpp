@@ -2,8 +2,6 @@
 
 #include <sstream>
 
-#include "port_matching.hpp"
-
 std::string IoReport::source_name_of(const std::array<PortRecord, SimConfig::max_port_number>& ports,
                                      const PortRecord& record) {
     if (record.is_connected() == false) {
@@ -32,7 +30,7 @@ std::string IoReport::build(const std::array<PortRecord, SimConfig::max_port_num
         for (std::size_t i = 0; i < port_count; i++) {
             const PortRecord& record = ports[i];
 
-            if (record.owner_app != app_name || PortMatching::matches_direction(record, PortDirection::Input) == false) {
+            if (record.owner_app != app_name || record.is_input() == false) {
                 continue;
             }
 
@@ -53,7 +51,7 @@ std::string IoReport::build(const std::array<PortRecord, SimConfig::max_port_num
         for (std::size_t i = 0; i < port_count; i++) {
             const PortRecord& record = ports[i];
 
-            if (record.owner_app != app_name || PortMatching::matches_direction(record, PortDirection::Output) == false) {
+            if (record.owner_app != app_name || record.is_input() == true) {
                 continue;
             }
 
