@@ -11,9 +11,12 @@
 // loop executes. One declaration serves three consumers: data transport
 // between apps, startup validation, and telemetry recording.
 //
-// The implementation is split across two files by phase:
-//   io_registry.cpp             declarations, storage, lookup, runtime
-//   io_registry_resolution.cpp  connecting and validating the topology
+// The implementation is split by phase, one file each:
+//   io_registry_declaration.cpp  building the port and app tables, and
+//                                searching them by name
+//   io_registry_validation.cpp   connecting the apps together, checking the
+//                                result, and building the per-app plans
+//   io_registry_runtime.cpp      everything the frame loop touches
 
 #include <array>
 #include <cstddef>
@@ -23,6 +26,7 @@
 #include <typeinfo>
 #include <type_traits>
 
+#include "../utilities/name_rules.hpp"
 #include "port_data.hpp"
 #include "port_type_name.hpp"
 #include "port_matching.hpp"
@@ -37,9 +41,11 @@
 // Storage is fixed-size (limits in SimConfig), which makes this a large
 // object: own it through a pointer, not as a local on a thread stack.
 //
-// Lifecycle is enforced, not documented-only: declarations are legal only
-// between begin_declarations()/end_declarations() (i.e. inside declare_io()),
-// and the topology freezes once resolve_and_validate() succeeds.
+// Call order, driven by the framework: add_app() followed by that app's
+// declare_io() for every app, then connect() for every connection listed in
+// the config files, then resolve_and_validate() once. Nothing guards that
+// order at runtime because apps are only ever handed an IoDeclarations, which
+// reaches the four declaration calls and nothing else.
 //
 // Data transport guarantees:
 //   - Subscribed inputs are value snapshots taken immediately before the
@@ -66,9 +72,8 @@ public:
     void tlm_debug(const std::string& port_name, T& source);
 
     // Sim Framework API (called by SimSingleRun)
-    void begin_declarations(const std::string& app_name);
-    void end_declarations();
-    void connect(const std::string& destination_app, 
+    void add_app(const std::string& app_name); // Every port declared after this call belongs to this app
+    void connect(const std::string& destination_app,
                  const std::string& input,
                  const std::string& from_app,
                  const std::string& from_port,
@@ -76,15 +81,12 @@ public:
 
     void resolve_and_validate();
     const AppIoInfo& plan_for(const std::string& app_name) const;
-    void copy_inputs(const AppIoInfo& plan) const;
-    void stamp_outputs(const AppIoInfo& plan, uint64_t sim_time_usec);
+    void copy_data(const AppIoInfo& plan) const;
+    void time_stamp_outputs(const AppIoInfo& plan, uint64_t sim_time_usec);
 
     // Internal use. Callers loop from 0 to the count and read one at a time
     std::size_t port_count() const { return port_record_count; }
     const PortRecord& port_at(std::size_t index) const { return port_records[index]; }
-
-    // Non-fatal wiring observations collected during resolve_and_validate()
-    const ErrorReport& report() const { return wiring_report; }
 
     // "app_name.port_name" of the output feeding this input, or an empty
     // string when the input is unconnected
@@ -102,23 +104,36 @@ private:
     template<typename T>
     void add_record(const std::string& port_name, T& member, PortKind kind, bool optional_flag);
 
-    // Phase guards: declaring outside declare_io(), or changing the topology
-    // after it is resolved, is a programming error rather than a config error
-    void require_declaration_open(const std::string& port_name) const;
-    void require_not_resolved(const char* method_name) const;
+    // Name checks. App names throw: a duplicate makes every port on the second
+    // instance look like a redeclaration, so collecting would bury the one real
+    // cause, and an invalid name corrupts the 'app_name.port_name' prefix that
+    // every later message is printed with. Port names are independent of each
+    // other, so they collect into wiring_report and report as one list
+    void throw_if_app_name_is_invalid(const std::string& app_name) const;
+    void throw_if_app_name_is_duplicate(const std::string& app_name) const;
+    bool check_port_name_is_valid(const std::string& port_name);
+    bool check_port_name_is_unique(const std::string& port_name);
 
-    bool app_is_declared(const std::string& app_name) const;
-    std::size_t app_index_of(const std::string& app_name) const;                                  // Declared app numerical index when not found
+    // Storage checks. Outgrowing a SimConfig limit is always fatal, and the
+    // message names the constant to raise
+    void throw_if_app_storage_full(const std::string& app_name) const;
+    void throw_if_port_storage_full(const std::string& port_name) const;
+    void throw_if_connection_storage_full(const ConnectionRequest& request) const;
+    void throw_if_app_input_storage_full(const AppIoInfo& plan, const ConnectionRequest& request) const;
+    void throw_if_app_output_storage_full(const AppIoInfo& plan, const std::string& owner_app) const;
+
+    bool is_app_declared(const std::string& app_name) const;
+    std::size_t get_app_index(const std::string& app_name) const;                                  // Declared app numerical index when not found
     std::size_t find_port_index(const std::string& app_name, const std::string& port_name) const; // Port record numerical index when not found
 
 
     void resolve_connection(const ConnectionRequest& request);
-    bool check_destination_port(const ConnectionRequest& request, const std::string& context,
-                                std::size_t& destination_index_out);
-    bool check_source_port(const ConnectionRequest& request, const std::string& context,
-                           std::size_t& source_index_out);
-    bool check_payload_match(const ConnectionRequest& request, const std::string& context,
-                             const PortRecord& source, const PortRecord& destination);
+    void record_connection_error(const ConnectionRequest& request, const std::string& message);
+    bool check_destination_port(const ConnectionRequest& request, std::size_t destination_index);
+    bool check_source_port(const ConnectionRequest& request, std::size_t source_index);
+    bool check_apps_are_different(const ConnectionRequest& request);
+    bool check_types_match(const ConnectionRequest& request, std::size_t source_index,
+                             std::size_t destination_index);
     void add_copy_binding(const ConnectionRequest& request, std::size_t source_index,
                           std::size_t destination_index);
 
@@ -139,8 +154,9 @@ private:
 
     ErrorReport wiring_report;
 
-    std::string app_open_for_declarations;  // empty when no declare_io() is in progress
-    bool wiring_resolved = false;
+    // Owner of the ports being declared, both set by add_app()
+    std::string declaring_app_name;
+    std::size_t declaring_app_numerical_index = 0;
 };
 
 #include "io_registry.tpp"
