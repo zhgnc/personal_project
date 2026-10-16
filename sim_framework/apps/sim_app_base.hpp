@@ -52,7 +52,7 @@ public:
 
     // Sim Framework API (called by SimSingleRun)
 
-    // Calls configure_model() with this app's config path
+    // Checks this app's rate fits the sim loop, then calls configure_model()
     void initialize(SimControl& sim_ctrl);
 
     // Hands the app its resolved copy plan once wiring is complete
@@ -75,6 +75,9 @@ protected:
     uint64_t input_last_update_usec(const std::string& port_name) const;
 
 private:
+    void throw_if_app_runs_faster_than_sim(uint64_t sim_dt_usec, double sim_rate_hz) const;
+    void throw_if_period_is_not_whole_sim_steps(uint64_t sim_dt_usec, double sim_rate_hz) const;
+
     const PortRecord& find_own_input(const std::string& port_name) const;
 
     uint64_t app_dt_usec;
