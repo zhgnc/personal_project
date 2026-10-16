@@ -240,7 +240,7 @@ void IoRegistry::throw_if_connection_storage_full(const ConnectionRequest& reque
 }
 
 void IoRegistry::throw_if_app_input_storage_full(const AppIoInfo& plan, const ConnectionRequest& request) const {
-    bool app_input_storage_is_full = plan.input_copy_count == SimConfig::max_app_input_number;
+    bool app_input_storage_is_full = plan.input_copy_count >= SimConfig::max_app_input_number;
 
     if (app_input_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(
@@ -250,7 +250,7 @@ void IoRegistry::throw_if_app_input_storage_full(const AppIoInfo& plan, const Co
 }
 
 void IoRegistry::throw_if_app_output_storage_full(const AppIoInfo& plan, const std::string& owner_app) const {
-    bool app_output_storage_is_full = plan.output_record_count == SimConfig::max_app_output_number;
+    bool app_output_storage_is_full = plan.output_record_count >= SimConfig::max_app_output_number;
 
     if (app_output_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(

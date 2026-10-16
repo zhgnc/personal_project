@@ -36,9 +36,9 @@ std::string IoReport::build(const std::array<PortRecord, SimConfig::max_port_num
 
             out << "    <- " << record.port_name << "  [" << record.type_name << "]";
 
-            if (record.is_connected()) {
+            if (record.is_connected() == true) {
                 out << "  from " << source_name_of(ports, record);
-            } else if (record.is_optional) {
+            } else if (record.is_optional == true) {
                 out << "  (optional, using default)";
             } else {
                 out << "  (UNCONNECTED)";
