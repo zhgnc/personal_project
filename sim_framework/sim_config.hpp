@@ -24,7 +24,7 @@ struct SimConfig {
     static constexpr std::size_t max_connection_number    = 256; // Input connections per run, all apps
     static constexpr std::size_t max_app_input_number     = 64;  // Subscribed inputs for one app
     static constexpr std::size_t max_app_output_number    = 64;  // Published ports for one app
-    static constexpr std::size_t max_wiring_report_number = 64;  // Stored errors or warnings per report
+    static constexpr std::size_t max_wiring_report_number = 64;  // Stored errors per report
 
     static std::string capacity_message(const std::string& what_exceeded_limit, const char* limit_name, std::size_t limit_value) {
         return what_exceeded_limit + " exceeds SimConfig::" + limit_name + " (" + std::to_string(limit_value) +
