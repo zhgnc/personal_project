@@ -229,7 +229,7 @@ void IoRegistry::build_output_stamp_lists() {
 }
 
 void IoRegistry::throw_if_connection_storage_full(const ConnectionRequest& request) const {
-    bool connection_storage_is_full = connection_request_count == SimConfig::max_connection_number;
+    bool connection_storage_is_full = connection_request_count >= SimConfig::max_connection_number;
 
     if (connection_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(
