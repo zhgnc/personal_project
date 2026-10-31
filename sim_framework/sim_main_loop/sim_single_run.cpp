@@ -1,9 +1,8 @@
 #include "sim_single_run.hpp"
 
-template<typename DataBusType>
-SimSingleRun<DataBusType>::SimSingleRun(SimSingleRunConfig<DataBusType>&& config_data) {
-    data_bus              = config_data.data_bus;
-    logging_rates         = config_data.logging_rates;
+#include <format>
+
+SimSingleRun::SimSingleRun(SimSingleRunConfig&& config_data) {
     print_hdf5_file_tree  = config_data.print_hdf5_file_tree;
     print_file_attributes = config_data.print_file_attributes;
     output_directory      = config_data.output_directory;
@@ -15,7 +14,7 @@ SimSingleRun<DataBusType>::SimSingleRun(SimSingleRunConfig<DataBusType>&& config
     total_mc_runs         = config_data.total_mc_runs;
     initial_seed          = config_data.initial_random_seed;
     app_count             = config_data.app_count;
-    logging_app_count     = config_data.logging_app_count;
+    io_connection_count   = config_data.io_connection_count;
 
     stop_time_usec        = static_cast<uint64_t>(stop_time_sec * sec2usec);
     sim_dt_sec            = 1.0 / sim_rate_hz;
@@ -29,16 +28,17 @@ SimSingleRun<DataBusType>::SimSingleRun(SimSingleRunConfig<DataBusType>&& config
     actual_stop_time_sec  = stop_time_sec; 
     
     for (std::size_t i = 0; i < app_count; i++) {
-        apps[i] = std::move(config_data.apps[i]);
+        apps[i]         = std::move(config_data.apps[i]);
+        app_runners[i]  = AppRunner(*apps[i]);
+        tlm_settings[i] = config_data.tlm_settings[i];
     }
 
-    for (std::size_t i = 0; i < logging_app_count; i++) {
-        logging_apps[i] = std::move(config_data.logging_apps[i]);
+    for (std::size_t i = 0; i < io_connection_count; i++) {
+        io_connections[i] = config_data.io_connections[i];
     }
 }         
 
-template<typename DataBusType>
-SimRunStats SimSingleRun<DataBusType>::run() {
+SimRunStats SimSingleRun::run() {
     setup();
 
     while (current_sim_time_usec <= stop_time_usec && stop_type == StopType::NoStop) {
@@ -50,8 +50,7 @@ SimRunStats SimSingleRun<DataBusType>::run() {
     return create_run_stats();
 }
 
-template<typename DataBusType>
-SimRunStats SimSingleRun<DataBusType>::create_run_stats() {
+SimRunStats SimSingleRun::create_run_stats() {
     SimRunStats run_stats;
 
     run_stats.run_number             = run_number;
@@ -67,8 +66,7 @@ SimRunStats SimSingleRun<DataBusType>::create_run_stats() {
 
 
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::setup() {
+void SimSingleRun::setup() {
     {
         std::lock_guard<std::mutex> lock(console_mutex);
         std::cout << "[SimSingleRun] Starting run " << run_number << " of " << total_mc_runs << "\n";
@@ -79,11 +77,6 @@ void SimSingleRun<DataBusType>::setup() {
     std::string full_path = output_directory + "/" + file_name;
 
     logger = std::make_unique<Logger>(full_path);
-    LoggerFacade logging_interface(*logger);
-
-    for (std::size_t i = 0; i < logging_app_count; i++) {
-        logging_apps[i]->configure_hdf5_logging(logging_interface, data_bus, logging_rates);
-    }
 
     sim_data_logger = std::make_unique<SimDataLogger>(*logger);
 
@@ -97,22 +90,48 @@ void SimSingleRun<DataBusType>::setup() {
     SimControl sim_ctrl = make_ctrl();
 
     for (std::size_t i = 0; i < app_count; i++) {
-        apps[i]->initialize(sim_ctrl); 
+        app_runners[i].initialize(sim_ctrl);
     }
- 
+
+    setup_io();
+
     computer_start_time = std::chrono::high_resolution_clock::now();
 }
 
 
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::step() {
+void SimSingleRun::setup_io() {
+    io_registry = std::make_unique<IoRegistry>();
+
+    for (std::size_t i = 0; i < app_count; i++) {
+        io_registry->add_app(apps[i]->name());
+
+        IoDeclarations io(*io_registry);
+        apps[i]->declare_io(io); // User defined code
+    }
+
+    for (std::size_t i = 0; i < io_connection_count; i++) {
+        const IoConfigSpec& spec = io_connections[i];
+
+        io_registry->connect(spec.destination_app, spec.input, spec.from_app, spec.from_port, spec.config_file_name);
+    }
+
+    io_registry->resolve_and_validate();
+
+    for (std::size_t i = 0; i < app_count; i++) {
+        app_runners[i].attach_io(*io_registry, io_registry->plan_for(apps[i]->name()));
+    }
+}
+
+
+
+void SimSingleRun::step() {
 
     update_accessible_sim_data();
     SimControl sim_ctrl = make_ctrl();
 
     for (std::size_t i = 0; i < app_count; i++) {
-        apps[i]->check_step(current_sim_time_usec, data_bus, sim_ctrl);
+        app_runners[i].check_step(current_sim_time_usec, sim_ctrl);
 
         if (stop_type == StopType::AfterApp) {
             return;
@@ -127,13 +146,12 @@ void SimSingleRun<DataBusType>::step() {
 
 
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::teardown() {
+void SimSingleRun::teardown() {
     update_accessible_sim_data();
     SimControl sim_ctrl = make_ctrl();
 
     for (std::size_t i = 0; i < app_count; i++) {
-        apps[i]->teardown(data_bus, sim_ctrl);
+        apps[i]->teardown(sim_ctrl); // User defined code
     }
 
     computer_stop_time       = std::chrono::high_resolution_clock::now();
@@ -158,8 +176,7 @@ void SimSingleRun<DataBusType>::teardown() {
 }
 
 
-template<typename DataBusType>
-SimControl SimSingleRun<DataBusType>::make_ctrl() {
+SimControl SimSingleRun::make_ctrl() {
     return SimControl(accessible_sim_data,
                       [this](StopType t, StopReason r, const std::string& m) { end_sim(t, r, m); },
                       [this]() { return get_seed(); },
@@ -167,21 +184,18 @@ SimControl SimSingleRun<DataBusType>::make_ctrl() {
                       run_number);
 }
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::update_accessible_sim_data() {
+void SimSingleRun::update_accessible_sim_data() {
     accessible_sim_data = SimControl::AccessibleSimData{current_sim_time_sec, sim_dt_sec, sim_rate_hz, sim_step_count};
 }
 
-template<typename DataBusType>
-uint64_t SimSingleRun<DataBusType>::get_seed() {
+uint64_t SimSingleRun::get_seed() {
     uint64_t seed_output = run_number + current_seed;
     current_seed = current_seed + 1;
 
     return seed_output; // Returns value of `current_seed` and then increments by 1
 }
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::end_sim(const StopType& type, const StopReason& reason, const std::string& message) {
+void SimSingleRun::end_sim(const StopType& type, const StopReason& reason, const std::string& message) {
     if (stop_type != StopType::NoStop) { 
       return; 
     }
@@ -195,8 +209,7 @@ void SimSingleRun<DataBusType>::end_sim(const StopType& type, const StopReason& 
 }
 
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message) {
+void SimSingleRun::print_stop_diagnostics(const StopType& type, const StopReason& reason, const std::string& message) {
   std::string type_string   = stop_type_to_string(type);
   int type_int              = static_cast<int>(type);
   std::string reason_string = stop_reason_to_string(reason);
@@ -210,8 +223,7 @@ void SimSingleRun<DataBusType>::print_stop_diagnostics(const StopType& type, con
   std::cout << "                   |- Message: " << message << std::endl;
 }
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::log_run_meta_data() {
+void SimSingleRun::log_run_meta_data() {
     meta_data.start_time_sec           = start_time_sec; 
     meta_data.config_stop_time_sec     = stop_time_sec;
     meta_data.actual_stop_time_sec     = actual_stop_time_sec; 
@@ -227,13 +239,12 @@ void SimSingleRun<DataBusType>::log_run_meta_data() {
     meta_data.computer_elapsed_seconds = computer_elapsed_seconds; 
     meta_data.sim_to_real_time_ratio   = sim_to_real_time_ratio;
     meta_data.app_count                = app_count;
-    meta_data.logging_app_count        = logging_app_count;
+    meta_data.logging_app_count        = 0; // No logging apps anymore, attribute removed with the recorder
 
     sim_data_logger->log_sim_meta_data(meta_data);
 }
 
-template<typename DataBusType>
-void SimSingleRun<DataBusType>::sim_teardown() {
+void SimSingleRun::sim_teardown() {
   std::lock_guard<std::mutex> lock(console_mutex);
 
   std::cout << "\n[Simulation] ALL RUNS FINISHED!!!\n\n";
