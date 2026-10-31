@@ -29,50 +29,26 @@ public:
 
     virtual ~SimAppBase() = default;
 
-    // Implemented by every app
-
-    // Build the model from its config file. Called once per run, before declare_io()
+    // Virtual functions user defines
     virtual void configure_model(const std::string& path_to_config, SimControl& sim_ctrl) = 0;
-
-    // Bind port names to members of the model built in configure_model(). The
-    // only place io.sub, io.sub_optional, io.tlm, and io.tlm_debug can be called
     virtual void declare_io(IoDeclarations& io) = 0;
-
-    // Advance the model by one of this app's time steps. Subscribed inputs
-    // already hold fresh values when this is called
     virtual void step(SimControl& sim_ctrl) = 0;
-
-    // Final call before the run ends
     virtual void teardown(SimControl& sim_ctrl) = 0;
 
+    // Getters for class variables 
     const std::string& name() const { return app_name; }
     int priority() const { return app_priority; }
     double dt_sec() const { return app_dt_sec; }
     const std::string& config_file() const { return config_path; }
 
-    // Sim Framework API (called by SimSingleRun)
-
-    // Checks this app's rate fits the sim loop, then calls configure_model()
+    // API functions to sim framework
     void initialize(SimControl& sim_ctrl);
-
-    // Hands the app its resolved copy plan once wiring is complete
     void attach_io(IoRegistry& registry, const AppIoInfo& plan);
-
-    // Called every frame. Steps the app only when the sim time is a multiple of
-    // its period, copying its inputs in first and stamping its outputs after
     void check_step(const uint64_t& sim_time_usec, SimControl& sim_ctrl);
 
 protected:
-    // Input queries for derived apps. Valid from the first step onward, not
-    // inside configure_model() or declare_io()
-
-    // False for a sub_optional() input that nothing connected, so the model is
-    // running on its default value
     bool input_connected(const std::string& port_name) const;
-
-    // Sim time the app feeding this input last stepped, so a model can tell how
-    // old its data is. Max value until that app first steps, or when unconnected
-    uint64_t input_last_update_usec(const std::string& port_name) const;
+    uint64_t time_last_update_usec(const std::string& port_name) const;
 
 private:
     void throw_if_app_runs_faster_than_sim(uint64_t sim_dt_usec, double sim_rate_hz) const;
@@ -86,8 +62,6 @@ private:
     double app_dt_sec;
     std::string app_name;
 
-    // Set by attach_io() once wiring resolves. Null on the prototype instances
-    // SimManager stores, which are cloned but never stepped
     IoRegistry* io_registry  = nullptr;
     const AppIoInfo* io_plan = nullptr;
 

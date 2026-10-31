@@ -19,14 +19,12 @@ SimAppBase::SimAppBase(std::string app_of_name,
 void SimAppBase::initialize(SimControl& sim_ctrl) {
     const SimControl::AccessibleSimData& sim_data = sim_ctrl.public_sim_data();
 
-    // The same expression SimSingleRun uses for its step, so this is exactly the
-    // amount the loop advances sim_time_usec by each frame
     uint64_t sim_dt_usec = static_cast<uint64_t>((1.0 / sim_data.sim_rate_hz) * sec2usec);
 
     throw_if_app_runs_faster_than_sim(sim_dt_usec, sim_data.sim_rate_hz);
     throw_if_period_is_not_whole_sim_steps(sim_dt_usec, sim_data.sim_rate_hz);
 
-    configure_model(config_path, sim_ctrl);
+    configure_model(config_path, sim_ctrl); // User defined code
 }
 
 void SimAppBase::throw_if_app_runs_faster_than_sim(uint64_t sim_dt_usec, double sim_rate_hz) const {
@@ -40,9 +38,6 @@ void SimAppBase::throw_if_app_runs_faster_than_sim(uint64_t sim_dt_usec, double 
     }
 }
 
-// check_step() steps the app when sim_time_usec is a multiple of its period. The
-// loop only visits multiples of its own step, so a period that is not a whole
-// number of sim steps never lands on schedule and the app silently stops running
 void SimAppBase::throw_if_period_is_not_whole_sim_steps(uint64_t sim_dt_usec, double sim_rate_hz) const {
     bool period_is_not_whole_sim_steps = app_dt_usec % sim_dt_usec != 0;
 
@@ -60,9 +55,6 @@ void SimAppBase::attach_io(IoRegistry& registry, const AppIoInfo& plan) {
     io_plan     = &plan;
 }
 
-// Inputs are copied in immediately before the step, so the model sees values as
-// of the moment it starts rather than anything another app writes later in the
-// same frame. Outputs are stamped after, so subscribers can tell how old they are
 void SimAppBase::check_step(const uint64_t& sim_time_usec, SimControl& sim_ctrl) {
     bool time_to_step = sim_time_usec % app_dt_usec == 0;
 
@@ -71,7 +63,7 @@ void SimAppBase::check_step(const uint64_t& sim_time_usec, SimControl& sim_ctrl)
     }
 
     io_registry->copy_data(*io_plan);
-    step(sim_ctrl);
+    step(sim_ctrl); // User defined code
     io_registry->time_stamp_outputs(*io_plan, sim_time_usec);
 }
 
@@ -79,15 +71,13 @@ bool SimAppBase::input_connected(const std::string& port_name) const {
     return find_own_input(port_name).is_connected();
 }
 
-uint64_t SimAppBase::input_last_update_usec(const std::string& port_name) const {
+uint64_t SimAppBase::time_last_update_usec(const std::string& port_name) const {
     const PortRecord& own_input = find_own_input(port_name);
 
     if (own_input.is_connected() == false) {
         return std::numeric_limits<uint64_t>::max();
     }
 
-    // The input stores the index of the output feeding it, so reaching the
-    // publisher is a direct lookup rather than a search
     return io_registry->port_at(own_input.source_numerical_index).last_write_usec;
 }
 
