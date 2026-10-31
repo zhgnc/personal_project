@@ -44,10 +44,10 @@ private:
 
     // Config data
     std::array<std::unique_ptr<SimAppBase>, SimConfig::max_app_number> apps;
-    std::array<AppRunner, SimConfig::max_app_number> app_runners; // Parallel to `apps`
+    std::array<AppRunner, SimConfig::max_app_number> app_runners;
     std::size_t app_count;
 
-    std::unique_ptr<IoRegistry> io_registry; // Heap owned, too large for a thread stack
+    std::unique_ptr<IoRegistry> io_registry;
     std::array<IoConfigSpec, SimConfig::max_connection_number> io_connections;
     std::size_t io_connection_count;
 

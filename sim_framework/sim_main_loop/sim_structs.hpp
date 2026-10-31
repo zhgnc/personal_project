@@ -19,13 +19,9 @@
 struct SimAppPrototype {
     SimAppPrototype() = default;
 
-    // Store original app instance
-    std::unique_ptr<SimAppBase> prototype;
-
+    std::unique_ptr<SimAppBase> prototype; // prototype is a variable that stores the original app instance
     AppTlmSettings tlm;
-
-    // Function that knows how to clone this specific type
-    std::function<std::unique_ptr<SimAppBase>(const SimAppBase&)> copy_function;
+    std::function<std::unique_ptr<SimAppBase>(const SimAppBase&)> copy_function; // Function that knows how to clone this specific type
 
     // Constructor saves the prototype object and builds a type-specific clone
     // function. `requires` stops it being picked over the copy constructor
@@ -66,7 +62,7 @@ struct SimSingleRunConfig {
     std::array<IoConfigSpec, SimConfig::max_connection_number> io_connections;
     std::size_t io_connection_count = 0;
 
-    std::array<AppTlmSettings, SimConfig::max_app_number> tlm_settings; // Parallel to `apps`
+    std::array<AppTlmSettings, SimConfig::max_app_number> tlm_settings;
 
     bool print_hdf5_file_tree;
     bool print_file_attributes;
