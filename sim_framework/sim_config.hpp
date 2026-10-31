@@ -17,9 +17,6 @@ struct SimConfig {
     static constexpr std::size_t max_app_number    = 50; // Apps in one simulation
     static constexpr std::size_t max_thread_number = 32; // Monte Carlo worker threads
 
-    // Removed when the logging apps are replaced by the telemetry recorder
-    static constexpr std::size_t max_logging_app_number = 10;
-
     static constexpr std::size_t max_port_number          = 512; // Declared ports per run, all apps
     static constexpr std::size_t max_connection_number    = 256; // Input connections per run, all apps
     static constexpr std::size_t max_app_input_number     = 64;  // Subscribed inputs for one app
