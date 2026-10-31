@@ -10,7 +10,6 @@ SimMetaDataRaw get_meta_data(const std::string& hdf5_file) {
     meta.current_mc_run            = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "current_mc_run");
     meta.initial_random_seed       = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "initial_random_seed");
     meta.app_count                 = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "app_count");
-    meta.logging_app_count         = read_hdf5_attribute<uint64_t>(hdf5_file, "/sim", "logging_app_count");
     meta.computer_elapsed_time_sec = read_hdf5_attribute<double>(hdf5_file, "/sim", "computer_elapsed_time_sec");
     meta.sim_to_real_time_ratio    = read_hdf5_attribute<double>(hdf5_file, "/sim", "sim_to_real_time_ratio");
     meta.stop_type                 = read_hdf5_attribute<std::string>(hdf5_file, "/sim", "stop_type");
