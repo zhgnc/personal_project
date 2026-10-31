@@ -80,6 +80,7 @@ private:
 
     bool print_hdf5_file_tree;
     bool print_file_attributes;
+    bool print_io_report;
 
     // Controls how much detail display_run_summary() prints after the batch:
     // 1 = completion message only, 2 = adds performance stats, >=3 = adds run

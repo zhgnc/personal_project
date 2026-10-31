@@ -12,6 +12,7 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     
     print_hdf5_file_tree   = get_yaml_value<bool>(config, "print_hdf5_file_format");
     print_file_attributes  = get_yaml_value<bool>(config, "print_hdf5_attributes_in_file_format");
+    print_io_report        = get_yaml_value<bool>(config, "print_io_report");
     sim_stats_report_level = static_cast<uint8_t>(get_yaml_value<int>(config, "sim_stats_report_level"));
 
     base_file_name       = get_yaml_value<std::string>(config, "base_file_name");
@@ -109,7 +110,9 @@ void SimManager::validate_apps() {
 
     validation_registry->resolve_and_validate();
 
-    std::cout << validation_registry->io_report() << "\n";
+    if (print_io_report == true) {
+        std::cout << validation_registry->io_report() << "\n";
+    }
 }
 
 // Worker function executed by each thread in the pool. Each worker claims 
