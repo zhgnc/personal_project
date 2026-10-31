@@ -21,6 +21,7 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     output_directory     = get_yaml_value<std::string>(config, "logging_file_save_directory");
 
     app_count                = 0;
+    disabled_app_count       = 0;
     io_connection_spec_count = 0;
 
     completed_run_count        = 0;
@@ -43,9 +44,25 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     }
 }
 
+SimManager::SimManager(const std::string& path_to_sim_config, const AppClassList& available_apps)
+    : SimManager(path_to_sim_config) {
+    YAML::Node config = load_yaml_file(path_to_sim_config);
+
+    std::string manifest_path = get_yaml_value<std::string>(config, "app_manifest");
+
+    std::array<AppManifestEntry, SimConfig::max_app_number> manifest_entries;
+    std::size_t manifest_entry_count = 0;
+
+    AppManifestParser manifest_parser(manifest_path);
+    manifest_parser.parse(manifest_entries, manifest_entry_count);
+
+    add_manifest_apps(manifest_entries, manifest_entry_count, available_apps, manifest_path);
+}
+
 void SimManager::run() {
     sort_apps_by_priority(); // SimSingleRun expects the apps to be in the proper order when received in the config struct
     load_app_connections();
+    check_connections_against_disabled_apps();
     validate_apps();
 
     std::array<std::jthread, SimConfig::max_thread_number> thread_pool;
@@ -69,6 +86,39 @@ void SimManager::run() {
     std::chrono::duration<double> parallel_elapsed_seconds = std::chrono::high_resolution_clock::now() - parallel_start_time;
 
     display_run_summary(parallel_elapsed_seconds.count());
+}
+
+// Disabled apps are remembered so a connection to one can say so
+void SimManager::add_manifest_apps(const std::array<AppManifestEntry, SimConfig::max_app_number>& entries,
+                                   std::size_t entry_count, const AppClassList& available_apps,
+                                   const std::string& manifest_path) {
+    ErrorReport manifest_report;
+
+    for (std::size_t i = 0; i < entry_count; i++) {
+        const AppManifestEntry& entry = entries[i];
+
+        if (entry.enabled == false) {
+            disabled_app_names[disabled_app_count] = entry.instance_name;
+            disabled_app_count++;
+            continue;
+        }
+
+        const AppClassFactory* factory = available_apps.find(entry.class_name);
+
+        bool class_is_not_listed = factory == nullptr;
+
+        if (class_is_not_listed == true) {
+            manifest_report.record_error("app '" + entry.instance_name + "': class '" + entry.class_name +
+                                         "' is not in this project's AppClassList (available classes: " +
+                                         available_apps.joined_class_names() + ")");
+            continue;
+        }
+
+        app_prototypes[app_count] = factory->create_prototype(entry);
+        app_count++;
+    }
+
+    manifest_report.throw_if_errors("[APP MANIFEST] app manifest (" + manifest_path + "):");
 }
 
 void SimManager::sort_apps_by_priority() {
@@ -107,6 +157,27 @@ void SimManager::load_app_connections() {
             parser.parse_input_mapping(io_connection_specs, io_connection_spec_count);
         }
     }
+}
+
+// Without this the registry would only say the app does not exist
+void SimManager::check_connections_against_disabled_apps() const {
+    ErrorReport disabled_app_report;
+
+    for (std::size_t i = 0; i < io_connection_spec_count; i++) {
+        const IoConfigSpec& spec = io_connection_specs[i];
+
+        for (std::size_t k = 0; k < disabled_app_count; k++) {
+            bool source_app_is_disabled = spec.from_app == disabled_app_names[k];
+
+            if (source_app_is_disabled == true) {
+                disabled_app_report.record_error(spec.config_file_name + ": " + spec.destination_app + "." +
+                                                 spec.input + ": source app '" + spec.from_app +
+                                                 "' is disabled in the app manifest (enabled: false)");
+            }
+        }
+    }
+
+    disabled_app_report.throw_if_errors("[APP MANIFEST] connections to disabled apps:");
 }
 
 // Checks every app once on the prototypes before any thread starts, so a bad

@@ -23,9 +23,12 @@ protected:
     void throw_if_errors() const;
 
     // Record a specific error and return false when the field is missing,
-    // empty, not a single value, or breaks the name rule
+    // empty, not a single value, the wrong type, or breaks the name rule
     bool extract_string(const YAML::Node& entry, std::size_t line, const char* key, std::string& value_out);
     bool extract_name(const YAML::Node& entry, std::size_t line, const char* key, std::string& value_out);
+    bool extract_bool(const YAML::Node& entry, std::size_t line, const char* key, bool& value_out);
+    bool extract_int(const YAML::Node& entry, std::size_t line, const char* key, int& value_out);
+    bool extract_double(const YAML::Node& entry, std::size_t line, const char* key, double& value_out);
 
     // Records an error for every unknown key and every key that appears more
     // than once in one map entry

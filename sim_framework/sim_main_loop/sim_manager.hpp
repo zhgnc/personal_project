@@ -17,11 +17,16 @@
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
 #include "app_runner.hpp"
+#include "../apps/app_class_list.hpp"
 #include "../../utilities/yaml_utilities.hpp"
 
 class SimManager {
 public:
     SimManager(const std::string& path_to_sim_config);
+
+    // Also adds every enabled app in the manifest named by the sim config's
+    // `app_manifest` key
+    SimManager(const std::string& path_to_sim_config, const AppClassList& available_apps);
 
     // This function accepts any object derived from `SimAppBase` and adds it to
     // the `app_prototypes`. The template parameter `AppType` preserves the
@@ -51,8 +56,12 @@ public:
     void run();
 
 private:
+    void add_manifest_apps(const std::array<AppManifestEntry, SimConfig::max_app_number>& entries,
+                           std::size_t entry_count, const AppClassList& available_apps,
+                           const std::string& manifest_path);
     void sort_apps_by_priority();
     void load_app_connections();
+    void check_connections_against_disabled_apps() const;
     void validate_apps();
     static bool compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B);
     void thread_job();
@@ -66,6 +75,9 @@ private:
 
     std::size_t app_count;
     std::size_t num_threads;
+
+    std::array<std::string, SimConfig::max_app_number> disabled_app_names;
+    std::size_t disabled_app_count;
     std::mutex mutex;
 
     // Read once from the apps' config files and replayed into every run
