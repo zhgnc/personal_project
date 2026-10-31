@@ -22,6 +22,7 @@ SimSingleRun::SimSingleRun(SimSingleRunConfig&& config_data) {
     current_sim_time_sec  = start_time_sec;
     current_sim_time_usec = static_cast<uint64_t>(start_time_sec * sec2usec);
     sim_step_count        = 0;
+    current_seed          = 0;
     stop_type             = StopType::NoStop;
     stop_reason           = StopReason::ReachedConfiguredStopTime;
     stop_message          = "None Provided";
@@ -126,7 +127,6 @@ void SimSingleRun::setup_io() {
 
 
 void SimSingleRun::step() {
-
     update_accessible_sim_data();
     SimControl sim_ctrl = make_ctrl();
 
@@ -137,6 +137,7 @@ void SimSingleRun::step() {
             return;
         }
     }
+
     logger->log_data(current_sim_time_usec);
 
     current_sim_time_usec += sim_dt_usec;
@@ -156,7 +157,7 @@ void SimSingleRun::teardown() {
 
     computer_stop_time       = std::chrono::high_resolution_clock::now();
     computer_elapsed_seconds = computer_stop_time - computer_start_time;
-    sim_to_real_time_ratio   = actual_stop_time_sec / computer_elapsed_seconds.count();
+    sim_to_real_time_ratio   = (actual_stop_time_sec - start_time_sec) / computer_elapsed_seconds.count();
 
     {
         std::lock_guard<std::mutex> lock(console_mutex);

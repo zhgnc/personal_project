@@ -57,7 +57,7 @@ struct SimRunStats {
 // run, which is what makes Monte Carlo runs safe to execute in parallel
 struct SimSingleRunConfig {
     std::array<std::unique_ptr<SimAppBase>, SimConfig::max_app_number> apps;
-    std::size_t app_count;
+    std::size_t app_count = 0;
 
     std::array<IoConfigSpec, SimConfig::max_connection_number> io_connections;
     std::size_t io_connection_count = 0;
