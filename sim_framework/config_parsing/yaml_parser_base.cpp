@@ -1,9 +1,5 @@
 #include "yaml_parser_base.hpp"
 
-#include <stdexcept>
-
-#include "../../utilities/yaml_utilities.hpp"
-
 YamlParserBase::YamlParserBase(const std::string& parser_report_tag,
                                const std::string& parser_owner_name,
                                const std::string& path_to_file) {
@@ -26,7 +22,7 @@ void YamlParserBase::throw_if_errors() const {
     parse_report.throw_if_errors(report_tag + " " + owner_name + " (" + file_path + "):");
 }
 
-bool YamlParserBase::extract_scalar_node(const YAML::Node& entry, std::size_t line, const char* key,
+bool YamlParserBase::extract_single_value(const YAML::Node& entry, std::size_t line, const char* key,
                                          YAML::Node& node_out) {
     YAML::Node value = entry[key];
 
@@ -61,7 +57,7 @@ bool YamlParserBase::extract_string(const YAML::Node& entry, std::size_t line, c
                                     std::string& value_out) {
     YAML::Node value;
 
-    if (extract_scalar_node(entry, line, key, value) == false) {
+    if (extract_single_value(entry, line, key, value) == false) {
         return false;
     }
 
@@ -90,7 +86,7 @@ bool YamlParserBase::extract_name(const YAML::Node& entry, std::size_t line, con
 bool YamlParserBase::extract_bool(const YAML::Node& entry, std::size_t line, const char* key, bool& value_out) {
     YAML::Node value;
 
-    if (extract_scalar_node(entry, line, key, value) == false) {
+    if (extract_single_value(entry, line, key, value) == false) {
         return false;
     }
 
@@ -108,7 +104,7 @@ bool YamlParserBase::extract_bool(const YAML::Node& entry, std::size_t line, con
 bool YamlParserBase::extract_int(const YAML::Node& entry, std::size_t line, const char* key, int& value_out) {
     YAML::Node value;
 
-    if (extract_scalar_node(entry, line, key, value) == false) {
+    if (extract_single_value(entry, line, key, value) == false) {
         return false;
     }
 
@@ -126,7 +122,7 @@ bool YamlParserBase::extract_int(const YAML::Node& entry, std::size_t line, cons
 bool YamlParserBase::extract_double(const YAML::Node& entry, std::size_t line, const char* key, double& value_out) {
     YAML::Node value;
 
-    if (extract_scalar_node(entry, line, key, value) == false) {
+    if (extract_single_value(entry, line, key, value) == false) {
         return false;
     }
 
@@ -148,10 +144,16 @@ void YamlParserBase::check_map_keys(const YAML::Node& map_node, std::size_t line
     std::string valid_key_list;
 
     for (std::size_t i = 0; i < valid_key_count; i++) {
-        valid_key_list += (i == 0 ? "" : ", ") + std::string(valid_keys[i]);
+        bool first_key = i == 0;
+
+        if (first_key == false) {
+            valid_key_list += ", ";
+        }
+
+        valid_key_list += valid_keys[i];
     }
 
-    for (YAML::const_iterator it = map_node.begin(); it != map_node.end(); ++it) {
+    for (YAML::const_iterator it = map_node.begin(); it != map_node.end(); it++) {
         bool key_is_not_a_name = it->first.IsScalar() == false;
 
         if (key_is_not_a_name == true) {
@@ -177,7 +179,10 @@ void YamlParserBase::check_map_keys(const YAML::Node& map_node, std::size_t line
 
         for (YAML::const_iterator it = map_node.begin(); it != map_node.end(); ++it) {
             bool is_this_key = it->first.IsScalar() == true && it->first.as<std::string>() == valid_keys[i];
-            occurrences += is_this_key ? 1 : 0;
+
+            if (is_this_key == true) {
+                occurrences++;
+            }
         }
 
         bool key_is_repeated = occurrences > 1;
@@ -216,10 +221,24 @@ std::string YamlParserBase::joined_map_keys(const YAML::Node& map_node) {
     for (YAML::const_iterator it = map_node.begin(); it != map_node.end(); ++it) {
         bool key_is_a_name = it->first.IsScalar() == true;
 
-        if (key_is_a_name == true) {
-            joined += (joined.empty() == true ? "" : ", ") + it->first.as<std::string>();
+        if (key_is_a_name == false) {
+            continue;
         }
+
+        bool first_key = joined.empty() == true;
+
+        if (first_key == false) {
+            joined += ", ";
+        }
+
+        joined += it->first.as<std::string>();
     }
 
-    return joined.empty() == true ? "no keys" : joined;
+    bool map_has_no_named_keys = joined.empty() == true;
+
+    if (map_has_no_named_keys == true) {
+        return "no keys";
+    }
+
+    return joined;
 }

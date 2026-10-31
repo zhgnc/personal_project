@@ -7,11 +7,13 @@
 
 #include <cstddef>
 #include <string>
+#include <stdexcept>
 
 #include <yaml-cpp/yaml.h>
 
 #include "../messaging/error_report.hpp"
 #include "../utilities/name_rules.hpp"
+#include "../../utilities/yaml_utilities.hpp"
 
 class YamlParserBase {
 protected:
@@ -45,7 +47,7 @@ protected:
     ErrorReport parse_report;
 
 private:
-    bool extract_scalar_node(const YAML::Node& entry, std::size_t line, const char* key, YAML::Node& node_out);
+    bool extract_single_value(const YAML::Node& entry, std::size_t line, const char* key, YAML::Node& node_out);
 };
 
 #endif
