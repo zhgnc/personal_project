@@ -1,30 +1,34 @@
 #ifndef SIM_SINGLE_RUN_HPP
 #define SIM_SINGLE_RUN_HPP
 
+#include <array>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <chrono>
-#include <iostream>
 
 #include "sim_control.hpp"
+#include "app_runner.hpp"
+#include "sim_structs.hpp"
 #include "../sim_config.hpp"
 #include "../telemetry/sim_data_logger.hpp"
-#include "sim_structs.hpp"
 #include "../data_logging/logger.hpp"
 #include "../utilities/console_mutex.hpp"
 
-template<typename DataBusType>
 class SimSingleRun {
 public:
     // Takes ownership of the config object and moves its resources into the
     // sim run. An rvalue reference (`&&`) is used because the configuration
     // contains move-only objects like std::unique_ptr's
-    SimSingleRun(SimSingleRunConfig<DataBusType>&& config_data);
+    SimSingleRun(SimSingleRunConfig&& config_data);
 
     SimRunStats run();
 
 private:
     void setup();
+    void setup_io();
     void step();
     void teardown();
     SimRunStats create_run_stats();
@@ -39,15 +43,16 @@ private:
     uint64_t get_seed();
 
     // Config data
-    DataBusType data_bus;
-
-    std::array<std::unique_ptr<SimAppBase<DataBusType>>, SimConfig::max_app_number> apps;
+    std::array<std::unique_ptr<SimAppBase>, SimConfig::max_app_number> apps;
+    std::array<AppRunner, SimConfig::max_app_number> app_runners; // Parallel to `apps`
     std::size_t app_count;
 
-    std::array<std::unique_ptr<LoggingAppBase<DataBusType>>, SimConfig::max_logging_app_number> logging_apps;
-    std::size_t logging_app_count;
+    std::unique_ptr<IoRegistry> io_registry; // Heap owned, too large for a thread stack
+    std::array<IoConfigSpec, SimConfig::max_connection_number> io_connections;
+    std::size_t io_connection_count;
 
-    AppLoggingRates logging_rates;
+    std::array<AppTlmSettings, SimConfig::max_app_number> tlm_settings;
+
     bool print_hdf5_file_tree;
     bool print_file_attributes;
 
@@ -63,7 +68,7 @@ private:
 
     std::size_t run_number;
     std::size_t total_mc_runs;
-    
+
     uint64_t current_seed;
     uint64_t initial_seed;
 
@@ -84,12 +89,10 @@ private:
 
     std::unique_ptr<Logger> logger;
     std::unique_ptr<SimDataLogger> sim_data_logger;
-    
+
     SimMetaData meta_data;
 
     static constexpr double sec2usec = 1e6;
 };
-
-#include "sim_single_run.tpp"
 
 #endif
