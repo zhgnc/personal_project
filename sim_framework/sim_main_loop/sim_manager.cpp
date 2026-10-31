@@ -1,5 +1,7 @@
 #include "sim_manager.hpp"
 
+#include "../config_parsing/connection_yaml.hpp"
+
 SimManager::SimManager(const std::string& path_to_sim_config) {
     YAML::Node config = load_yaml_file(path_to_sim_config);
 
@@ -18,7 +20,8 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     base_file_name       = get_yaml_value<std::string>(config, "base_file_name");
     output_directory     = get_yaml_value<std::string>(config, "logging_file_save_directory");
 
-    app_count = 0;
+    app_count                = 0;
+    io_connection_spec_count = 0;
 
     completed_run_count        = 0;
     reached_stop_time_count    = 0;
@@ -42,6 +45,7 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
 
 void SimManager::run() {
     sort_apps_by_priority(); // SimSingleRun expects the apps to be in the proper order when received in the config struct
+    load_app_connections();
     validate_apps();
 
     std::array<std::jthread, SimConfig::max_thread_number> thread_pool;
@@ -91,6 +95,20 @@ void SimManager::display_sorted_app_info() {
   std::cout << "\n";
 }
 
+// Each app's config file lists the outputs that feed its inputs
+void SimManager::load_app_connections() {
+    for (std::size_t i = 0; i < app_count; i++) {
+        const SimAppBase& app = *app_prototypes[i].prototype;
+
+        bool app_has_config_file = app.config_file().empty() == false;
+
+        if (app_has_config_file == true) {
+            ConnectionYamlParser parser(app.name(), app.config_file());
+            parser.parse_input_mapping(io_connection_specs, io_connection_spec_count);
+        }
+    }
+}
+
 // Checks every app once on the prototypes before any thread starts, so a bad
 // rate or wiring mistake stops the batch with one error instead of failing in
 // every worker thread
@@ -106,6 +124,12 @@ void SimManager::validate_apps() {
 
         IoDeclarations io(*validation_registry);
         app_prototypes[i].prototype->declare_io(io); // User defined code
+    }
+
+    for (std::size_t i = 0; i < io_connection_spec_count; i++) {
+        const IoConfigSpec& spec = io_connection_specs[i];
+
+        validation_registry->connect(spec.destination_app, spec.input, spec.from_app, spec.from_port, spec.config_file_name);
     }
 
     validation_registry->resolve_and_validate();
@@ -253,6 +277,12 @@ SimSingleRunConfig SimManager::build_single_run_config(std::size_t run_number) {
     for (std::size_t i = 0; i < app_count; i++) {
         run_config.apps[i]         = app_prototypes[i].create();
         run_config.tlm_settings[i] = app_prototypes[i].tlm;
+    }
+
+    run_config.io_connection_count = io_connection_spec_count;
+
+    for (std::size_t i = 0; i < io_connection_spec_count; i++) {
+        run_config.io_connections[i] = io_connection_specs[i];
     }
 
     return run_config;

@@ -52,6 +52,7 @@ public:
 
 private:
     void sort_apps_by_priority();
+    void load_app_connections();
     void validate_apps();
     static bool compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B);
     void thread_job();
@@ -66,6 +67,10 @@ private:
     std::size_t app_count;
     std::size_t num_threads;
     std::mutex mutex;
+
+    // Read once from the apps' config files and replayed into every run
+    std::array<IoConfigSpec, SimConfig::max_connection_number> io_connection_specs;
+    std::size_t io_connection_spec_count;
 
     // ---------------- Simulation config ----------------
     double start_time_sec;
