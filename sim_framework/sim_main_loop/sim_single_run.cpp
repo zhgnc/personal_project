@@ -240,7 +240,6 @@ void SimSingleRun::log_run_meta_data() {
     meta_data.computer_elapsed_seconds = computer_elapsed_seconds; 
     meta_data.sim_to_real_time_ratio   = sim_to_real_time_ratio;
     meta_data.app_count                = app_count;
-    meta_data.logging_app_count        = 0; // No logging apps anymore, attribute removed with the recorder
 
     sim_data_logger->log_sim_meta_data(meta_data);
 }

@@ -50,7 +50,6 @@ TEST(simTest1, BasicTest) {
     EXPECT_EQ(sim_meta_data.current_mc_run, 1);
     EXPECT_EQ(config_data.number_of_threads, 1);
     EXPECT_EQ(sim_meta_data.initial_random_seed, config_data.initial_random_seed);
-    EXPECT_EQ(sim_meta_data.logging_app_count, 1);
     EXPECT_EQ(sim_meta_data.num_total_mc_runs, config_data.number_of_monte_carlo_runs);
     EXPECT_NEAR(sim_meta_data.sim_rate_hz, config_data.simulation_rate_hz, tol);
     EXPECT_TRUE(sim_meta_data.sim_to_real_time_ratio > 0);

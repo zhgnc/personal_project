@@ -17,7 +17,6 @@ struct SimMetaDataRaw {
     std::size_t current_mc_run;
     uint64_t initial_random_seed;
     std::size_t app_count;
-    std::size_t logging_app_count;
     double computer_elapsed_time_sec;
     double sim_to_real_time_ratio;
     std::string stop_type;
