@@ -13,6 +13,7 @@ public:
     AppRunner() = default; 
     explicit AppRunner(SimAppBase& app_to_run);
 
+    void check_rate(double sim_rate_hz) const;
     void initialize(SimControl& sim_ctrl);
     void attach_io(IoRegistry& registry, const AppIoInfo& plan);
     void check_step(const uint64_t& sim_time_usec, SimControl& sim_ctrl);

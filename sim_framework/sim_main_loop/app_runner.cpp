@@ -8,13 +8,15 @@ AppRunner::AppRunner(SimAppBase& app_to_run) {
     app_dt_usec = static_cast<uint64_t>(sec2usec * app_to_run.dt_sec());
 }
 
+void AppRunner::check_rate(double sim_rate_hz) const {
+    uint64_t sim_dt_usec = static_cast<uint64_t>((1.0 / sim_rate_hz) * sec2usec);
+
+    throw_if_app_runs_faster_than_sim(sim_dt_usec, sim_rate_hz);
+    throw_if_period_is_not_whole_sim_steps(sim_dt_usec, sim_rate_hz);
+}
+
 void AppRunner::initialize(SimControl& sim_ctrl) {
-    const SimControl::AccessibleSimData& sim_data = sim_ctrl.public_sim_data();
-
-    uint64_t sim_dt_usec = static_cast<uint64_t>((1.0 / sim_data.sim_rate_hz) * sec2usec);
-
-    throw_if_app_runs_faster_than_sim(sim_dt_usec, sim_data.sim_rate_hz);
-    throw_if_period_is_not_whole_sim_steps(sim_dt_usec, sim_data.sim_rate_hz);
+    check_rate(sim_ctrl.public_sim_data().sim_rate_hz);
 
     app->configure_model(app->config_file(), sim_ctrl); // User defined code
 }

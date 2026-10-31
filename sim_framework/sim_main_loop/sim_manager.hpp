@@ -11,40 +11,59 @@
 #include <thread>
 #include <mutex>
 #include <limits>
+#include <stdexcept>
+#include <type_traits>
 
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
+#include "app_runner.hpp"
 #include "../../utilities/yaml_utilities.hpp"
 
-template<typename DataBusType>
 class SimManager {
 public:
-    SimManager(const std::string& path_to_sim_config, DataBusType& bus);
+    SimManager(const std::string& path_to_sim_config);
 
+    // This function accepts any object derived from `SimAppBase` and adds it to
+    // the `app_prototypes`. The template parameter `AppType` preserves the
+    // derived type so the sim can later create copies of the derived type for
+    // each simulation run.
     template<typename AppType>
-    void add_app(AppType&& new_app);
+    void add_app(AppType&& new_app) {
+        static_assert(std::is_base_of_v<SimAppBase, std::decay_t<AppType>>, "AppType must derive from SimAppBase");
 
-    template<typename LoggingAppType>
-    void add_logging_app(LoggingAppType&& new_logging_app);
+        bool app_storage_is_full = app_count >= SimConfig::max_app_number;
+
+        if (app_storage_is_full == true) {
+            throw std::runtime_error(SimConfig::capacity_message("[SimManager] add_app(): number of apps",
+                                                                 "max_app_number", SimConfig::max_app_number));
+        }
+
+        // Line wraps the `new_app` in a SimAppPrototype struct, which stores the original app
+        // instance along with a function that can create independent copies for each MC run.
+        // This is necessary because apps are stored polymorphically as `SimAppBase` pointers,
+        // and C++ cannot automatically copy the original derived type through a base-class
+        // pointer. `std::forward` preserves whether the app was passed as an lvalue or rvalue,
+        // avoiding unnecessary copies while constructing the prototype.
+        app_prototypes[app_count] = SimAppPrototype(std::forward<AppType>(new_app));
+        app_count = app_count + 1;
+    }
 
     void run();
 
 private:
     void sort_apps_by_priority();
-    static bool compare_by_priority(const SimAppPrototype<DataBusType>& app_A, const SimAppPrototype<DataBusType>& app_B);
+    void validate_apps();
+    static bool compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B);
     void thread_job();
-    void get_run_number();
     void display_sorted_app_info();
     void record_run_stats(const SimRunStats& run_stats);
     void display_run_summary(double parallel_wall_clock_sec);
-    SimSingleRunConfig<DataBusType> build_single_run_config(std::size_t run_number);
-    
-    // ---------------- App and logger prototype storage ----------------
-    std::array<SimAppPrototype<DataBusType>, SimConfig::max_app_number> app_prototypes;
-    std::array<LoggingAppPrototype<DataBusType>, SimConfig::max_logging_app_number> logging_prototypes;
+    SimSingleRunConfig build_single_run_config(std::size_t run_number);
+
+    // ---------------- App prototype storage ----------------
+    std::array<SimAppPrototype, SimConfig::max_app_number> app_prototypes;
 
     std::size_t app_count;
-    std::size_t logging_app_count;
     std::size_t num_threads;
     std::mutex mutex;
 
@@ -58,7 +77,6 @@ private:
 
     std::string base_file_name;
     std::string output_directory;
-    AppLoggingRates logging_rates;
 
     bool print_hdf5_file_tree;
     bool print_file_attributes;
@@ -86,10 +104,6 @@ private:
 
     std::array<std::string, SimConfig::max_app_number> early_stop_reports;
     std::size_t early_stop_report_count;
-
-    DataBusType& data_bus;
 };
-
-#include "sim_manager.tpp"
 
 #endif
