@@ -133,7 +133,7 @@ private:
     bool check_source_port(const ConnectionRequest& request, std::size_t source_index);
     bool check_apps_are_different(const ConnectionRequest& request);
     bool check_types_match(const ConnectionRequest& request, std::size_t source_index,
-                             std::size_t destination_index);
+                           std::size_t destination_index);
     void add_copy_binding(const ConnectionRequest& request, std::size_t source_index,
                           std::size_t destination_index);
 

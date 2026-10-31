@@ -28,7 +28,9 @@ void IoRegistry::throw_if_app_name_is_duplicate(const std::string& app_name) con
 }
 
 void IoRegistry::throw_if_app_storage_full(const std::string& app_name) const {
-    if (declared_app_count == SimConfig::max_app_number) {
+    bool app_storage_is_full = declared_app_count >= SimConfig::max_app_number;
+
+    if (app_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message("IoRegistry: declaring app '" + app_name + "'",
                                                            "max_app_number", SimConfig::max_app_number));
     }
@@ -59,7 +61,9 @@ bool IoRegistry::check_port_name_is_unique(const std::string& port_name) {
 }
 
 void IoRegistry::throw_if_port_storage_full(const std::string& port_name) const {
-    if (port_record_count == SimConfig::max_port_number) {
+    bool port_storage_is_full = port_record_count >= SimConfig::max_port_number;
+
+    if (port_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(
             "IoRegistry: declaring port '" + declaring_app_name + "." + port_name + "'",
             "max_port_number", SimConfig::max_port_number));

@@ -18,7 +18,7 @@ std::string ErrorReport::build_error_text(const std::string& heading) const {
 
     report << heading << " " << total_error_count << " error(s):";
 
-    if (errors_truncated()) {
+    if (errors_truncated() == true) {
         report << "  (showing first " << stored_error_count << ")";
     }
     report << "\n";
