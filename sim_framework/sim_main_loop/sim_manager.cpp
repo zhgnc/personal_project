@@ -110,7 +110,7 @@ void SimManager::add_manifest_apps(const std::array<AppManifestEntry, SimConfig:
         if (class_is_not_listed == true) {
             manifest_report.record_error("app '" + entry.instance_name + "': class '" + entry.class_name +
                                          "' is not in this project's AppClassList (available classes: " +
-                                         available_apps.joined_class_names() + ")");
+                                         available_apps.list_class_names() + ")");
             continue;
         }
 
