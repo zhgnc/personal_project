@@ -29,6 +29,7 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     num_threads_used           = 0;
     total_sim_time_sec         = 0.0;
     total_run_wall_clock_sec   = 0.0;
+    parallel_wall_clock_sec    = 0.0;
     sim_to_real_time_ratio_sum = 0.0;
     fastest_run_wall_clock_sec = std::numeric_limits<double>::max();
     slowest_run_wall_clock_sec = 0.0;
@@ -44,10 +45,15 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
 }
 
 void SimManager::run() {
-    sort_apps_by_priority(); // SimSingleRun expects the apps to be in the proper order when received in the config struct
+    sort_apps_by_priority(); 
     load_app_connections();
     validate_apps();
+    run_monte_carlo_batch();
+    display_run_summary();
+}
 
+// Creates thread pool and runs all MC simulations
+void SimManager::run_monte_carlo_batch() {
     std::array<std::jthread, SimConfig::max_thread_number> thread_pool;
 
     std::size_t max_cpu_threads = std::thread::hardware_concurrency();
@@ -68,18 +74,19 @@ void SimManager::run() {
 
     std::chrono::duration<double> parallel_elapsed_seconds = std::chrono::high_resolution_clock::now() - parallel_start_time;
 
-    display_run_summary(parallel_elapsed_seconds.count());
+    parallel_wall_clock_sec = parallel_elapsed_seconds.count();
 }
 
+// SimSingleRun expects the apps to be in the priority order when received in the config struct
 void SimManager::sort_apps_by_priority() {
-  std::cout << "[SimManager] Configuring Simulation\n";
-  std::sort(app_prototypes.begin(), app_prototypes.begin() + app_count, SimManager::compare_by_priority);
+    std::cout << "[SimManager] Configuring Simulation\n";
+    std::sort(app_prototypes.begin(), app_prototypes.begin() + app_count, SimManager::compare_by_priority);
   
-  display_sorted_app_info();
+    display_sorted_app_info();
 };
 
+// `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
 bool SimManager::compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B) {
-  // `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
   return app_A.prototype->priority() < app_B.prototype->priority();
 };
 
@@ -95,7 +102,6 @@ void SimManager::display_sorted_app_info() {
   std::cout << "\n";
 }
 
-// Each app's config file lists the outputs that feed its inputs
 void SimManager::load_app_connections() {
     for (std::size_t i = 0; i < app_count; i++) {
         const SimAppBase& app = *app_prototypes[i].prototype;
@@ -197,7 +203,7 @@ void SimManager::record_run_stats(const SimRunStats& run_stats) {
 //      Level 1 prints the completion message only 
 //      Level 2 adds performance stats
 //      Level 3 or greater adds the run outcome breakdown and other details
-void SimManager::display_run_summary(double parallel_wall_clock_sec) {
+void SimManager::display_run_summary() {
     if (completed_run_count < 1) {
         std::cout << "\n\n[SimManager] Simulation completed but no runs were completed!!!\n";
         return;
