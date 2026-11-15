@@ -264,7 +264,7 @@ void SimManager::record_run_stats(const SimRunStats& run_stats) {
         slowest_run_number         = run_stats.run_number;
     }
 }
-""
+
 // Prints the end-of-batch summary at the configured `sim_stats_report_level`:
 //      Level 1 prints the completion message only 
 //      Level 2 adds performance stats
