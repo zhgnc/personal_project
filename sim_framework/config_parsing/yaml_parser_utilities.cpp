@@ -1,8 +1,8 @@
-#include "yaml_parser_base.hpp"
+#include "yaml_parser_utilities.hpp"
 
-YamlParserBase::YamlParserBase(const std::string& parser_report_tag,
-                               const std::string& parser_owner_name,
-                               const std::string& path_to_file) {
+YamlParserUtilities::YamlParserUtilities(const std::string& parser_report_tag,
+                                         const std::string& parser_owner_name,
+                                         const std::string& path_to_file) {
     report_tag = parser_report_tag;
     owner_name = parser_owner_name;
     file_path  = path_to_file;
@@ -10,7 +10,7 @@ YamlParserBase::YamlParserBase(const std::string& parser_report_tag,
 
 // A missing or malformed file reports as an IoWiringError naming the owner,
 // like every other config problem
-YAML::Node YamlParserBase::load_root() {
+YAML::Node YamlParserUtilities::load_root() {
     try {
         return load_yaml_file(file_path);
     } catch (const std::runtime_error& error) {
@@ -18,12 +18,16 @@ YAML::Node YamlParserBase::load_root() {
     }
 }
 
-void YamlParserBase::throw_if_errors() const {
+void YamlParserUtilities::record_error(const std::string& message) {
+    parse_report.record_error(message);
+}
+
+void YamlParserUtilities::throw_if_errors() const {
     parse_report.throw_if_errors(report_tag + " " + owner_name + " (" + file_path + "):");
 }
 
-bool YamlParserBase::extract_single_value(const YAML::Node& entry, std::size_t line, const char* key,
-                                         YAML::Node& node_out) {
+bool YamlParserUtilities::extract_single_value(const YAML::Node& entry, std::size_t line, const char* key,
+                                              YAML::Node& node_out) {
     YAML::Node value = entry[key];
 
     bool key_is_missing = value.IsDefined() == false;
@@ -53,8 +57,8 @@ bool YamlParserBase::extract_single_value(const YAML::Node& entry, std::size_t l
     return true;
 }
 
-bool YamlParserBase::extract_string(const YAML::Node& entry, std::size_t line, const char* key,
-                                    std::string& value_out) {
+bool YamlParserUtilities::extract_string(const YAML::Node& entry, std::size_t line, const char* key,
+                                         std::string& value_out) {
     YAML::Node value;
 
     if (extract_single_value(entry, line, key, value) == false) {
@@ -66,8 +70,8 @@ bool YamlParserBase::extract_string(const YAML::Node& entry, std::size_t line, c
 }
 
 // For anything that becomes an app or port name
-bool YamlParserBase::extract_name(const YAML::Node& entry, std::size_t line, const char* key,
-                                  std::string& value_out) {
+bool YamlParserUtilities::extract_name(const YAML::Node& entry, std::size_t line, const char* key,
+                                       std::string& value_out) {
     if (extract_string(entry, line, key, value_out) == false) {
         return false;
     }
@@ -85,8 +89,8 @@ bool YamlParserBase::extract_name(const YAML::Node& entry, std::size_t line, con
 
 // Without this a misspelled or stray key would be silently ignored: the file
 // looks right and the setting does nothing
-void YamlParserBase::check_map_keys(const YAML::Node& map_node, std::size_t line,
-                                    const char* const* valid_keys, std::size_t valid_key_count) {
+void YamlParserUtilities::check_map_keys(const YAML::Node& map_node, std::size_t line,
+                                         const char* const* valid_keys, std::size_t valid_key_count) {
     std::string valid_key_list;
 
     for (std::size_t i = 0; i < valid_key_count; i++) {
@@ -103,7 +107,7 @@ void YamlParserBase::check_map_keys(const YAML::Node& map_node, std::size_t line
         bool key_is_not_a_name = it->first.IsScalar() == false;
 
         if (key_is_not_a_name == true) {
-            parse_report.record_error(line_label(line) + "entry contains a key that is not a plain name");
+            parse_report.record_error(line_label(line_of(it->first)) + "entry contains a key that is not a plain name");
             continue;
         }
 
@@ -115,7 +119,7 @@ void YamlParserBase::check_map_keys(const YAML::Node& map_node, std::size_t line
         }
 
         if (key_is_known == false) {
-            parse_report.record_error(line_label(line) + "unknown key '" + key + "' (valid keys: " +
+            parse_report.record_error(line_label(line_of(it->first)) + "unknown key '" + key + "' (valid keys: " +
                                       valid_key_list + ")");
         }
     }
@@ -141,7 +145,7 @@ void YamlParserBase::check_map_keys(const YAML::Node& map_node, std::size_t line
 }
 
 // 1-based line number of a node, or 0 when yaml-cpp has no mark for it
-std::size_t YamlParserBase::line_of(const YAML::Node& node) {
+std::size_t YamlParserUtilities::line_of(const YAML::Node& node) {
     bool node_has_no_mark = node.Mark().line < 0;
 
     if (node_has_no_mark == true) {
@@ -151,7 +155,7 @@ std::size_t YamlParserBase::line_of(const YAML::Node& node) {
     return static_cast<std::size_t>(node.Mark().line) + 1;
 }
 
-std::string YamlParserBase::line_label(std::size_t line) {
+std::string YamlParserUtilities::line_label(std::size_t line) {
     bool line_is_unknown = line == 0;
 
     if (line_is_unknown == true) {
@@ -161,7 +165,7 @@ std::string YamlParserBase::line_label(std::size_t line) {
     return "line " + std::to_string(line) + ": ";
 }
 
-std::string YamlParserBase::joined_map_keys(const YAML::Node& map_node) {
+std::string YamlParserUtilities::joined_map_keys(const YAML::Node& map_node) {
     std::string joined;
 
     for (YAML::const_iterator it = map_node.begin(); it != map_node.end(); ++it) {

@@ -10,8 +10,7 @@
 //   app_config:         # model parameters for configure_model(), {} for none
 //     angle_random_walk_1_sigma: 3.14e-7
 //
-// Every problem in the file is reported at once with line numbers, and no
-// connection is kept unless the whole file is clean.
+// Every problem in the file is reported at once with line numbers.
 
 #include <array>
 #include <cstddef>
@@ -19,10 +18,10 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "yaml_parser_base.hpp"
+#include "yaml_parser_utilities.hpp"
 #include "../messaging/port_data.hpp"
 
-class ConnectionYamlParser : public YamlParserBase {
+class ConnectionYamlParser {
 public:
     ConnectionYamlParser(const std::string& owning_app_name, const std::string& path_to_config);
 
@@ -32,18 +31,17 @@ public:
                              std::size_t& spec_count);
 
 private:
-    void check_top_level_keys(const YAML::Node& root);
-    void check_input_mapping(const YAML::Node& input_mapping);
+    bool check_input_mapping_is_a_list(const YAML::Node& input_mapping);
+    void add_connections(const YAML::Node& input_mapping,
+                         std::array<IoConfigSpec, SimConfig::max_connection_number>& specs,
+                         std::size_t& spec_count);
+    bool parse_entry(const YAML::Node& entry, std::size_t entry_number, IoConfigSpec& spec_out);
     void check_app_config(const YAML::Node& app_config);
-    void parse_entry(const YAML::Node& entry, std::size_t entry_number);
-    bool check_input_not_already_connected(const std::string& input_name, std::size_t line);
 
-    // Entries wait here until the whole file is known to be clean
-    std::array<IoConfigSpec, SimConfig::max_connection_number> staged_specs;
-    std::array<std::size_t, SimConfig::max_connection_number> staged_lines;
-    std::size_t staged_count = 0;
+    YamlParserUtilities yaml;
 
-    static constexpr const char* entry_keys[3] = {"input", "from_app", "from_port"};
+    static constexpr const char* section_keys[2] = {"input_mapping", "app_config"};
+    static constexpr const char* entry_keys[3]   = {"input", "from_app", "from_port"};
 };
 
 #endif

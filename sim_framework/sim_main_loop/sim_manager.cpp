@@ -102,17 +102,33 @@ void SimManager::display_sorted_app_info() {
   std::cout << "\n";
 }
 
+// Loads every app's config file. Every app must have one
 void SimManager::load_app_connections() {
+    throw_if_any_app_has_no_config_file();
+
     for (std::size_t i = 0; i < app_count; i++) {
         const SimAppBase& app = *app_prototypes[i].prototype;
 
-        bool app_has_config_file = app.config_file().empty() == false;
+        ConnectionYamlParser parser(app.name(), app.config_file());
+        parser.parse_input_mapping(io_connection_specs, io_connection_spec_count);
+    }
+}
 
-        if (app_has_config_file == true) {
-            ConnectionYamlParser parser(app.name(), app.config_file());
-            parser.parse_input_mapping(io_connection_specs, io_connection_spec_count);
+void SimManager::throw_if_any_app_has_no_config_file() const {
+    ErrorReport missing_config_report;
+
+    for (std::size_t i = 0; i < app_count; i++) {
+        const SimAppBase& app = *app_prototypes[i].prototype;
+
+        bool app_has_no_config_file = app.config_file().empty() == true;
+
+        if (app_has_no_config_file == true) {
+            missing_config_report.record_error("app '" + app.name() + "' has no config file. Every app needs one "
+                                               "with `input_mapping:` and `app_config:` sections");
         }
     }
+
+    missing_config_report.throw_if_errors("[IO CONFIG] apps without a config file:");
 }
 
 // Checks every app once on the prototypes before any thread starts, so a bad

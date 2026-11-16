@@ -53,6 +53,7 @@ public:
 private:
     void sort_apps_by_priority();
     void load_app_connections();
+    void throw_if_any_app_has_no_config_file() const;
     void validate_apps();
     void run_monte_carlo_batch();
     static bool compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B);
