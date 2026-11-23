@@ -29,7 +29,7 @@ void IoRegistry::resolve_and_validate() {
     check_unconnected_inputs();
     build_output_stamp_lists();
 
-    wiring_report.throw_if_errors("[IO WIRING] found before t=0:");
+    wiring_report.throw_if_errors("[IO WIRING] Found before t=0:");
 }
 
 void IoRegistry::record_connection_error(const ConnectionRequest& request, const std::string& message) {
@@ -71,8 +71,8 @@ bool IoRegistry::check_destination_port(const ConnectionRequest& request, std::s
     bool destination_app_does_not_exist = is_app_declared(request.destination_app) == false;
 
     if (destination_app_does_not_exist == true) {
-        record_connection_error(request, "connection destination app '" + request.destination_app +
-                                         "' does not exist.\n       apps in this sim: " +
+        record_connection_error(request, "Connection destination app '" + request.destination_app +
+                                         "' does not exist.\n       Apps in this sim: " +
                                          PortMatching::list_app_names(declared_app_names, declared_app_count));
         return false;
     }
@@ -80,8 +80,8 @@ bool IoRegistry::check_destination_port(const ConnectionRequest& request, std::s
     bool destination_port_was_not_declared = destination_index == port_record_count;
 
     if (destination_port_was_not_declared == true) {
-        record_connection_error(request, request.destination_app + ": input '" + request.destination_port +
-                                         "' is not a declared subscription.\n       declared inputs: " +
+        record_connection_error(request, request.destination_app + ": Input '" + request.destination_port +
+                                         "' is not a declared subscription.\n       Declared inputs: " +
                                          PortMatching::list_port_names(port_records, port_record_count,
                                                                        request.destination_app,
                                                                        PortDirection::Input));
@@ -102,7 +102,7 @@ bool IoRegistry::check_destination_port(const ConnectionRequest& request, std::s
     bool destination_is_already_connected = destination.is_connected();
 
     if (destination_is_already_connected == true) {
-        record_connection_error(request, request.destination_app + ": input '" + request.destination_port +
+        record_connection_error(request, request.destination_app + ": Input '" + request.destination_port +
                                          "' is connected more than once (already connected to " +
                                          source_name_of(destination) + ")");
         return false;
@@ -115,8 +115,8 @@ bool IoRegistry::check_source_port(const ConnectionRequest& request, std::size_t
     bool source_app_does_not_exist = is_app_declared(request.source_app) == false;
 
     if (source_app_does_not_exist == true) {
-        record_connection_error(request, request.destination_app + "." + request.destination_port + ": source app '" +
-                                         request.source_app + "' does not exist.\n       apps in this sim: " +
+        record_connection_error(request, request.destination_app + "." + request.destination_port + ": Source app '" +
+                                         request.source_app + "' does not exist.\n       Apps in this sim: " +
                                          PortMatching::list_app_names(declared_app_names, declared_app_count));
         return false;
     }
@@ -124,9 +124,9 @@ bool IoRegistry::check_source_port(const ConnectionRequest& request, std::size_t
     bool source_port_was_not_declared = source_index == port_record_count;
 
     if (source_port_was_not_declared == true) {
-        record_connection_error(request, request.destination_app + "." + request.destination_port + ": source '" +
+        record_connection_error(request, request.destination_app + "." + request.destination_port + ": Source '" +
                                          request.source_app + "." + request.source_port +
-                                         "' is not a declared output.\n       outputs of " + request.source_app +
+                                         "' is not a declared output.\n       Outputs of " + request.source_app +
                                          ": " + PortMatching::list_port_names(port_records, port_record_count,
                                                                               request.source_app,
                                                                               PortDirection::Output));
@@ -136,7 +136,7 @@ bool IoRegistry::check_source_port(const ConnectionRequest& request, std::size_t
     bool source_is_an_input = port_records[source_index].is_input();
 
     if (source_is_an_input == true) {
-        record_connection_error(request, request.destination_app + "." + request.destination_port + ": source '" +
+        record_connection_error(request, request.destination_app + "." + request.destination_port + ": Source '" +
                                          request.source_app + "." + request.source_port +
                                          "' is an input; data must come from a tlm or tlm_debug output");
         return false;
@@ -151,7 +151,7 @@ bool IoRegistry::check_apps_are_different(const ConnectionRequest& request) {
     bool app_subscribes_to_its_own_output = request.source_app == request.destination_app;
 
     if (app_subscribes_to_its_own_output == true) {
-        record_connection_error(request, request.destination_app + ": input '" + request.destination_port +
+        record_connection_error(request, request.destination_app + ": Input '" + request.destination_port +
                                          "' cannot connect to '" + request.source_port +
                                          "' because an app cannot subscribe to its own output; that data is "
                                          "already a member of this app, so read it directly");
@@ -204,7 +204,7 @@ void IoRegistry::check_unconnected_inputs() {
             continue;
         }
 
-        wiring_report.record_error(record.owner_app + ": required input '" + record.port_name + "' (" +
+        wiring_report.record_error(record.owner_app + ": Required input '" + record.port_name + "' (" +
                                    record.type_name + ") has no connection.");
     }
 }
@@ -233,7 +233,7 @@ void IoRegistry::throw_if_connection_storage_full(const ConnectionRequest& reque
 
     if (connection_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(
-            "IoRegistry: connection " + request.destination_app + "." + request.destination_port + " <- " +
+            "IoRegistry: Connection " + request.destination_app + "." + request.destination_port + " <- " +
             request.source_app + "." + request.source_port,
             "max_connection_number", SimConfig::max_connection_number));
     }
@@ -244,7 +244,7 @@ void IoRegistry::throw_if_app_input_storage_full(const AppIoInfo& plan, const Co
 
     if (app_input_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(
-            "IoRegistry: connecting " + request.destination_app + "." + request.destination_port,
+            "IoRegistry: Connecting " + request.destination_app + "." + request.destination_port,
             "max_app_input_number", SimConfig::max_app_input_number));
     }
 }
@@ -254,7 +254,7 @@ void IoRegistry::throw_if_app_output_storage_full(const AppIoInfo& plan, const s
 
     if (app_output_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(
-            "IoRegistry: outputs of " + owner_app,
+            "IoRegistry: Outputs of " + owner_app,
             "max_app_output_number", SimConfig::max_app_output_number));
     }
 }

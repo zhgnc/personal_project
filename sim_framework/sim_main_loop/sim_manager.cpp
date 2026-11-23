@@ -1,7 +1,5 @@
 #include "sim_manager.hpp"
 
-#include "../config_parsing/connection_yaml.hpp"
-
 SimManager::SimManager(const std::string& path_to_sim_config, const AppClassList& available_apps) {
     YAML::Node config = load_yaml_file(path_to_sim_config);
 
@@ -46,17 +44,14 @@ SimManager::SimManager(const std::string& path_to_sim_config, const AppClassList
 
     std::string manifest_path = get_yaml_value<std::string>(config, "app_manifest");
 
-    std::array<AppManifestEntry, SimConfig::max_app_number> manifest_entries;
-    std::size_t manifest_entry_count = 0;
-
     AppManifestParser manifest_parser(manifest_path);
-    manifest_parser.parse(manifest_entries, manifest_entry_count);
+    AppManifest app_manifest = manifest_parser.parse();
 
-    add_manifest_apps(manifest_entries, manifest_entry_count, available_apps, manifest_path);
+    add_manifest_apps(app_manifest, available_apps, manifest_path);
 }
 
 void SimManager::run() {
-    sort_apps_by_priority(); 
+    sort_apps_by_priority();
     load_app_connections();
     check_connections_against_disabled_apps();
     validate_apps();
@@ -90,13 +85,12 @@ void SimManager::run_monte_carlo_batch() {
 }
 
 // Disabled apps are remembered so a connection to one can say so
-void SimManager::add_manifest_apps(const std::array<AppManifestEntry, SimConfig::max_app_number>& entries,
-                                   std::size_t entry_count, const AppClassList& available_apps,
+void SimManager::add_manifest_apps(const AppManifest& app_manifest, const AppClassList& available_apps,
                                    const std::string& manifest_path) {
     ErrorReport manifest_report;
 
-    for (std::size_t i = 0; i < entry_count; i++) {
-        const AppManifestEntry& entry = entries[i];
+    for (std::size_t i = 0; i < app_manifest.count; i++) {
+        const AppManifestEntry& entry = app_manifest.entries[i];
 
         if (entry.enabled == false) {
             disabled_app_names[disabled_app_count] = entry.instance_name;
@@ -109,8 +103,8 @@ void SimManager::add_manifest_apps(const std::array<AppManifestEntry, SimConfig:
         bool class_is_not_listed = factory == nullptr;
 
         if (class_is_not_listed == true) {
-            manifest_report.record_error("app '" + entry.instance_name + "': class '" + entry.class_name +
-                                         "' is not in this project's AppClassList (available classes: " +
+            manifest_report.record_error("App '" + entry.instance_name + "' uses class '" + entry.class_name +
+                                         "', which is not in this project's AppClassList (available classes: " +
                                          available_apps.list_class_names() + ")");
             continue;
         }
@@ -119,18 +113,18 @@ void SimManager::add_manifest_apps(const std::array<AppManifestEntry, SimConfig:
         app_count++;
     }
 
-    manifest_report.throw_if_errors("[APP MANIFEST] app manifest (" + manifest_path + "):");
+    manifest_report.throw_if_errors("[APP MANIFEST] App manifest (" + manifest_path + "):");
 }
 
 // SimSingleRun expects the apps to be in the priority order when received in the config struct
 void SimManager::sort_apps_by_priority() {
     std::cout << "[SimManager] Configuring Simulation\n";
     std::sort(app_prototypes.begin(), app_prototypes.begin() + app_count, SimManager::compare_by_priority);
-  
+
     display_sorted_app_info();
 };
 
-// `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
+// `<` sorts the apps to execute in ascending order (lower numbers run earlier)
 bool SimManager::compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B) {
   return app_A.prototype->priority() < app_B.prototype->priority();
 };
@@ -147,16 +141,29 @@ void SimManager::display_sorted_app_info() {
   std::cout << "\n";
 }
 
+// Loads every app's config file. Every app must have one
 void SimManager::load_app_connections() {
     for (std::size_t i = 0; i < app_count; i++) {
         const SimAppBase& app = *app_prototypes[i].prototype;
 
-        bool app_has_config_file = app.config_file().empty() == false;
+        ConnectionYamlParser parser(app.name(), app.config_file());
+        AppConnections app_connections = parser.parse_input_mapping();
 
-        if (app_has_config_file == true) {
-            ConnectionYamlParser parser(app.name(), app.config_file());
-            parser.parse_input_mapping(io_connection_specs, io_connection_spec_count);
+        add_app_connections(app_connections);
+    }
+}
+
+void SimManager::add_app_connections(const AppConnections& app_connections) {
+    for (std::size_t i = 0; i < app_connections.count; i++) {
+        bool connection_storage_is_full = io_connection_spec_count >= SimConfig::max_connection_number;
+
+        if (connection_storage_is_full == true) {
+            throw std::runtime_error(SimConfig::capacity_message("[SimManager] Input connections across all apps",
+                                                                 "max_connection_number", SimConfig::max_connection_number));
         }
+
+        io_connection_specs[io_connection_spec_count] = app_connections.specs[i];
+        io_connection_spec_count++;
     }
 }
 
@@ -172,13 +179,13 @@ void SimManager::check_connections_against_disabled_apps() const {
 
             if (source_app_is_disabled == true) {
                 disabled_app_report.record_error(spec.config_file_name + ": " + spec.destination_app + "." +
-                                                 spec.input + ": source app '" + spec.from_app +
+                                                 spec.input + ": Source app '" + spec.from_app +
                                                  "' is disabled in the app manifest (enabled: false)");
             }
         }
     }
 
-    disabled_app_report.throw_if_errors("[APP MANIFEST] connections to disabled apps:");
+    disabled_app_report.throw_if_errors("[APP MANIFEST] Connections to disabled apps:");
 }
 
 // Checks every app once on the prototypes before any thread starts, so a bad
@@ -189,7 +196,7 @@ void SimManager::validate_apps() {
         AppRunner(*app_prototypes[i].prototype).check_rate(sim_rate_hz);
     }
 
-    auto validation_registry = std::make_unique<IoRegistry>();
+    std::unique_ptr<IoRegistry> validation_registry = std::make_unique<IoRegistry>();
 
     for (std::size_t i = 0; i < app_count; i++) {
         validation_registry->add_app(app_prototypes[i].prototype->name());

@@ -16,6 +16,7 @@
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
 #include "app_runner.hpp"
+#include "../config_parsing/connection_yaml.hpp"
 #include "../apps/app_class_list.hpp"
 #include "../../utilities/yaml_utilities.hpp"
 
@@ -27,11 +28,11 @@ public:
     void run();
 
 private:
-    void add_manifest_apps(const std::array<AppManifestEntry, SimConfig::max_app_number>& entries,
-                           std::size_t entry_count, const AppClassList& available_apps,
+    void add_manifest_apps(const AppManifest& app_manifest, const AppClassList& available_apps,
                            const std::string& manifest_path);
     void sort_apps_by_priority();
     void load_app_connections();
+    void add_app_connections(const AppConnections& app_connections);
     void check_connections_against_disabled_apps() const;
     void validate_apps();
     void run_monte_carlo_batch();

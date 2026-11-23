@@ -6,13 +6,13 @@ AppClassList::AppClassList(std::initializer_list<AppClassFactory> listed_classes
     bool too_many_classes = listed_classes.size() > SimConfig::max_app_number;
 
     if (too_many_classes == true) {
-        throw std::logic_error(SimConfig::capacity_message("[AppClassList] number of app classes",
+        throw std::logic_error(SimConfig::capacity_message("[AppClassList] Number of app classes",
                                                            "max_app_number", SimConfig::max_app_number));
     }
 
     for (const AppClassFactory& factory : listed_classes) {
         if (is_listed(factory.class_name) == true) {
-            throw std::logic_error("[AppClassList] app class '" + factory.class_name + "' is listed twice");
+            throw std::logic_error("[AppClassList] App class '" + factory.class_name + "' is listed twice");
         }
 
         factories[count] = factory;

@@ -10,7 +10,7 @@ const AppIoInfo& IoRegistry::plan_for(const std::string& app_name) const {
     // get_app_index() returns declared_app_count when the name is not found,
     // which is a readable index into app_plans, so it has to be caught here
     if (app_index == declared_app_count) {
-        throw std::logic_error("IoRegistry::plan_for(): unknown app '" + app_name + "'");
+        throw std::logic_error("IoRegistry::plan_for(): Unknown app '" + app_name + "'");
     }
 
     return app_plans[app_index];
