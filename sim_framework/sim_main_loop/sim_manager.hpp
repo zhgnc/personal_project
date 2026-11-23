@@ -12,50 +12,28 @@
 #include <mutex>
 #include <limits>
 #include <stdexcept>
-#include <type_traits>
 
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
 #include "app_runner.hpp"
 #include "../config_parsing/connection_yaml.hpp"
+#include "../apps/app_class_list.hpp"
 #include "../../utilities/yaml_utilities.hpp"
 
 class SimManager {
 public:
-    SimManager(const std::string& path_to_sim_config);
-
-    // This function accepts any object derived from `SimAppBase` and adds it to
-    // the `app_prototypes`. The template parameter `AppType` preserves the
-    // derived type so the sim can later create copies of the derived type for
-    // each simulation run.
-    template<typename AppType>
-    void add_app(AppType&& new_app) {
-        static_assert(std::is_base_of_v<SimAppBase, std::decay_t<AppType>>, "AppType must derive from SimAppBase");
-
-        bool app_storage_is_full = app_count >= SimConfig::max_app_number;
-
-        if (app_storage_is_full == true) {
-            throw std::runtime_error(SimConfig::capacity_message("[SimManager] add_app(): Number of apps",
-                                                                 "max_app_number", SimConfig::max_app_number));
-        }
-
-        // Line wraps the `new_app` in a SimAppPrototype struct, which stores the original app
-        // instance along with a function that can create independent copies for each MC run.
-        // This is necessary because apps are stored polymorphically as `SimAppBase` pointers,
-        // and C++ cannot automatically copy the original derived type through a base-class
-        // pointer. `std::forward` preserves whether the app was passed as an lvalue or rvalue,
-        // avoiding unnecessary copies while constructing the prototype.
-        app_prototypes[app_count] = SimAppPrototype(std::forward<AppType>(new_app));
-        app_count = app_count + 1;
-    }
+    // Builds every enabled app in the manifest named by the sim config's `app_manifest` key
+    SimManager(const std::string& path_to_sim_config, const AppClassList& available_apps);
 
     void run();
 
 private:
+    void add_manifest_apps(const AppManifest& app_manifest, const AppClassList& available_apps,
+                           const std::string& manifest_path);
     void sort_apps_by_priority();
     void load_app_connections();
     void add_app_connections(const AppConnections& app_connections);
-    void throw_if_any_app_has_no_config_file() const;
+    void check_connections_against_disabled_apps() const;
     void validate_apps();
     void run_monte_carlo_batch();
     static bool compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B);
@@ -70,6 +48,9 @@ private:
 
     std::size_t app_count;
     std::size_t num_threads;
+
+    std::array<std::string, SimConfig::max_app_number> disabled_app_names;
+    std::size_t disabled_app_count;
     std::mutex mutex;
 
     std::array<IoConfigSpec, SimConfig::max_connection_number> io_connection_specs;

@@ -5,6 +5,7 @@
 
 #include "sim_main_loop/sim_manager.hpp"
 #include "apps/sim_app_base.hpp"
+#include "apps/app_class_list.hpp"
 #include "apps/logging_app_base.hpp"
 
 #endif

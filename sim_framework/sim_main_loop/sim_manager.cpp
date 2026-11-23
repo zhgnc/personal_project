@@ -1,6 +1,6 @@
 #include "sim_manager.hpp"
 
-SimManager::SimManager(const std::string& path_to_sim_config) {
+SimManager::SimManager(const std::string& path_to_sim_config, const AppClassList& available_apps) {
     YAML::Node config = load_yaml_file(path_to_sim_config);
 
     start_time_sec       = get_yaml_value<double>(config, "sim_start_time_sec");
@@ -19,6 +19,7 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     output_directory     = get_yaml_value<std::string>(config, "logging_file_save_directory");
 
     app_count                = 0;
+    disabled_app_count       = 0;
     io_connection_spec_count = 0;
 
     completed_run_count        = 0;
@@ -40,11 +41,19 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
         throw std::runtime_error(SimConfig::capacity_message("[SimManager] `number_of_threads`",
                                                              "max_thread_number", SimConfig::max_thread_number));
     }
+
+    std::string manifest_path = get_yaml_value<std::string>(config, "app_manifest");
+
+    AppManifestParser manifest_parser(manifest_path);
+    AppManifest app_manifest = manifest_parser.parse();
+
+    add_manifest_apps(app_manifest, available_apps, manifest_path);
 }
 
 void SimManager::run() {
     sort_apps_by_priority();
     load_app_connections();
+    check_connections_against_disabled_apps();
     validate_apps();
     run_monte_carlo_batch();
     display_run_summary();
@@ -75,6 +84,38 @@ void SimManager::run_monte_carlo_batch() {
     parallel_wall_clock_sec = parallel_elapsed_seconds.count();
 }
 
+// Disabled apps are remembered so a connection to one can say so
+void SimManager::add_manifest_apps(const AppManifest& app_manifest, const AppClassList& available_apps,
+                                   const std::string& manifest_path) {
+    ErrorReport manifest_report;
+
+    for (std::size_t i = 0; i < app_manifest.count; i++) {
+        const AppManifestEntry& entry = app_manifest.entries[i];
+
+        if (entry.enabled == false) {
+            disabled_app_names[disabled_app_count] = entry.instance_name;
+            disabled_app_count++;
+            continue;
+        }
+
+        const AppClassFactory* factory = available_apps.find(entry.class_name);
+
+        bool class_is_not_listed = factory == nullptr;
+
+        if (class_is_not_listed == true) {
+            manifest_report.record_error("App '" + entry.instance_name + "' uses class '" + entry.class_name +
+                                         "', which is not in this project's AppClassList (available classes: " +
+                                         available_apps.list_class_names() + ")");
+            continue;
+        }
+
+        app_prototypes[app_count] = factory->create_prototype(entry);
+        app_count++;
+    }
+
+    manifest_report.throw_if_errors("[APP MANIFEST] App manifest (" + manifest_path + "):");
+}
+
 // SimSingleRun expects the apps to be in the priority order when received in the config struct
 void SimManager::sort_apps_by_priority() {
     std::cout << "[SimManager] Configuring Simulation\n";
@@ -102,8 +143,6 @@ void SimManager::display_sorted_app_info() {
 
 // Loads every app's config file. Every app must have one
 void SimManager::load_app_connections() {
-    throw_if_any_app_has_no_config_file();
-
     for (std::size_t i = 0; i < app_count; i++) {
         const SimAppBase& app = *app_prototypes[i].prototype;
 
@@ -128,21 +167,25 @@ void SimManager::add_app_connections(const AppConnections& app_connections) {
     }
 }
 
-void SimManager::throw_if_any_app_has_no_config_file() const {
-    ErrorReport missing_config_report;
+// Without this the registry would only say the app does not exist
+void SimManager::check_connections_against_disabled_apps() const {
+    ErrorReport disabled_app_report;
 
-    for (std::size_t i = 0; i < app_count; i++) {
-        const SimAppBase& app = *app_prototypes[i].prototype;
+    for (std::size_t i = 0; i < io_connection_spec_count; i++) {
+        const IoConfigSpec& spec = io_connection_specs[i];
 
-        bool app_has_no_config_file = app.config_file().empty() == true;
+        for (std::size_t k = 0; k < disabled_app_count; k++) {
+            bool source_app_is_disabled = spec.from_app == disabled_app_names[k];
 
-        if (app_has_no_config_file == true) {
-            missing_config_report.record_error("App '" + app.name() + "' has no config file. Every app needs one "
-                                               "with `input_mapping:` and `app_config:` sections");
+            if (source_app_is_disabled == true) {
+                disabled_app_report.record_error(spec.config_file_name + ": " + spec.destination_app + "." +
+                                                 spec.input + ": Source app '" + spec.from_app +
+                                                 "' is disabled in the app manifest (enabled: false)");
+            }
         }
     }
 
-    missing_config_report.throw_if_errors("[IO CONFIG] Apps without a config file:");
+    disabled_app_report.throw_if_errors("[APP MANIFEST] Connections to disabled apps:");
 }
 
 // Checks every app once on the prototypes before any thread starts, so a bad

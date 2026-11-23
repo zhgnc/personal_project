@@ -83,6 +83,60 @@ bool YamlParserUtilities::extract_name(const YAML::Node& entry, std::size_t line
     return true;
 }
 
+bool YamlParserUtilities::extract_bool(const YAML::Node& entry, std::size_t line, const char* key, bool& value_out) {
+    YAML::Node value;
+
+    if (extract_single_value(entry, line, key, value) == false) {
+        return false;
+    }
+
+    try {
+        value_out = value.as<bool>();
+    } catch (const YAML::Exception&) {
+        parse_report.record_error(line_label(line) + "The value of '" + std::string(key) +
+                                  "' must be true or false, got '" + value.as<std::string>() + "'");
+        return false;
+    }
+
+    return true;
+}
+
+bool YamlParserUtilities::extract_int(const YAML::Node& entry, std::size_t line, const char* key, int& value_out) {
+    YAML::Node value;
+
+    if (extract_single_value(entry, line, key, value) == false) {
+        return false;
+    }
+
+    try {
+        value_out = value.as<int>();
+    } catch (const YAML::Exception&) {
+        parse_report.record_error(line_label(line) + "The value of '" + std::string(key) +
+                                  "' must be a whole number, got '" + value.as<std::string>() + "'");
+        return false;
+    }
+
+    return true;
+}
+
+bool YamlParserUtilities::extract_double(const YAML::Node& entry, std::size_t line, const char* key, double& value_out) {
+    YAML::Node value;
+
+    if (extract_single_value(entry, line, key, value) == false) {
+        return false;
+    }
+
+    try {
+        value_out = value.as<double>();
+    } catch (const YAML::Exception&) {
+        parse_report.record_error(line_label(line) + "The value of '" + std::string(key) +
+                                  "' must be a number, got '" + value.as<std::string>() + "'");
+        return false;
+    }
+
+    return true;
+}
+
 // Without this a misspelled or stray key would be silently ignored: the file looks right and the setting does nothing
 void YamlParserUtilities::check_map_keys(const YAML::Node& map_node, std::size_t line, const char* const* valid_keys, std::size_t valid_key_count) {
     std::string valid_key_list;
