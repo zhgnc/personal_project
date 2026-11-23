@@ -26,7 +26,7 @@ void AppRunner::throw_if_app_runs_faster_than_sim(uint64_t sim_dt_usec, double s
 
     if (app_runs_faster_than_sim == true) {
         std::ostringstream message;
-        message << app->name() << ": rate of " << 1.0 / app->dt_sec() << " Hz is faster than the sim rate of "
+        message << app->name() << ": Rate of " << 1.0 / app->dt_sec() << " Hz is faster than the sim rate of "
                 << sim_rate_hz << " Hz. An app cannot step more often than the sim loop runs";
         throw std::logic_error(message.str());
     }
@@ -37,7 +37,7 @@ void AppRunner::throw_if_period_is_not_whole_sim_steps(uint64_t sim_dt_usec, dou
 
     if (period_is_not_whole_sim_steps == true) {
         std::ostringstream message;
-        message << app->name() << ": rate of " << 1.0 / app->dt_sec() << " Hz (period " << app_dt_usec
+        message << app->name() << ": Rate of " << 1.0 / app->dt_sec() << " Hz (period " << app_dt_usec
                 << " usec) does not fit the sim rate of " << sim_rate_hz << " Hz (step " << sim_dt_usec
                 << " usec). The app's period must be a whole number of sim steps or it never steps on schedule";
         throw std::logic_error(message.str());

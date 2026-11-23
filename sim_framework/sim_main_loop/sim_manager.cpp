@@ -18,7 +18,8 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     base_file_name       = get_yaml_value<std::string>(config, "base_file_name");
     output_directory     = get_yaml_value<std::string>(config, "logging_file_save_directory");
 
-    app_count = 0;
+    app_count                = 0;
+    io_connection_spec_count = 0;
 
     completed_run_count        = 0;
     reached_stop_time_count    = 0;
@@ -26,6 +27,7 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
     num_threads_used           = 0;
     total_sim_time_sec         = 0.0;
     total_run_wall_clock_sec   = 0.0;
+    parallel_wall_clock_sec    = 0.0;
     sim_to_real_time_ratio_sum = 0.0;
     fastest_run_wall_clock_sec = std::numeric_limits<double>::max();
     slowest_run_wall_clock_sec = 0.0;
@@ -41,9 +43,15 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
 }
 
 void SimManager::run() {
-    sort_apps_by_priority(); // SimSingleRun expects the apps to be in the proper order when received in the config struct
+    sort_apps_by_priority();
+    load_app_connections();
     validate_apps();
+    run_monte_carlo_batch();
+    display_run_summary();
+}
 
+// Creates thread pool and runs all MC simulations
+void SimManager::run_monte_carlo_batch() {
     std::array<std::jthread, SimConfig::max_thread_number> thread_pool;
 
     std::size_t max_cpu_threads = std::thread::hardware_concurrency();
@@ -64,18 +72,19 @@ void SimManager::run() {
 
     std::chrono::duration<double> parallel_elapsed_seconds = std::chrono::high_resolution_clock::now() - parallel_start_time;
 
-    display_run_summary(parallel_elapsed_seconds.count());
+    parallel_wall_clock_sec = parallel_elapsed_seconds.count();
 }
 
+// SimSingleRun expects the apps to be in the priority order when received in the config struct
 void SimManager::sort_apps_by_priority() {
-  std::cout << "[SimManager] Configuring Simulation\n";
-  std::sort(app_prototypes.begin(), app_prototypes.begin() + app_count, SimManager::compare_by_priority);
-  
-  display_sorted_app_info();
+    std::cout << "[SimManager] Configuring Simulation\n";
+    std::sort(app_prototypes.begin(), app_prototypes.begin() + app_count, SimManager::compare_by_priority);
+
+    display_sorted_app_info();
 };
 
+// `<` sorts the apps to execute in ascending order (lower numbers run earlier)
 bool SimManager::compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B) {
-  // `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
   return app_A.prototype->priority() < app_B.prototype->priority();
 };
 
@@ -91,6 +100,51 @@ void SimManager::display_sorted_app_info() {
   std::cout << "\n";
 }
 
+// Loads every app's config file. Every app must have one
+void SimManager::load_app_connections() {
+    throw_if_any_app_has_no_config_file();
+
+    for (std::size_t i = 0; i < app_count; i++) {
+        const SimAppBase& app = *app_prototypes[i].prototype;
+
+        ConnectionYamlParser parser(app.name(), app.config_file());
+        AppConnections app_connections = parser.parse_input_mapping();
+
+        add_app_connections(app_connections);
+    }
+}
+
+void SimManager::add_app_connections(const AppConnections& app_connections) {
+    for (std::size_t i = 0; i < app_connections.count; i++) {
+        bool connection_storage_is_full = io_connection_spec_count >= SimConfig::max_connection_number;
+
+        if (connection_storage_is_full == true) {
+            throw std::runtime_error(SimConfig::capacity_message("[SimManager] Input connections across all apps",
+                                                                 "max_connection_number", SimConfig::max_connection_number));
+        }
+
+        io_connection_specs[io_connection_spec_count] = app_connections.specs[i];
+        io_connection_spec_count++;
+    }
+}
+
+void SimManager::throw_if_any_app_has_no_config_file() const {
+    ErrorReport missing_config_report;
+
+    for (std::size_t i = 0; i < app_count; i++) {
+        const SimAppBase& app = *app_prototypes[i].prototype;
+
+        bool app_has_no_config_file = app.config_file().empty() == true;
+
+        if (app_has_no_config_file == true) {
+            missing_config_report.record_error("App '" + app.name() + "' has no config file. Every app needs one "
+                                               "with `input_mapping:` and `app_config:` sections");
+        }
+    }
+
+    missing_config_report.throw_if_errors("[IO CONFIG] Apps without a config file:");
+}
+
 // Checks every app once on the prototypes before any thread starts, so a bad
 // rate or wiring mistake stops the batch with one error instead of failing in
 // every worker thread
@@ -99,13 +153,19 @@ void SimManager::validate_apps() {
         AppRunner(*app_prototypes[i].prototype).check_rate(sim_rate_hz);
     }
 
-    auto validation_registry = std::make_unique<IoRegistry>();
+    std::unique_ptr<IoRegistry> validation_registry = std::make_unique<IoRegistry>();
 
     for (std::size_t i = 0; i < app_count; i++) {
         validation_registry->add_app(app_prototypes[i].prototype->name());
 
         IoDeclarations io(*validation_registry);
         app_prototypes[i].prototype->declare_io(io); // User defined code
+    }
+
+    for (std::size_t i = 0; i < io_connection_spec_count; i++) {
+        const IoConfigSpec& spec = io_connection_specs[i];
+
+        validation_registry->connect(spec.destination_app, spec.input, spec.from_app, spec.from_port, spec.config_file_name);
     }
 
     validation_registry->resolve_and_validate();
@@ -173,7 +233,7 @@ void SimManager::record_run_stats(const SimRunStats& run_stats) {
 //      Level 1 prints the completion message only 
 //      Level 2 adds performance stats
 //      Level 3 or greater adds the run outcome breakdown and other details
-void SimManager::display_run_summary(double parallel_wall_clock_sec) {
+void SimManager::display_run_summary() {
     if (completed_run_count < 1) {
         std::cout << "\n\n[SimManager] Simulation completed but no runs were completed!!!\n";
         return;
@@ -253,6 +313,12 @@ SimSingleRunConfig SimManager::build_single_run_config(std::size_t run_number) {
     for (std::size_t i = 0; i < app_count; i++) {
         run_config.apps[i]         = app_prototypes[i].create();
         run_config.tlm_settings[i] = app_prototypes[i].tlm;
+    }
+
+    run_config.io_connection_count = io_connection_spec_count;
+
+    for (std::size_t i = 0; i < io_connection_spec_count; i++) {
+        run_config.io_connections[i] = io_connection_specs[i];
     }
 
     return run_config;

@@ -17,6 +17,7 @@
 #include "sim_structs.hpp"
 #include "sim_single_run.hpp"
 #include "app_runner.hpp"
+#include "../config_parsing/connection_yaml.hpp"
 #include "../../utilities/yaml_utilities.hpp"
 
 class SimManager {
@@ -34,7 +35,7 @@ public:
         bool app_storage_is_full = app_count >= SimConfig::max_app_number;
 
         if (app_storage_is_full == true) {
-            throw std::runtime_error(SimConfig::capacity_message("[SimManager] add_app(): number of apps",
+            throw std::runtime_error(SimConfig::capacity_message("[SimManager] add_app(): Number of apps",
                                                                  "max_app_number", SimConfig::max_app_number));
         }
 
@@ -52,12 +53,16 @@ public:
 
 private:
     void sort_apps_by_priority();
+    void load_app_connections();
+    void add_app_connections(const AppConnections& app_connections);
+    void throw_if_any_app_has_no_config_file() const;
     void validate_apps();
+    void run_monte_carlo_batch();
     static bool compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B);
     void thread_job();
     void display_sorted_app_info();
     void record_run_stats(const SimRunStats& run_stats);
-    void display_run_summary(double parallel_wall_clock_sec);
+    void display_run_summary();
     SimSingleRunConfig build_single_run_config(std::size_t run_number);
 
     // ---------------- App prototype storage ----------------
@@ -66,6 +71,9 @@ private:
     std::size_t app_count;
     std::size_t num_threads;
     std::mutex mutex;
+
+    std::array<IoConfigSpec, SimConfig::max_connection_number> io_connection_specs;
+    std::size_t io_connection_spec_count;
 
     // ---------------- Simulation config ----------------
     double start_time_sec;
@@ -96,6 +104,7 @@ private:
 
     double total_sim_time_sec;
     double total_run_wall_clock_sec;
+    double parallel_wall_clock_sec;
     double sim_to_real_time_ratio_sum;
 
     double fastest_run_wall_clock_sec;
