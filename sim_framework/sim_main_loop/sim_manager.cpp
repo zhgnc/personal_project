@@ -43,7 +43,7 @@ SimManager::SimManager(const std::string& path_to_sim_config) {
 }
 
 void SimManager::run() {
-    sort_apps_by_priority(); 
+    sort_apps_by_priority();
     load_app_connections();
     validate_apps();
     run_monte_carlo_batch();
@@ -79,11 +79,11 @@ void SimManager::run_monte_carlo_batch() {
 void SimManager::sort_apps_by_priority() {
     std::cout << "[SimManager] Configuring Simulation\n";
     std::sort(app_prototypes.begin(), app_prototypes.begin() + app_count, SimManager::compare_by_priority);
-  
+
     display_sorted_app_info();
 };
 
-// `<` sorts the apps to execute in ascending order (lower numbers run earlier) 
+// `<` sorts the apps to execute in ascending order (lower numbers run earlier)
 bool SimManager::compare_by_priority(const SimAppPrototype& app_A, const SimAppPrototype& app_B) {
   return app_A.prototype->priority() < app_B.prototype->priority();
 };
