@@ -17,6 +17,8 @@
 
 class YamlParserUtilities {
 public:
+    YamlParserUtilities() = default;
+
     // `report_tag` opens the thrown report (e.g. "[IO CONFIG]") and
     // `owner_name` says whose file this is
     YamlParserUtilities(const std::string& report_tag, const std::string& owner_name, const std::string& path_to_file);

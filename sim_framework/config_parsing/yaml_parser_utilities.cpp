@@ -14,7 +14,7 @@ YAML::Node YamlParserUtilities::load_root() {
     try {
         return load_yaml_file(file_path);
     } catch (const std::runtime_error& error) {
-        throw IoWiringError(report_tag + " " + owner_name + ": cannot read config file\n  " + error.what());
+        throw IoWiringError(report_tag + " " + owner_name + ": Cannot read config file\n  " + error.what());
     }
 }
 
@@ -26,29 +26,27 @@ void YamlParserUtilities::throw_if_errors() const {
     parse_report.throw_if_errors(report_tag + " " + owner_name + " (" + file_path + "):");
 }
 
-bool YamlParserUtilities::extract_single_value(const YAML::Node& entry, std::size_t line, const char* key,
-                                              YAML::Node& node_out) {
+bool YamlParserUtilities::extract_single_value(const YAML::Node& entry, std::size_t line, const char* key, YAML::Node& node_out) {
     YAML::Node value = entry[key];
 
     bool key_is_missing = value.IsDefined() == false;
 
     if (key_is_missing == true) {
-        parse_report.record_error(line_label(line) + "entry is missing required key '" + key +
-                                  "' (found: " + joined_map_keys(entry) + ")");
+        parse_report.record_error(line_label(line) + "Entry is missing required key '" + key + "' (found: " + joined_map_keys(entry) + ")");
         return false;
     }
 
     bool key_has_no_value = value.IsNull();
 
     if (key_has_no_value == true) {
-        parse_report.record_error(line_label(line) + "key '" + std::string(key) + "' has no value");
+        parse_report.record_error(line_label(line) + "Key '" + std::string(key) + "' has no value");
         return false;
     }
 
     bool value_is_not_single = value.IsScalar() == false;
 
     if (value_is_not_single == true) {
-        parse_report.record_error(line_label(line) + "the value of '" + std::string(key) +
+        parse_report.record_error(line_label(line) + "The value of '" + std::string(key) +
                                   "' must be a single value, not a list or nested fields");
         return false;
     }
@@ -57,8 +55,7 @@ bool YamlParserUtilities::extract_single_value(const YAML::Node& entry, std::siz
     return true;
 }
 
-bool YamlParserUtilities::extract_string(const YAML::Node& entry, std::size_t line, const char* key,
-                                         std::string& value_out) {
+bool YamlParserUtilities::extract_string(const YAML::Node& entry, std::size_t line, const char* key, std::string& value_out) {
     YAML::Node value;
 
     if (extract_single_value(entry, line, key, value) == false) {
@@ -70,8 +67,7 @@ bool YamlParserUtilities::extract_string(const YAML::Node& entry, std::size_t li
 }
 
 // For anything that becomes an app or port name
-bool YamlParserUtilities::extract_name(const YAML::Node& entry, std::size_t line, const char* key,
-                                       std::string& value_out) {
+bool YamlParserUtilities::extract_name(const YAML::Node& entry, std::size_t line, const char* key, std::string& value_out) {
     if (extract_string(entry, line, key, value_out) == false) {
         return false;
     }
@@ -79,18 +75,16 @@ bool YamlParserUtilities::extract_name(const YAML::Node& entry, std::size_t line
     NameViolation name_violation = NameRules::violation(value_out);
 
     if (name_violation != NameViolation::None) {
-        parse_report.record_error(line_label(line) + "value '" + value_out + "' of key '" + std::string(key) +
-                                  "' is invalid: " + NameRules::message(name_violation));
+        parse_report.record_error(line_label(line) + "Value '" + value_out + "' of key '" + std::string(key) + 
+                                        "' is invalid: " + NameRules::message(name_violation));
         return false;
     }
 
     return true;
 }
 
-// Without this a misspelled or stray key would be silently ignored: the file
-// looks right and the setting does nothing
-void YamlParserUtilities::check_map_keys(const YAML::Node& map_node, std::size_t line,
-                                         const char* const* valid_keys, std::size_t valid_key_count) {
+// Without this a misspelled or stray key would be silently ignored: the file looks right and the setting does nothing
+void YamlParserUtilities::check_map_keys(const YAML::Node& map_node, std::size_t line, const char* const* valid_keys, std::size_t valid_key_count) {
     std::string valid_key_list;
 
     for (std::size_t i = 0; i < valid_key_count; i++) {
@@ -107,7 +101,7 @@ void YamlParserUtilities::check_map_keys(const YAML::Node& map_node, std::size_t
         bool key_is_not_a_name = it->first.IsScalar() == false;
 
         if (key_is_not_a_name == true) {
-            parse_report.record_error(line_label(line_of(it->first)) + "entry contains a key that is not a plain name");
+            parse_report.record_error(line_label(line_of(it->first)) + "Entry contains a key that is not a plain name");
             continue;
         }
 
@@ -119,7 +113,7 @@ void YamlParserUtilities::check_map_keys(const YAML::Node& map_node, std::size_t
         }
 
         if (key_is_known == false) {
-            parse_report.record_error(line_label(line_of(it->first)) + "unknown key '" + key + "' (valid keys: " +
+            parse_report.record_error(line_label(line_of(it->first)) + "Unknown key '" + key + "' (valid keys: " +
                                       valid_key_list + ")");
         }
     }
@@ -138,7 +132,7 @@ void YamlParserUtilities::check_map_keys(const YAML::Node& map_node, std::size_t
         bool key_is_repeated = occurrences > 1;
 
         if (key_is_repeated == true) {
-            parse_report.record_error(line_label(line) + "key '" + std::string(valid_keys[i]) + "' appears " +
+            parse_report.record_error(line_label(line) + "Key '" + std::string(valid_keys[i]) + "' appears " +
                                       std::to_string(occurrences) + " times in one entry");
         }
     }
@@ -162,7 +156,7 @@ std::string YamlParserUtilities::line_label(std::size_t line) {
         return "";
     }
 
-    return "line " + std::to_string(line) + ": ";
+    return "Line " + std::to_string(line) + ": ";
 }
 
 std::string YamlParserUtilities::joined_map_keys(const YAML::Node& map_node) {

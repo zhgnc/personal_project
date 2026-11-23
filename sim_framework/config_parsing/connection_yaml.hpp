@@ -21,24 +21,27 @@
 #include "yaml_parser_utilities.hpp"
 #include "../messaging/port_data.hpp"
 
+// One app's connections, in the order its config file lists them
+struct AppConnections {
+    std::array<IoConfigSpec, SimConfig::max_app_input_number> specs;
+    std::size_t count = 0;
+};
+
 class ConnectionYamlParser {
 public:
     ConnectionYamlParser(const std::string& owning_app_name, const std::string& path_to_config);
 
-    // Appends this app's connections to `specs`, or throws IoWiringError
-    // listing every problem in the file
-    void parse_input_mapping(std::array<IoConfigSpec, SimConfig::max_connection_number>& specs,
-                             std::size_t& spec_count);
+    // Returns this app's connections, or throws IoWiringError listing every
+    // problem in the file
+    AppConnections parse_input_mapping();
 
 private:
     bool check_input_mapping_is_a_list(const YAML::Node& input_mapping);
-    void add_connections(const YAML::Node& input_mapping,
-                         std::array<IoConfigSpec, SimConfig::max_connection_number>& specs,
-                         std::size_t& spec_count);
+    AppConnections read_connections(const YAML::Node& input_mapping);
     bool parse_entry(const YAML::Node& entry, std::size_t entry_number, IoConfigSpec& spec_out);
     void check_app_config(const YAML::Node& app_config);
 
-    YamlParserUtilities yaml;
+    YamlParserUtilities yaml_utilities;
 
     static constexpr const char* section_keys[2] = {"input_mapping", "app_config"};
     static constexpr const char* entry_keys[3]   = {"input", "from_app", "from_port"};

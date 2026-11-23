@@ -1,7 +1,5 @@
 #include "sim_manager.hpp"
 
-#include "../config_parsing/connection_yaml.hpp"
-
 SimManager::SimManager(const std::string& path_to_sim_config) {
     YAML::Node config = load_yaml_file(path_to_sim_config);
 
@@ -110,7 +108,23 @@ void SimManager::load_app_connections() {
         const SimAppBase& app = *app_prototypes[i].prototype;
 
         ConnectionYamlParser parser(app.name(), app.config_file());
-        parser.parse_input_mapping(io_connection_specs, io_connection_spec_count);
+        AppConnections app_connections = parser.parse_input_mapping();
+
+        add_app_connections(app_connections);
+    }
+}
+
+void SimManager::add_app_connections(const AppConnections& app_connections) {
+    for (std::size_t i = 0; i < app_connections.count; i++) {
+        bool connection_storage_is_full = io_connection_spec_count >= SimConfig::max_connection_number;
+
+        if (connection_storage_is_full == true) {
+            throw std::runtime_error(SimConfig::capacity_message("[SimManager] Input connections across all apps",
+                                                                 "max_connection_number", SimConfig::max_connection_number));
+        }
+
+        io_connection_specs[io_connection_spec_count] = app_connections.specs[i];
+        io_connection_spec_count++;
     }
 }
 
@@ -123,12 +137,12 @@ void SimManager::throw_if_any_app_has_no_config_file() const {
         bool app_has_no_config_file = app.config_file().empty() == true;
 
         if (app_has_no_config_file == true) {
-            missing_config_report.record_error("app '" + app.name() + "' has no config file. Every app needs one "
+            missing_config_report.record_error("App '" + app.name() + "' has no config file. Every app needs one "
                                                "with `input_mapping:` and `app_config:` sections");
         }
     }
 
-    missing_config_report.throw_if_errors("[IO CONFIG] apps without a config file:");
+    missing_config_report.throw_if_errors("[IO CONFIG] Apps without a config file:");
 }
 
 // Checks every app once on the prototypes before any thread starts, so a bad
@@ -139,7 +153,7 @@ void SimManager::validate_apps() {
         AppRunner(*app_prototypes[i].prototype).check_rate(sim_rate_hz);
     }
 
-    auto validation_registry = std::make_unique<IoRegistry>();
+    std::unique_ptr<IoRegistry> validation_registry = std::make_unique<IoRegistry>();
 
     for (std::size_t i = 0; i < app_count; i++) {
         validation_registry->add_app(app_prototypes[i].prototype->name());

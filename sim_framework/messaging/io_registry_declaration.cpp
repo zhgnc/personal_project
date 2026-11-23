@@ -15,14 +15,14 @@ void IoRegistry::throw_if_app_name_is_invalid(const std::string& app_name) const
     NameViolation name_violation = NameRules::violation(app_name);
 
     if (name_violation != NameViolation::None) {
-        throw std::logic_error("IoRegistry: app instance name '" + app_name + "' is invalid: " +
+        throw std::logic_error("IoRegistry: App instance name '" + app_name + "' is invalid: " +
                                NameRules::message(name_violation));
     }
 }
 
 void IoRegistry::throw_if_app_name_is_duplicate(const std::string& app_name) const {
     if (is_app_declared(app_name) == true) {
-        throw std::logic_error("IoRegistry: two apps share the instance name '" + app_name +
+        throw std::logic_error("IoRegistry: Two apps share the instance name '" + app_name +
                                "': names must be unique because ports are addressed as 'app_name.port_name'");
     }
 }
@@ -31,7 +31,7 @@ void IoRegistry::throw_if_app_storage_full(const std::string& app_name) const {
     bool app_storage_is_full = declared_app_count >= SimConfig::max_app_number;
 
     if (app_storage_is_full == true) {
-        throw std::logic_error(SimConfig::capacity_message("IoRegistry: declaring app '" + app_name + "'",
+        throw std::logic_error(SimConfig::capacity_message("IoRegistry: Declaring app '" + app_name + "'",
                                                            "max_app_number", SimConfig::max_app_number));
     }
 }
@@ -40,7 +40,7 @@ bool IoRegistry::check_port_name_is_valid(const std::string& port_name) {
     NameViolation name_violation = NameRules::violation(port_name);
 
     if (name_violation != NameViolation::None) {
-        wiring_report.record_error(declaring_app_name + ": port name '" + port_name + "' is invalid: " +
+        wiring_report.record_error(declaring_app_name + ": Port name '" + port_name + "' is invalid: " +
                                    NameRules::message(name_violation));
         return false;
     }
@@ -53,7 +53,7 @@ bool IoRegistry::check_port_name_is_unique(const std::string& port_name) {
     bool port_name_already_declared = find_port_index(declaring_app_name, port_name) != port_record_count;
 
     if (port_name_already_declared == true) {
-        wiring_report.record_error(declaring_app_name + ": port '" + port_name + "' is declared more than once");
+        wiring_report.record_error(declaring_app_name + ": Port '" + port_name + "' is declared more than once");
         return false;
     }
 
@@ -65,7 +65,7 @@ void IoRegistry::throw_if_port_storage_full(const std::string& port_name) const 
 
     if (port_storage_is_full == true) {
         throw std::logic_error(SimConfig::capacity_message(
-            "IoRegistry: declaring port '" + declaring_app_name + "." + port_name + "'",
+            "IoRegistry: Declaring port '" + declaring_app_name + "." + port_name + "'",
             "max_port_number", SimConfig::max_port_number));
     }
 }
